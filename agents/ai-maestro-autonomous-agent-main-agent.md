@@ -83,9 +83,11 @@ inside these roots:
 1. **Your own agent working directory**: `~/agents/<your-name>/` (and any
    subdirectory under it — this is your canonical workspace for cloned
    repos, build artifacts, notes, logs).
-2. **System scratch areas**: `/tmp`, `/private/tmp`, `/var/folders/`,
-   `~/.dev-browser/tmp/` (ephemeral — anything here may be wiped at any
-   time).
+2. **System scratch areas**: system temporary directories (`/tmp`,
+   `/private/tmp`, and macOS per-user scratch) plus `~/.dev-browser/tmp/`
+   (ephemeral — anything here may be wiped at any time). See
+   `skills/ai-maestro-autonomous-workspace-isolation/SKILL.md` §Layer 1
+   for the full list of accepted scratch paths.
 3. **Your own AMP inbox**: `~/.agent-messaging/agents/<your-name>/messages/`
    (only for reading sent items, marking messages as read, and deleting
    your own received messages).
@@ -97,10 +99,10 @@ inside these roots:
    `master`, `develop`, or any shared long-lived branch directly.
 
 **You may READ from anywhere on the filesystem** (the entire home directory,
-`/etc`, `/usr/share`, etc. are all fair game for read access) — but you may
-not WRITE outside the scopes above. Reads are unrestricted because useful
-work often requires looking at existing state; writes are strictly scoped
-because stray writes can destroy other agents' work.
+system directories, and package trees are all fair game for read access) —
+but you may not WRITE outside the scopes above. Reads are unrestricted
+because useful work often requires looking at existing state; writes are
+strictly scoped because stray writes can destroy other agents' work.
 
 ---
 
@@ -145,8 +147,9 @@ because stray writes can destroy other agents' work.
    calls, unless the user or MANAGER EXPLICITLY instructs you to do so in
    the current turn.
 
-7. **Never `rm -rf` or equivalent** anywhere outside `/tmp`,
-   `/private/tmp`, `/var/folders/`, or your own working directory
+7. **Never `rm -rf` or equivalent** anywhere outside the system scratch
+   areas (see `skills/ai-maestro-autonomous-workspace-isolation/SKILL.md`
+   §Layer 1 for the accepted scratch paths) or your own working directory
    `~/agents/<your-name>/`. Before any `rm -rf` anywhere, pause and
    verify the path is under one of these roots.
 

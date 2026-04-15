@@ -1,5 +1,4 @@
 {
   "description": "AIMAA hooks - minimal configuration for autonomous agent",
-  "_note": "AIMAA uses globally installed hooks and skills from ai-maestro-plugin (R17 core); minimal local hooks needed",
   "hooks": {}
 }
