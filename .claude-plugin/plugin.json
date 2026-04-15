@@ -1,0 +1,11 @@
+{
+  "name": "ai-maestro-autonomous-agent",
+  "version": "1.0.0",
+  "description": "Mandatory role-plugin for AUTONOMOUS-titled agents in the AI Maestro ecosystem. Enforces workspace isolation, forbids cross-agent state mutation, respects the AMP communication graph, and coordinates with MANAGER via AMP. Ships 2 bundled skills covering governance rules and workspace isolation.",
+  "author": {
+    "name": "Emasoft",
+    "email": "713559+Emasoft@users.noreply.github.com"
+  },
+  "repository": "https://github.com/Emasoft/ai-maestro-autonomous-agent",
+  "license": "MIT"
+}

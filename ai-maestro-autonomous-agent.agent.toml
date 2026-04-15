@@ -1,0 +1,36 @@
+# AI Maestro Autonomous Agent - Agent Profile
+# Quad-match: plugin.json name == TOML [agent].name == agents/<name>-main-agent.md
+
+[agent]
+name = "ai-maestro-autonomous-agent"
+source = "plugin:ai-maestro-autonomous-agent"
+path = "agents/ai-maestro-autonomous-agent-main-agent.md"
+compatible-titles = ["AUTONOMOUS"]
+compatible-clients = ["claude-code"]
+
+[requirements]
+project_type = "plugin"
+tech_stack = ["generic"]
+
+[skills]
+primary = ["ai-maestro-autonomous-governance", "ai-maestro-autonomous-workspace-isolation"]
+secondary = []
+specialized = []
+
+[agents]
+recommended = []
+
+[commands]
+recommended = []
+
+[rules]
+recommended = []
+
+[mcp]
+recommended = []
+
+[hooks]
+recommended = []
+
+[lsp]
+recommended = []
