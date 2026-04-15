@@ -17,10 +17,11 @@ Writes by an AUTONOMOUS agent are allowed in exactly three places:
 (1) the agent's own working directory, (2) system scratch areas, and
 (3) GitHub repositories owned by the host user — but only via normal
 `git push` on branches the agent created. Everything else is
-read-only. This skill gives a three-layer check: `layers.md` contains
-the full path tables, `common-situations.md` contains 10 worked
-examples from real agent workflows. Use the checklist below before
-executing any write.
+read-only. This skill gives a three-layer check: the
+[layers](references/layers.md) reference contains the full path
+tables, and the [common-situations](references/common-situations.md)
+reference contains 10 worked examples from real agent workflows. Use
+the checklist below before executing any write.
 
 ## Prerequisites
 
@@ -37,9 +38,9 @@ Follow these steps before executing any write operation.
    redirections), list all of them.
 2. **Normalize each path** to absolute form (resolve `~`, `.`, `..`,
    environment variables) so the check is deterministic.
-3. **Open `references/layers.md`** and check each normalized path
-   against Layer 1 (writable locally). If all paths match Layer 1
-   patterns, the write is ALLOWED.
+3. **Open the [layers](references/layers.md) reference** and check
+   each normalized path against Layer 1 (writable locally). If all
+   paths match Layer 1 patterns, the write is ALLOWED.
 4. **For any path not in Layer 1**, check Layer 2 (writable via
    `git push`). If the operation is `git push` to a branch you
    created in a host-user repo, the push is ALLOWED.
@@ -107,18 +108,21 @@ esac
 ## Resources
 
 - [Writable-Scope Layers](references/layers.md)
-  > Layer 1 Writable locally · Layer 2 Writable via git push ·
-  > Layer 3 Read-only paths · Programmatic path check
+  - [Layer 1 Writable locally](references/layers.md#layer-1--writable-locally)
+  - [Layer 2 Writable via git push](references/layers.md#layer-2--writable-via-git-push)
+  - [Layer 3 Read-only paths](references/layers.md#layer-3--read-only-never-write)
+  - [Programmatic path check](references/layers.md#programmatic-path-check)
 - [Common Situations Guide](references/common-situations.md)
-  > How to self-check a path before writing ·
-  > Situation 1: Clone a repo · Situation 2: Install a Python package ·
-  > Situation 3: Install a Claude Code plugin ·
-  > Situation 4: Save a work log ·
-  > Situation 5: Scratch file while debugging ·
-  > Situation 6: Read another agent's conversation log ·
-  > Situation 7: Push changes to GitHub ·
-  > Situation 8: Stop another agent ·
-  > Situation 9: Update my own agent's config ·
-  > Situation 10: Access a secret
+  - [How to self-check a path before writing](references/common-situations.md#how-to-self-check-a-path-before-writing)
+  - [Situation 1: Clone a repo](references/common-situations.md#situation-1-clone-a-repo)
+  - [Situation 2: Install a Python package](references/common-situations.md#situation-2-install-a-python-package)
+  - [Situation 3: Install a Claude Code plugin](references/common-situations.md#situation-3-install-a-claude-code-plugin)
+  - [Situation 4: Save a work log](references/common-situations.md#situation-4-save-a-work-log)
+  - [Situation 5: Scratch file while debugging](references/common-situations.md#situation-5-scratch-file-while-debugging)
+  - [Situation 6: Read another agent's conversation log](references/common-situations.md#situation-6-read-another-agents-conversation-log)
+  - [Situation 7: Push changes to GitHub](references/common-situations.md#situation-7-push-changes-to-github)
+  - [Situation 8: Stop another agent](references/common-situations.md#situation-8-stop-another-agent)
+  - [Situation 9: Update my own agent's config](references/common-situations.md#situation-9-update-my-own-agents-config)
+  - [Situation 10: Access a secret](references/common-situations.md#situation-10-access-a-secret)
 - Governance checklist: `skills/ai-maestro-autonomous-governance/SKILL.md`
 - Full persona: `agents/ai-maestro-autonomous-agent-main-agent.md`

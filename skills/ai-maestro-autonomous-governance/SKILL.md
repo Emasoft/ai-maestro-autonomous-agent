@@ -22,9 +22,10 @@ the agent must escalate via AMP before proceeding. The questions cover
 write targets, other-agent isolation, state-file mutation, secret
 access, PR merging, destructive git operations, cross-agent lifecycle,
 `rm -rf` scope, user-scope installations, and AMP routing. The full
-per-question criteria live in `references/questions.md`. Edge cases
-(user instructs a forbidden action, MANAGER escalation, unsure paths)
-live in `references/edge-cases.md`.
+per-question criteria live in the [questions](references/questions.md)
+reference. Edge cases (user instructs a forbidden action, MANAGER
+escalation, unsure paths) live in the
+[edge-cases](references/edge-cases.md) reference.
 
 ## Prerequisites
 
@@ -39,8 +40,9 @@ Follow these steps in order. Stop at the first FORBIDDEN outcome.
 1. **Identify the action** you are about to take. List every write
    target path, every git command, every `gh` command, every AMP
    recipient, and every tmux/API call that mutates another agent.
-2. **Open `references/questions.md`** and read Q1 through Q10. Each
-   question has an ALLOWED/FORBIDDEN decision rule.
+2. **Open the [questions](references/questions.md) reference** and
+   read Q1 through Q10. Each question has an ALLOWED/FORBIDDEN
+   decision rule.
 3. **Copy this checklist and track your progress** by marking each
    question ALLOWED or FORBIDDEN as you answer it:
    - [ ] Q1 Write target check
@@ -57,9 +59,9 @@ Follow these steps in order. Stop at the first FORBIDDEN outcome.
    the audit — the overall verdict is FORBIDDEN.
 5. **If all 10 return ALLOWED**, proceed with the action and log the
    outcome in `loop.md`.
-6. **If any returned FORBIDDEN**, consult `references/edge-cases.md`
-   for escalation patterns and send an AMP clarification request to
-   MANAGER.
+6. **If any returned FORBIDDEN**, consult the
+   [edge-cases](references/edge-cases.md) reference for escalation
+   patterns and send an AMP clarification request to MANAGER.
 
 ## Output
 
@@ -103,11 +105,20 @@ reads are unrestricted)
 ## Resources
 
 - [The 10 Questions — full criteria](references/questions.md)
-  > Q1 Write target · Q2 Other-agent · Q3 State file · Q4 Secret ·
-  > Q5 PR merge · Q6 Destructive git · Q7 Other-agent lifecycle ·
-  > Q8 rm -rf scope · Q9 User-scope installation · Q10 AMP routing
+  - [Q1 Write target check](references/questions.md#q1-write-target-check)
+  - [Q2 Other-agent check](references/questions.md#q2-other-agent-check)
+  - [Q3 State file check](references/questions.md#q3-state-file-check)
+  - [Q4 Secret check](references/questions.md#q4-secret-check)
+  - [Q5 PR merge check](references/questions.md#q5-pr-merge-check)
+  - [Q6 Destructive git check](references/questions.md#q6-destructive-git-check)
+  - [Q7 Other-agent lifecycle check](references/questions.md#q7-other-agent-lifecycle-check)
+  - [Q8 rm -rf scope check](references/questions.md#q8-rm--rf-scope-check)
+  - [Q9 User-scope installation check](references/questions.md#q9-user-scope-installation-check)
+  - [Q10 AMP routing check](references/questions.md#q10-amp-routing-check)
 - [Edge Cases and Escalation Guide](references/edge-cases.md)
-  > User asked for forbidden action · MANAGER asked me to intervene ·
-  > Need to write outside working directory · Unsure about path scope
+  - [User asked for forbidden action](references/edge-cases.md#the-user-asked-me-to-do-something-that-looks-forbidden)
+  - [MANAGER asked me to intervene on another agent](references/edge-cases.md#manager-asked-me-to-intervene-on-another-agent)
+  - [Need to write outside working directory](references/edge-cases.md#i-need-to-write-a-file-outside-my-working-directory-to-do-useful-work)
+  - [Unsure whether a path is in scope](references/edge-cases.md#im-unsure-whether-a-path-is-in-scope)
 - Full persona: `agents/ai-maestro-autonomous-agent-main-agent.md`
 - Workspace scope: `skills/ai-maestro-autonomous-workspace-isolation/SKILL.md`
