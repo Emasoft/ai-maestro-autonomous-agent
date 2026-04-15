@@ -1,13 +1,16 @@
-# Writable-Scope Layers
+# Writable-Scope Layers and Situations
 
 ## Table of Contents
 
-- [Layer 1 Writable locally](#layer-1--writable-locally)
-- [Layer 2 Writable via git push](#layer-2--writable-via-git-push)
-- [Layer 3 Read-only paths](#layer-3--read-only-never-write)
+- [Writable-scope table](#writable-scope-table)
 - [Programmatic path check](#programmatic-path-check)
+- [Common situations](#common-situations)
 
-## Layer 1 — Writable locally
+## Writable-scope table
+
+Three layers: writable locally, writable via `git push`, read-only.
+
+### Layer 1 — Writable locally
 
 | Path | OK to write? |
 |---|---|
@@ -18,7 +21,7 @@
 | `~/.dev-browser/tmp/` (if dev-browser running) | YES — screenshots |
 | `~/.agent-messaging/agents/<my-name>/` | YES — inbox only |
 
-## Layer 2 — Writable via git push
+### Layer 2 — Writable via git push
 
 | Target | OK? | How |
 |---|---|---|
@@ -27,9 +30,7 @@
 | Someone else's GitHub repo | NO | fork first |
 | Any repo, destructive push (`--force`, `--mirror`) | NO | not allowed |
 
-## Layer 3 — Read-only (never write)
-
-Everything outside Layers 1 and 2. Key examples:
+### Layer 3 — Read-only (never write)
 
 | Path | OK to write? |
 |---|---|
@@ -44,10 +45,34 @@ Everything outside Layers 1 and 2. Key examples:
 ## Programmatic path check
 
 ```bash
-TARGET="/path/to/check"
-MY_AGENT_NAME="my-agent-name"
+TARGET="/path/to/proposed/write/target"
+MY_AGENT_NAME="<your-agent-name>"
 case "$TARGET" in
     $HOME/agents/$MY_AGENT_NAME/*|/tmp/*|/private/tmp/*) echo ALLOWED ;;
-    *) echo FORBIDDEN ;;
+    *) echo "FORBIDDEN — use the HTTP API or a different path" ;;
 esac
 ```
+
+## Common situations
+
+Right / wrong pairs for the 10 most common write operations.
+
+**Clone a repo** — Right: `cd ~/agents/<my-name>/ && git clone <url> <repo-name>`. Wrong: `cd ~/Documents && git clone <url>`.
+
+**Install a Python package** — Right: `cd ~/agents/<my-name>/project && uv venv && uv pip install <pkg>` (venv local to project). Wrong: `pip install <pkg>` (writes to user-scope site-packages).
+
+**Install a Claude Code plugin for yourself** — Right: ask the user or MANAGER to call `PATCH /api/agents/<my-id>`. Wrong: `claude plugin install ...` at user scope.
+
+**Save a work log** — Right: `echo "$LOG" > ~/agents/<my-name>/work-log.md`. Wrong: `echo "$LOG" > ~/.aimaestro/my-log.md`.
+
+**Scratch file while debugging** — Right: `echo "$S" > /tmp/my-scratch-$$.txt` (PID suffix avoids collisions). Wrong: `echo "$S" > /tmp/scratch.txt` (collision risk) or writing to another agent's dir.
+
+**Read another agent's conversation log** — Right: `cat ~/.claude/projects/.../<session>.jsonl` (reads are unrestricted). Wrong: editing or deleting the log.
+
+**Push changes to GitHub** — Right: `cd ~/agents/<my-name>/<repo>/ && git push origin my-branch` (agent-created branch, host-user repo). Wrong: `git push --force`, pushing to `main` directly, or pushing to a repo without write access.
+
+**Stop another agent** — Right: AMP MANAGER explaining why; MANAGER calls the hibernate API. Wrong: `tmux kill-session -t <other-agent>` or editing another agent's settings.
+
+**Update my own agent's config** — Right: ask the user or MANAGER to call `PATCH /api/agents/<my-id>`. Wrong: editing `~/.aimaestro/agents/registry.json` directly.
+
+**Access a secret (e.g. a PAT)** — Right: wait for the user to place the credential in an allowed file under your own workdir (e.g. `~/agents/<my-name>/.env.local`), read from there, never copy or echo. Wrong: reading `~/.ssh/id_ed25519`, `~/.config/gh/hosts.yml`, or any `.env` outside your own workdir.
