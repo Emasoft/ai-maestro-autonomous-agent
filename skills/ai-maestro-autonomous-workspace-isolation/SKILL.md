@@ -12,6 +12,18 @@ allowed-tools: "Read, Glob, Grep, Bash(git:*), Bash(uv:*)"
 The AUTONOMOUS governance rule: **READ anywhere, WRITE only inside your
 own agent working directory and system scratch.**
 
+## Overview
+
+This skill resolves the writable-scope question for AUTONOMOUS agents.
+Writes are allowed in exactly three places: (1) your own agent working
+directory, (2) system scratch areas (tmp + dev-browser tmp + your own
+AMP inbox), and (3) GitHub repositories owned by the host user — but
+only via normal `git push` on branches you created. Everything else
+is read-only. This skill gives you a three-layer table to check a
+target path against, and a copy-pastable shell snippet to automate the
+check inside scripts. The full worked-example catalogue (10 common
+situations) lives in the linked reference file.
+
 ## Prerequisites
 
 - You are an AUTONOMOUS agent with `ai-maestro-autonomous-agent` installed.
@@ -20,10 +32,26 @@ own agent working directory and system scratch.**
 
 ## Instructions
 
-Before writing to a path, consult the three layers below. If the path
-does not match Layer 1 or Layer 2, it is FORBIDDEN.
+Follow these steps before executing any write operation.
 
-Copy this checklist:
+1. **Identify the write target path** in the proposed command. If
+   multiple paths are written in one command (e.g. `tar` outputs,
+   `cp` destinations, redirections), list all of them.
+2. **Normalize the path** to absolute form (resolve `~`, `.`, `..`,
+   environment variables) so the check is deterministic.
+3. **Check Layer 1** (see the "Writable locally" table below). If the
+   absolute path matches any Layer 1 pattern, the write is ALLOWED.
+4. **If not Layer 1, check Layer 2** (see "Writable via git push"). If
+   the operation is `git push` to a branch you created in a host-user
+   repo, the push is ALLOWED.
+5. **If neither Layer 1 nor Layer 2 matches**, the write is FORBIDDEN.
+   Send an AMP message to MANAGER asking for clarification or propose
+   an alternative that stays in scope (e.g. clone the target repo into
+   your own working directory first, then edit locally).
+6. **After the write succeeds**, log the target path in `loop.md` for
+   traceability.
+
+Working checklist:
 
 - [ ] Identify the write target path
 - [ ] Check Layer 1 (local writable)

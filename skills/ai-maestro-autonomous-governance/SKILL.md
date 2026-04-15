@@ -12,6 +12,19 @@ allowed-tools: "Read, Grep, Glob"
 Before executing any non-trivial action, walk through this checklist.
 If ANY answer triggers the FORBIDDEN outcome, stop immediately.
 
+## Overview
+
+This skill gives an AUTONOMOUS agent a 10-question self-audit to run
+before any non-trivial action. The questions map 1:1 to the forbidden-
+action rules in the main agent persona. Each question has exactly one
+answer (ALLOWED or FORBIDDEN) so the checklist is deterministic: if
+every question passes, the action is safe; if any question fails, the
+action is blocked and the agent must either adjust the plan or escalate
+via AMP before proceeding. The 10 questions cover write targets, other-
+agent isolation, state-file mutation, secret access, PR merging,
+destructive git, cross-agent lifecycle operations, `rm -rf` scope,
+user-scope installations, and AMP routing.
+
 ## Prerequisites
 
 - You are an AUTONOMOUS agent with `ai-maestro-autonomous-agent` installed.
@@ -20,9 +33,24 @@ If ANY answer triggers the FORBIDDEN outcome, stop immediately.
 
 ## Instructions
 
-Answer every question below before acting. Stop at the first FORBIDDEN.
+Follow these steps in order. Stop at the first FORBIDDEN outcome.
 
-Copy this checklist and track progress:
+1. **Read the action you are about to take** and identify every path it
+   writes to, every git command it invokes, and every recipient it will
+   message via AMP.
+2. **Copy the checklist below** into your session notes (or `loop.md`)
+   and answer each question Q1 through Q10 in order.
+3. **Record ALLOWED or FORBIDDEN** for each question. At the first
+   FORBIDDEN, stop the audit — the overall verdict is FORBIDDEN.
+4. **If all 10 questions return ALLOWED**, the action is safe. Proceed,
+   and log the action's purpose + outcome in `loop.md` for traceability.
+5. **If any question returns FORBIDDEN**, do NOT take the action. Explain
+   which rule was violated to the user (or MANAGER via AMP), propose an
+   alternative that stays in scope, and wait for clarification.
+6. **On completion of the underlying task**, send an AMP status update
+   to MANAGER summarizing what you did.
+
+Working copy of the checklist:
 
 - [ ] Q1 Write target check
 - [ ] Q2 Other-agent check

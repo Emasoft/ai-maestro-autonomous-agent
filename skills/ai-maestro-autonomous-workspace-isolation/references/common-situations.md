@@ -1,5 +1,19 @@
 # Workspace Isolation — Common Situations Guide
 
+## Table of Contents
+
+- [How to self-check a path before writing](#how-to-self-check-a-path-before-writing)
+- [Situation 1: Clone a repo](#situation-1-clone-a-repo)
+- [Situation 2: Install a Python package](#situation-2-install-a-python-package)
+- [Situation 3: Install a Claude Code plugin](#situation-3-install-a-claude-code-plugin)
+- [Situation 4: Save a work log](#situation-4-save-a-work-log)
+- [Situation 5: Scratch file while debugging](#situation-5-scratch-file-while-debugging)
+- [Situation 6: Read another agent's conversation log](#situation-6-read-another-agents-conversation-log)
+- [Situation 7: Push changes to GitHub](#situation-7-push-changes-to-github)
+- [Situation 8: Stop another agent](#situation-8-stop-another-agent)
+- [Situation 9: Update my own agent's config](#situation-9-update-my-own-agents-config)
+- [Situation 10: Access a secret](#situation-10-access-a-secret)
+
 ## How to self-check a path before writing
 
 ```bash

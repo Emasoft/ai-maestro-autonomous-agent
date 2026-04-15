@@ -1,5 +1,12 @@
 # Autonomous Governance — Edge Cases and Escalation Guide
 
+## Table of Contents
+
+- [User asked for forbidden action](#the-user-asked-me-to-do-something-that-looks-forbidden)
+- [MANAGER asked me to intervene on another agent](#manager-asked-me-to-intervene-on-another-agent)
+- [Need to write outside working directory](#i-need-to-write-a-file-outside-my-working-directory-to-do-useful-work)
+- [Unsure whether a path is in scope](#im-unsure-whether-a-path-is-in-scope)
+
 ## Edge cases
 
 ### "The user asked me to do something that looks forbidden"
