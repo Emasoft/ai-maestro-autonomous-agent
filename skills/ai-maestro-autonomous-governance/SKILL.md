@@ -14,18 +14,11 @@ checklist below. If ANY answer triggers FORBIDDEN, stop immediately.
 
 ## Overview
 
-This skill gives an AUTONOMOUS agent a 10-question self-audit that maps
-1:1 to the forbidden-action rules in the main agent persona. The
-questions are deterministic: if every question returns ALLOWED, the
-action is safe; if any returns FORBIDDEN, the action is blocked and
-the agent must escalate via AMP before proceeding. The questions cover
-write targets, other-agent isolation, state-file mutation, secret
-access, PR merging, destructive git operations, cross-agent lifecycle,
-`rm -rf` scope, user-scope installations, and AMP routing. The full
-per-question criteria live in the [questions](references/questions.md)
-reference. Edge cases (user instructs a forbidden action, MANAGER
-escalation, unsure paths) live in the
-[edge-cases](references/edge-cases.md) reference.
+A 10-question self-audit for AUTONOMOUS agents, mapping 1:1 to the
+forbidden-action rules in the main persona. Deterministic: all ALLOWED
+→ action is safe; any FORBIDDEN → stop and escalate via AMP. Full
+per-question criteria: [questions](references/questions.md). Edge
+cases: [edge-cases](references/edge-cases.md).
 
 ## Prerequisites
 
@@ -82,24 +75,19 @@ destructive operations.
 ## Examples
 
 **Input**: `echo "log" > ~/agents/my-agent/work-log.md`
-**Q1**: write target `~/agents/my-agent/` is my own dir → ALLOWED
-**Q2-Q10**: all ALLOWED
-**Output**: ALLOWED — proceed, log to `loop.md`.
+→ Q1 my own dir → ALLOWED. Q2-Q10 ALLOWED.
+**Output**: ALLOWED.
 
 **Input**: `rm -rf ~/agents/other-agent/build/`
-**Q2**: other agent's directory → FORBIDDEN
-**Output**: FORBIDDEN — stop, explain via AMP, propose using the HTTP
-API if coordination is needed.
+→ Q2 other agent's directory → FORBIDDEN. Stop.
+**Output**: FORBIDDEN — escalate via AMP to MANAGER.
 
-**Input**: `gh pr merge 42`
-**Q5**: no explicit user instruction for PR 42 in the current turn →
-FORBIDDEN
-**Output**: FORBIDDEN — wait for user to re-issue the merge request
-explicitly.
+**Input**: `gh pr merge 42` (no prior user instruction)
+→ Q5 FORBIDDEN. Wait for explicit user instruction with PR number.
+**Output**: FORBIDDEN.
 
 **Input**: `cat ~/.claude/projects/session.jsonl`
-**Q1-Q10**: this is a READ → all checks pass (writes are restricted,
-reads are unrestricted)
+→ This is a READ, all checks pass (writes restricted, reads free).
 **Output**: ALLOWED.
 
 ## Resources

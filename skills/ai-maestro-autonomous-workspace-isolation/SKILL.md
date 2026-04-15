@@ -13,15 +13,12 @@ your own agent working directory and system scratch.**
 
 ## Overview
 
-Writes by an AUTONOMOUS agent are allowed in exactly three places:
-(1) the agent's own working directory, (2) system scratch areas, and
-(3) GitHub repositories owned by the host user — but only via normal
-`git push` on branches the agent created. Everything else is
-read-only. This skill gives a three-layer check: the
-[layers](references/layers.md) reference contains the full path
-tables, and the [common-situations](references/common-situations.md)
-reference contains 10 worked examples from real agent workflows. Use
-the checklist below before executing any write.
+Writes allowed in three places only: (1) the agent's own working dir,
+(2) system scratch, (3) host-user GitHub repos via `git push` on
+agent-created branches. Everything else is read-only. Three-layer
+check: [layers](references/layers.md) has the full path tables,
+[common-situations](references/common-situations.md) has 10 worked
+examples. Use the checklist below before any write.
 
 ## Prerequisites
 
