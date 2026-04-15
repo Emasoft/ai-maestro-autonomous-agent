@@ -74,20 +74,23 @@ destructive operations.
 
 ## Examples
 
-**Input**: `echo "log" > ~/agents/my-agent/work-log.md` (I am `my-agent`)
-**Output**: ALLOWED. Q1 passes (my own workdir), Q2-Q10 pass.
+```bash
+# Input — action to audit
+echo "log" > ~/agents/my-agent/work-log.md
+# Output: ALLOWED (Q1 passes, my own workdir)
 
-**Input**: `rm -rf ~/agents/other-agent/build/`
-**Output**: FORBIDDEN at Q2 (other agent's directory). Escalate to
-MANAGER via AMP; do not proceed.
+# Input
+rm -rf ~/agents/other-agent/build/
+# Output: FORBIDDEN at Q2 (other agent's directory)
 
-**Input**: `gh pr merge 42` (no explicit instruction this turn)
-**Output**: FORBIDDEN at Q5 (no explicit user instruction in current
-turn). Wait for user to re-issue the merge request by PR number.
+# Input (no explicit user instruction this turn)
+gh pr merge 42
+# Output: FORBIDDEN at Q5 (no explicit merge instruction)
 
-**Input**: `cat ~/.claude/projects/session.jsonl`
-**Output**: ALLOWED. This is a READ; all 10 checks only restrict
-writes. Reads are unrestricted.
+# Input
+cat ~/.claude/projects/session.jsonl
+# Output: ALLOWED (reads are unrestricted)
+```
 
 ## Resources
 
