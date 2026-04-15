@@ -42,7 +42,7 @@ PLUGIN_PATTERNS = (
 NULL_SHA = "0000000000000000000000000000000000000000"
 
 
-def git(*args: str, check: bool = True) -> subprocess.CompletedProcess:
+def git(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
     """Run a git command and return the CompletedProcess result."""
     return subprocess.run(
         ["git", *args],
