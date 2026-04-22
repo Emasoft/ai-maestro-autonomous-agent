@@ -12,6 +12,10 @@ scripts_dev/
 # for publishing)
 /.janitor/
 
+# rechecker plugin local state (per-subagent token logs — contain
+# absolute paths and usernames; never publish)
+/.rechecker/
+
 # Python
 __pycache__/
 *.py[cod]
