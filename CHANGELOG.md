@@ -1,19 +1,14 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
-    ## [1.0.3] - 2026-04-22
+    ## [1.0.4] - 2026-04-22
 
-### Documentation
+### Bug Fixes
 
-- Sync R6 v2 comm graph (AUTONOMOUS row) — closes #1 (#2)    
+- Stage uv.lock in Step 11 release commit (closes #3)    
 
 ### Miscellaneous
 
 - Update uv.lock    
-
-### Styling
-
-- Sort imports (ruff I001)    
-- Sort imports (ruff I001)    
 
 
