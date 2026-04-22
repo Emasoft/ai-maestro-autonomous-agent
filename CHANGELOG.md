@@ -1,10 +1,19 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
-    ## [1.0.2] - 2026-04-15
+    ## [1.0.3] - 2026-04-22
 
-### Bug Fixes
+### Documentation
 
-- Type git() return as CompletedProcess[str]    
+- Sync R6 v2 comm graph (AUTONOMOUS row) — closes #1 (#2)    
+
+### Miscellaneous
+
+- Update uv.lock    
+
+### Styling
+
+- Sort imports (ruff I001)    
+- Sort imports (ruff I001)    
 
 
