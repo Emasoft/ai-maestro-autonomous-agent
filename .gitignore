@@ -3,6 +3,15 @@
 docs_dev/
 scripts_dev/
 
+# Agent reports (per ~/.claude/rules/agent-reports-location.md — contain
+# private data: absolute paths, internal notes, occasional tokens in logs)
+/reports/
+/reports_dev/
+
+# ai-maestro-janitor local state (heartbeat dedupe, detector logs — not
+# for publishing)
+/.janitor/
+
 # Python
 __pycache__/
 *.py[cod]

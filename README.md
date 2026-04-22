@@ -12,9 +12,11 @@ agent with governance title `AUTONOMOUS` in the AI Maestro ecosystem.
 
 AUTONOMOUS agents are no-team agents that serve the user directly. They
 live outside of any team, have no CHIEF-OF-STAFF, no ORCHESTRATOR, and
-no team MEMBERs. They coordinate with MANAGER and other no-team agents
-(other AUTONOMOUS agents, MAINTAINERs) via the Agent Messaging
-Protocol (AMP).
+no team MEMBERs. Per the R6 v2 communication graph (2026-04-22), they
+coordinate via the Agent Messaging Protocol (AMP) directly with MANAGER
+and peer AUTONOMOUS agents, and have a `Y` edge to HUMAN so they may
+initiate direct user contact (governance-layer privilege). All other
+titles — including MAINTAINER — are reachable only via MANAGER relay.
 
 This plugin is NOT an optional add-on. Every AUTONOMOUS agent MUST have
 it installed. The AI Maestro element-management-service refuses to
@@ -114,8 +116,10 @@ claude plugin install ai-maestro-autonomous-agent@ai-maestro-plugins --scope loc
   `gh pr merge`, destructive git on shared branches, `rm -rf` outside
   own workdir / tmp, user-scope plugin installation, killing other
   agents without explicit instruction
-- **AMP routing**: MANAGER, MAINTAINERs, other AUTONOMOUS freely; team
-  roles must route through MANAGER
+- **AMP routing (R6 v2)**: MANAGER + peer AUTONOMOUS + HUMAN freely
+  (`Y`); MAINTAINER and all team roles must route through MANAGER. HUMAN
+  edge is a governance-layer `Y` (not reply-only) so AUTONOMOUS may
+  initiate user contact.
 - **PR discipline**: open, iterate per review, never self-merge
 - **Response SLA**: 10 min to MANAGER AMP messages
 
