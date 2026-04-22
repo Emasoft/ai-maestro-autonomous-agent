@@ -1466,13 +1466,15 @@ Examples:
 
     # ── Step 14: Create GitHub release with release notes (MANDATORY) ──
     # Every push MUST create a corresponding GitHub release so Claude Code's
-    # plugin update check sees a new version available. We POST directly
-    # to the REST API over IPv4 via curl; gh's GraphQL endpoint is
-    # unreliable on hosts where IPv6 connectivity to GitHub is broken
-    # (a common dual-stack-misconfig pattern that caused repeated Step 14
-    # failures while shipping v1.0.3 / v1.0.4 / v1.0.5). gh remains a
-    # dependency: we use `gh auth token` for credential lookup (local
-    # keychain — no network), and reject if gh isn't installed.
+    # plugin update check sees a new version available. Strategy:
+    #   primary  — `gh release create` (the documented, supported path; uses
+    #              gh's auth refresh, scope handling, and error messaging)
+    #   fallback — direct `curl -4` POST to /repos/{owner}/{repo}/releases
+    #              triggered ONLY when the gh attempt fails (e.g. dual-stack
+    #              hosts where gh's GraphQL endpoint times out on IPv6 — the
+    #              recurring failure mode that bit v1.0.3 / v1.0.5 / v1.0.6).
+    # Token for the fallback path comes from `gh auth token` (local keychain
+    # hit, no network) so the fallback survives whatever broke the primary.
     print(f"\n{BLUE}=== Step 14: Create GitHub release (mandatory) ==={NC}")
     gh_check = subprocess.run(["gh", "--version"], capture_output=True, text=True)
     if gh_check.returncode != 0:
@@ -1492,17 +1494,43 @@ Examples:
             file=sys.stderr,
         )
         return 1
-    # Token lookup is a local keychain hit — runs in milliseconds and never
-    # touches the network, so it survives the same IPv6 outage that breaks
-    # `gh release create`.
+
+    # ── Primary attempt: gh release create ──
+    print(f"  {BLUE}primary: gh release create v{new_version}{NC}")
+    try:
+        gh_result = subprocess.run(
+            ["gh", "release", "create", f"v{new_version}",
+             "--title", f"v{new_version}",
+             "--notes-file", str(notes_file)],
+            cwd=git_root, capture_output=True, text=True, timeout=60,
+        )
+        gh_ok = gh_result.returncode == 0
+        gh_err = gh_result.stderr.strip() if not gh_ok else ""
+        gh_out = gh_result.stdout.strip()
+    except subprocess.TimeoutExpired:
+        gh_ok = False
+        gh_err = "subprocess timed out after 60s (likely gh GraphQL endpoint unreachable)"
+        gh_out = ""
+    if gh_ok:
+        print(f"{GREEN}ok GitHub release v{new_version} created (via gh){NC}")
+        if gh_out:
+            print(f"  {gh_out}")
+        return 0
+
+    # ── Fallback: direct REST POST over IPv4 ──
+    print(f"  {YELLOW}primary failed: {gh_err[:200]}{NC}")
+    print(f"  {BLUE}fallback: curl -4 POST /repos/{{owner}}/{{repo}}/releases{NC}")
     token_result = subprocess.run(
         ["gh", "auth", "token"], capture_output=True, text=True, timeout=15,
     )
     token = token_result.stdout.strip()
     if token_result.returncode != 0 or not token:
         print(
-            f"{RED}✗ `gh auth token` failed — run `gh auth login` first.{NC}\n"
-            f"  stderr: {token_result.stderr.strip()}",
+            f"{RED}✗ Both primary (gh) and fallback (curl) blocked:{NC}\n"
+            f"  primary stderr: {gh_err}\n"
+            f"  fallback blocked because `gh auth token` returned non-zero — "
+            f"run `gh auth login` first.\n"
+            f"  token stderr: {token_result.stderr.strip()}",
             file=sys.stderr,
         )
         return 1
@@ -1519,48 +1547,55 @@ Examples:
     url = f"https://api.github.com/repos/{org}/{repo}/releases"
     last_err = ""
     for attempt in (1, 2, 3):
-        # -4 forces IPv4 to dodge the IPv6 timeout. --max-time is per-request
-        # (curl), and we wrap with subprocess timeout=60 as belt-and-braces.
-        curl_result = subprocess.run(
-            ["curl", "-sS", "--max-time", "45", "-4", "-X", "POST",
-             "-H", f"Authorization: Bearer {token}",
-             "-H", "Accept: application/vnd.github+json",
-             "-H", "X-GitHub-Api-Version: 2022-11-28",
-             "-H", "Content-Type: application/json",
-             "--data", payload,
-             "-w", "\n%{http_code}",
-             url],
-            capture_output=True, text=True, timeout=60,
-        )
-        if curl_result.returncode == 0:
-            output = curl_result.stdout.rstrip()
-            # -w "\n%{http_code}" appends the status as the final line.
-            if "\n" in output:
-                body, _, status = output.rpartition("\n")
-                status = status.strip()
-            else:
-                body, status = "", output.strip()
-            if status == "201":
-                html_url = ""
-                try:
-                    html_url = json.loads(body).get("html_url", "")
-                except (json.JSONDecodeError, ValueError):
-                    pass
-                print(f"{GREEN}ok GitHub release v{new_version} created{NC}")
-                if html_url:
-                    print(f"  {html_url}")
-                return 0
-            last_err = f"HTTP {status} — body: {body[:240]}"
+        # -4 forces IPv4. curl --max-time 45 is the per-request cap; the
+        # subprocess timeout of 60s is a belt-and-braces outer bound.
+        try:
+            curl_result = subprocess.run(
+                ["curl", "-sS", "--max-time", "45", "-4", "-X", "POST",
+                 "-H", f"Authorization: Bearer {token}",
+                 "-H", "Accept: application/vnd.github+json",
+                 "-H", "X-GitHub-Api-Version: 2022-11-28",
+                 "-H", "Content-Type: application/json",
+                 "--data", payload,
+                 "-w", "\n%{http_code}",
+                 url],
+                capture_output=True, text=True, timeout=60,
+            )
+        except subprocess.TimeoutExpired:
+            last_err = "curl subprocess timed out at 60s"
         else:
-            last_err = f"curl exit {curl_result.returncode}: {curl_result.stderr.strip()[:240]}"
+            if curl_result.returncode == 0:
+                output = curl_result.stdout.rstrip()
+                # -w "\n%{http_code}" appends status as final line.
+                if "\n" in output:
+                    body, _, status = output.rpartition("\n")
+                    status = status.strip()
+                else:
+                    body, status = "", output.strip()
+                if status == "201":
+                    html_url = ""
+                    try:
+                        html_url = json.loads(body).get("html_url", "")
+                    except (json.JSONDecodeError, ValueError):
+                        pass
+                    print(f"{GREEN}ok GitHub release v{new_version} created (via curl fallback){NC}")
+                    if html_url:
+                        print(f"  {html_url}")
+                    return 0
+                last_err = f"HTTP {status} — body: {body[:240]}"
+            else:
+                last_err = f"curl exit {curl_result.returncode}: {curl_result.stderr.strip()[:240]}"
         if attempt < 3:
-            print(f"  {YELLOW}attempt {attempt} failed ({last_err}); retrying in 3s...{NC}")
+            print(f"  {YELLOW}fallback attempt {attempt} failed ({last_err}); retrying in 3s...{NC}")
             time.sleep(3)
     print(
-        f"{RED}✗ GitHub release create failed after 3 attempts:{NC}\n"
-        f"  last error: {last_err}\n"
+        f"{RED}✗ GitHub release create failed via primary AND fallback:{NC}\n"
+        f"  primary stderr: {gh_err}\n"
+        f"  fallback last error after 3 attempts: {last_err}\n"
         f"  The tag IS pushed, but the GitHub release was NOT created.\n"
         f"  Recover manually with:\n"
+        f"    gh release create v{new_version} --title v{new_version} --notes-file {notes_file}\n"
+        f"  or, if gh remains unreachable:\n"
         f"    curl -sS -4 -X POST -H \"Authorization: Bearer $(gh auth token)\" \\\n"
         f"      -H \"Accept: application/vnd.github+json\" \\\n"
         f"      --data @<(jq -n --arg tag v{new_version} --rawfile body {notes_file} \\\n"
