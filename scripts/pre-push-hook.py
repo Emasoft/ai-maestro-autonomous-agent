@@ -17,8 +17,8 @@
 #   git push --no-verify
 
 import os
-import sys
 import subprocess
+import sys
 from pathlib import Path
 
 # ANSI colors
