@@ -27,7 +27,7 @@ Each question returns ALLOWED or FORBIDDEN. Stop at the first FORBIDDEN.
 
 **Q9 User-scope installation check** — Does my action install a package, plugin, MCP server, hook, or skill under `~/.claude/` or `~/.aimaestro/` (other than my own inbox)? If YES → **FORBIDDEN**.
 
-**Q10 AMP routing check** — Does my action send an AMP message to a recipient OTHER than MANAGER, MAINTAINERs, or AUTONOMOUS agents? If YES → **FORBIDDEN**. Route through MANAGER instead.
+**Q10 AMP routing check** — Does my action send an AMP message to a recipient OTHER than MANAGER, peer AUTONOMOUS agents, or HUMAN (the three `Y` edges for AUTONOMOUS under the R6 v2 graph, 2026-04-22)? If YES → **FORBIDDEN**. Route through MANAGER instead. Note: MAINTAINER is no longer a direct edge for AUTONOMOUS (removed in the v1 tightening) — the server returns HTTP 403 `title_communication_forbidden` on a direct send. For reply-only edges see the main persona's Communication Permissions section.
 
 ## Edge cases
 
