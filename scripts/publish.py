@@ -38,6 +38,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -1465,8 +1466,13 @@ Examples:
 
     # ── Step 14: Create GitHub release with release notes (MANDATORY) ──
     # Every push MUST create a corresponding GitHub release so Claude Code's
-    # plugin update check sees a new version available. If gh CLI is
-    # missing or unauthenticated, the pipeline fails — no silent-skip.
+    # plugin update check sees a new version available. We POST directly
+    # to the REST API over IPv4 via curl; gh's GraphQL endpoint is
+    # unreliable on hosts where IPv6 connectivity to GitHub is broken
+    # (a common dual-stack-misconfig pattern that caused repeated Step 14
+    # failures while shipping v1.0.3 / v1.0.4 / v1.0.5). gh remains a
+    # dependency: we use `gh auth token` for credential lookup (local
+    # keychain — no network), and reject if gh isn't installed.
     print(f"\n{BLUE}=== Step 14: Create GitHub release (mandatory) ==={NC}")
     gh_check = subprocess.run(["gh", "--version"], capture_output=True, text=True)
     if gh_check.returncode != 0:
@@ -1486,27 +1492,83 @@ Examples:
             file=sys.stderr,
         )
         return 1
-    gh_result = subprocess.run(
-        ["gh", "release", "create", f"v{new_version}",
-         "--title", f"v{new_version}",
-         "--notes-file", str(notes_file)],
-        cwd=git_root, capture_output=True, text=True, timeout=120,
+    # Token lookup is a local keychain hit — runs in milliseconds and never
+    # touches the network, so it survives the same IPv6 outage that breaks
+    # `gh release create`.
+    token_result = subprocess.run(
+        ["gh", "auth", "token"], capture_output=True, text=True, timeout=15,
     )
-    if gh_result.returncode != 0:
+    token = token_result.stdout.strip()
+    if token_result.returncode != 0 or not token:
         print(
-            f"{RED}✗ gh release create failed (exit {gh_result.returncode}):{NC}\n"
-            f"  stdout: {gh_result.stdout.strip()}\n"
-            f"  stderr: {gh_result.stderr.strip()}\n"
-            f"  The tag IS pushed, but the GitHub release was NOT created.\n"
-            f"  Fix the underlying issue and run:\n"
-            f"    gh release create v{new_version} --title v{new_version} --notes-file {notes_file}",
+            f"{RED}✗ `gh auth token` failed — run `gh auth login` first.{NC}\n"
+            f"  stderr: {token_result.stderr.strip()}",
             file=sys.stderr,
         )
         return 1
-    print(f"{GREEN}ok GitHub release v{new_version} created{NC}")
-    print(f"  {gh_result.stdout.strip()}")
-
-    return 0
+    org = marketplace["org"]
+    repo = marketplace["repo"]
+    payload = json.dumps({
+        "tag_name": f"v{new_version}",
+        "name": f"v{new_version}",
+        "body": notes_file.read_text(encoding="utf-8"),
+        "draft": False,
+        "prerelease": False,
+        "generate_release_notes": False,
+    })
+    url = f"https://api.github.com/repos/{org}/{repo}/releases"
+    last_err = ""
+    for attempt in (1, 2, 3):
+        # -4 forces IPv4 to dodge the IPv6 timeout. --max-time is per-request
+        # (curl), and we wrap with subprocess timeout=60 as belt-and-braces.
+        curl_result = subprocess.run(
+            ["curl", "-sS", "--max-time", "45", "-4", "-X", "POST",
+             "-H", f"Authorization: Bearer {token}",
+             "-H", "Accept: application/vnd.github+json",
+             "-H", "X-GitHub-Api-Version: 2022-11-28",
+             "-H", "Content-Type: application/json",
+             "--data", payload,
+             "-w", "\n%{http_code}",
+             url],
+            capture_output=True, text=True, timeout=60,
+        )
+        if curl_result.returncode == 0:
+            output = curl_result.stdout.rstrip()
+            # -w "\n%{http_code}" appends the status as the final line.
+            if "\n" in output:
+                body, _, status = output.rpartition("\n")
+                status = status.strip()
+            else:
+                body, status = "", output.strip()
+            if status == "201":
+                html_url = ""
+                try:
+                    html_url = json.loads(body).get("html_url", "")
+                except (json.JSONDecodeError, ValueError):
+                    pass
+                print(f"{GREEN}ok GitHub release v{new_version} created{NC}")
+                if html_url:
+                    print(f"  {html_url}")
+                return 0
+            last_err = f"HTTP {status} — body: {body[:240]}"
+        else:
+            last_err = f"curl exit {curl_result.returncode}: {curl_result.stderr.strip()[:240]}"
+        if attempt < 3:
+            print(f"  {YELLOW}attempt {attempt} failed ({last_err}); retrying in 3s...{NC}")
+            time.sleep(3)
+    print(
+        f"{RED}✗ GitHub release create failed after 3 attempts:{NC}\n"
+        f"  last error: {last_err}\n"
+        f"  The tag IS pushed, but the GitHub release was NOT created.\n"
+        f"  Recover manually with:\n"
+        f"    curl -sS -4 -X POST -H \"Authorization: Bearer $(gh auth token)\" \\\n"
+        f"      -H \"Accept: application/vnd.github+json\" \\\n"
+        f"      --data @<(jq -n --arg tag v{new_version} --rawfile body {notes_file} \\\n"
+        f"                  '{{tag_name: $tag, name: $tag, body: $body}}') \\\n"
+        f"      {url}",
+        file=sys.stderr,
+    )
+    return 1
 
 
 if __name__ == "__main__":
