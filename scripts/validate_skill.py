@@ -448,8 +448,12 @@ def validate_supporting_files(skill_path: Path, report: ValidationReport) -> Non
         if link_target.startswith("#"):
             continue
 
+        # Strip "#anchor" before existence check — links like "foo.md#section"
+        # are valid as long as foo.md exists; the anchor is a heading inside it.
+        file_part = link_target.split("#", 1)[0]
+
         # Check if referenced file exists
-        ref_path = skill_path / link_target
+        ref_path = skill_path / file_part
         if not ref_path.exists():
             report.major(
                 f"Referenced file not found: {link_target}",
