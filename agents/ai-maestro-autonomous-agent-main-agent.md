@@ -10,6 +10,7 @@ model: sonnet
 skills:
   - ai-maestro-autonomous-governance
   - ai-maestro-autonomous-workspace-isolation
+  - ai-maestro-autonomous-prrd-trdd-kanban
 ---
 
 # AI Maestro Autonomous Agent (AIMAA)
