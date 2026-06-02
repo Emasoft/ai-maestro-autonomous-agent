@@ -9,122 +9,83 @@ metadata:
 
 ## Overview
 
-This is the AUTONOMOUS role-specific layer of the PRRD / TRDD / Kanban
-model. For universal mechanics, see `prrd-trdd-kanban` in
+The AUTONOMOUS (AIMAA) role-specific layer of the PRRD / TRDD / Kanban
+model. AUTONOMOUS works solo — no team, no CHIEF-OF-STAFF. It owns ALL
+columns for its own TRDDs, playing MANAGER, ORCHESTRATOR, ARCHITECT,
+INTEGRATOR, and MEMBER for its own work. The only role it cannot play
+is HUMAN: USER substitutes for MANAGER on every non-exempt approval.
+For universal mechanics, see the `prrd-trdd-kanban` skill in
 `ai-maestro-plugin`.
 
-## Approval discipline — USER substitutes for MANAGER
+## Prerequisites
 
-Check the **prrd-trdd-kanban** universal skill's `exempt-operations.md`
-reference (bundled in ai-maestro-plugin). AUTONOMOUS owns ALL columns for its own
-TRDDs, so the same exempt categories apply. For **non-exempt**
-operations, AUTONOMOUS's approval chain short-circuits to USER (per
-R6.6 — AUTONOMOUS reaches HUMAN directly, no COS hop). Examples
-needing USER approval: `complete → publish` / `complete → deploy`,
-PR merge, force-`failed`, `ai_review → human_review`. The
-approval-request AMP goes directly to USER; the
-`## Approval log` section in the TRDD body records USER's reply
-verbatim.
+The universal `prrd-trdd-kanban` skill (in `ai-maestro-plugin`) must be
+loaded — it carries the shared mechanics. The project needs a PRRD and a
+`design/tasks/` tree of TRDDs. For solo PRRD edits and direct approval,
+the session uses `$AID_AUTH` or the `--user` flag rather than a
+`--manager` check.
 
-AUTONOMOUS operates without a team and without a CHIEF-OF-STAFF gate.
-Per R6 v2/v3, AUTONOMOUS reaches MANAGER + peer AUTONOMOUS + HUMAN
-directly (no COS hop). For the PRRD/TRDD/kanban workflow, this means
-AUTONOMOUS performs ALL roles itself for its own TRDDs.
+## Instructions
 
-AUTONOMOUS is essentially a one-person team where the same agent
-plays MANAGER, ORCHESTRATOR, ARCHITECT, INTEGRATOR, and MEMBER for
-its own work. The only role it can't play is HUMAN (USER).
+1. Author proto-TRDDs in `backburner` / `todo`, then design them in
+   `design` and split or group as ARCHITECT would — all for your own
+   TRDDs.
+2. Dispatch (`dispatch`), implement (`dev`), and test (`testing`) your
+   own TRDDs, then move them through `ai_review`.
+3. For EXEMPT operations (per the universal `exempt-operations.md`), act
+   directly with no approval request.
+4. For NON-EXEMPT operations — `complete → publish`, `complete → deploy`,
+   PR merge, force-`failed`, `ai_review → human_review` — request USER
+   approval DIRECTLY via `amp-send` to USER (R6.6: AUTONOMOUS reaches
+   HUMAN directly, no COS hop). Record USER's reply verbatim in the
+   TRDD's `## Approval log`.
+5. `human_review` ALWAYS requires USER — never self-approve it.
+6. Mutate your own project's silver PRRD rules with the `--user` flag:
+   `prrd-edit.py --user add silver "..."`, `prrd-edit.py --user revise N
+   "..."`, `prrd-edit.py --user delete N`. Golden-rule promotion/demotion
+   needs USER (or a governance AMP from MANAGER if one exists).
+7. Spawn DEPLOYER / RELEASER subagents for deploy / publish the same way
+   INTEGRATOR does, via the Agent tool (`subagent_type="deployer"` /
+   `"releaser"`).
+8. Self-broadcast transitions — the AMP recipient is AUTONOMOUS itself,
+   or optionally a peer AUTONOMOUS for visibility.
 
-## Columns AUTONOMOUS owns
+## Output
 
-ALL columns, for its own TRDDs:
-`backburner`, `todo`, `design`, `dispatch`, `dev`, `testing`,
-`ai_review`, `human_review`, `complete`, `publish`, `published`,
-`deploy`, `live`, `live_auditing`, `blocked`, `failed`, `superseded`.
+- TRDD edits moving your own cards across ALL columns (`backburner`
+  through `live_auditing`, plus `blocked` / `failed` / `superseded`).
+- USER approval-requests via `amp-send`, with replies logged verbatim in
+  each TRDD's `## Approval log`.
+- PRRD silver-rule edits committed via `prrd-edit.py --user`.
+- Subagent dispatch records for DEPLOYER / RELEASER runs.
 
-There is one exception: `human_review` always requires the USER.
-AUTONOMOUS cannot self-approve human review. Use AMP-direct-to-USER
-(governance-layer edge per R6.6) when human review is required.
+## Error Handling
 
-## Transitions AUTONOMOUS triggers
+- AI Maestro server or a `*.py` helper unreachable → degrade gracefully:
+  fall back to the manual git / `gh` path, do not invent state.
+- Any golden-rule change, or unilateral promote/demote → STOP and route
+  to USER only; AUTONOMOUS may not decide it alone.
+- Unsure whether an operation is exempt, or who can unblock a `blocked`
+  TRDD → ask USER directly via `amp-send`; never guess.
 
-All of them. See `column-transitions.md` for the full list. AUTONOMOUS
-self-broadcasts (the AMP recipient is just AUTONOMOUS itself or
-optionally peer AUTONOMOUS for visibility).
+## Examples
 
-## PRRD authority
-
-AUTONOMOUS can mutate silver rules of its own project's PRRD
-directly:
-
-```bash
-prrd-edit.py --user add silver "..."     # use --user, NOT --manager check
-prrd-edit.py --user revise N "..."
-prrd-edit.py --user delete N
-```
-
-Golden rules of an AUTONOMOUS project come from one of:
-
-- The human owner of the project setting them initially
-- A peer AUTONOMOUS proposing via AMP (rare)
-- The MANAGER reviewing if this project was previously team-managed
-
-AUTONOMOUS cannot promote/demote rules unilaterally — that requires
-USER (or an AMP-routed governance decision from MANAGER if applicable).
-
-## Special protocols for solo work
-
-### Subagent dispatch for deploy / publish
-
-AUTONOMOUS can spawn the DEPLOYER and RELEASER subagents the same way
-INTEGRATOR does — via Claude Code's Agent tool:
-
-```python
-result = Agent(
-    subagent_type="deployer",
-    description=f"Deploy TRDD-{trdd.uid8}",
-    prompt="<deploy instructions>"
-)
-```
-
-The same subagent definitions ship in the AI Maestro plugin set, so
-AUTONOMOUS sessions also have access (if the plugins are installed).
-
-### Communicating with USER
-
-When AUTONOMOUS needs USER input:
-
-- `human_review` column: AMP-send to USER (allowed per R6.6 for
-  governance layer)
-- Golden-rule decisions: AMP-send to USER directly
-- Blocked TRDDs with no other unblocker: AMP-send to USER
-
-### Communicating with MANAGER (if a MANAGER exists)
-
-In some setups AUTONOMOUS coexists with a host-level MANAGER. In that
-case, AUTONOMOUS can AMP MANAGER for:
-
-- Cross-project coordination
-- Borrowing a team's expertise (MANAGER may delegate)
-- Approval for operations spanning the AUTONOMOUS scope
-
-## Per-column checklists (abridged)
-
-AUTONOMOUS uses the same checklists as the relevant role-specific
-skills:
-
-- For authoring + promotion: see `amama-prrd-trdd-kanban`
-- For design + split/group: see `amaa-prrd-trdd-kanban`
-- For dispatch + red column: see `amoa-prrd-trdd-kanban`
-- For implementation + testing: see `ampa-prrd-trdd-kanban`
-- For ai_review + ship: see `amia-prrd-trdd-kanban`
-
-Each role's checklists apply, with the simplification that AUTONOMOUS
-doesn't need AMP coordination (it's a single session).
+- Ship a feature: design → dev → testing → `ai_review`, then AMP USER
+  for `complete → publish`; on approval, spawn the RELEASER subagent and
+  log USER's reply in the TRDD.
+- Tighten a workflow rule: `prrd-edit.py --user add silver "PRs require
+  green CI"` — applied directly, no MANAGER check needed.
 
 ## Resources
 
-- Universal skill: `prrd-trdd-kanban`
-- Existing AUTONOMOUS skills: `ai-maestro-autonomous-governance`,
-  `ai-maestro-autonomous-workspace-isolation`
-- AUTONOMOUS persona: `agents/ai-maestro-autonomous-agent-main-agent.md`
+For the shared mechanics, column transitions, and the authoritative
+exempt-operations list, consult the universal `prrd-trdd-kanban` skill
+and its `exempt-operations.md` reference, both bundled in
+`ai-maestro-plugin`. For the per-column checklists that AUTONOMOUS reuses,
+consult the other role layers: `amama-prrd-trdd-kanban` for authoring and
+promotion, `amaa-prrd-trdd-kanban` for design and split / group,
+`amoa-prrd-trdd-kanban` for dispatch and the red column,
+`ampa-prrd-trdd-kanban` for implementation and testing, and
+`amia-prrd-trdd-kanban` for ai_review and ship. Each role's checklist
+applies, simplified because AUTONOMOUS runs as a single session with no
+inter-agent AMP coordination.
