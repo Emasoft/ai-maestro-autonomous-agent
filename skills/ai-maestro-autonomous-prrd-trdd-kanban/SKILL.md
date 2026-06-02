@@ -15,9 +15,8 @@ model. For universal mechanics, see `prrd-trdd-kanban` in
 
 ## Approval discipline — USER substitutes for MANAGER
 
-Check
-[references/exempt-operations.md](references/exempt-operations.md)
-in the universal skill. AUTONOMOUS owns ALL columns for its own
+Check the **prrd-trdd-kanban** universal skill's `exempt-operations.md`
+reference (bundled in ai-maestro-plugin). AUTONOMOUS owns ALL columns for its own
 TRDDs, so the same exempt categories apply. For **non-exempt**
 operations, AUTONOMOUS's approval chain short-circuits to USER (per
 R6.6 — AUTONOMOUS reaches HUMAN directly, no COS hop). Examples
