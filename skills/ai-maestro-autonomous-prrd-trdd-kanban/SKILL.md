@@ -13,6 +13,20 @@ This is the AUTONOMOUS role-specific layer of the PRRD / TRDD / Kanban
 model. For universal mechanics, see `prrd-trdd-kanban` in
 `ai-maestro-plugin`.
 
+## Approval discipline — USER substitutes for MANAGER
+
+Check
+[references/exempt-operations.md](references/exempt-operations.md)
+in the universal skill. AUTONOMOUS owns ALL columns for its own
+TRDDs, so the same exempt categories apply. For **non-exempt**
+operations, AUTONOMOUS's approval chain short-circuits to USER (per
+R6.6 — AUTONOMOUS reaches HUMAN directly, no COS hop). Examples
+needing USER approval: `complete → publish` / `complete → deploy`,
+PR merge, force-`failed`, `ai_review → human_review`. The
+approval-request AMP goes directly to USER; the
+`## Approval log` section in the TRDD body records USER's reply
+verbatim.
+
 AUTONOMOUS operates without a team and without a CHIEF-OF-STAFF gate.
 Per R6 v2/v3, AUTONOMOUS reaches MANAGER + peer AUTONOMOUS + HUMAN
 directly (no COS hop). For the PRRD/TRDD/kanban workflow, this means
