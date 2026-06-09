@@ -70,9 +70,9 @@ metadata:
 <body: the one fact; for feedback/project add **Why:** and **How to apply:**>
 ```
 
-After writing, append one index line to `MEMORY.md` — a markdown link to
-the note file plus a one-line hook (the writer script formats and
-de-duplicates it). Update an existing note rather than creating a
+After a note is written, it also receives a one-line index entry in
+`MEMORY.md` — a markdown link to the note file plus a one-line hook —
+which the writer script formats and de-duplicates. Update an existing note rather than creating a
 near-duplicate; delete notes that turn out to be wrong.
 
 ## memgrep — the recall engine

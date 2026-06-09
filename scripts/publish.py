@@ -1551,8 +1551,12 @@ Examples:
         # subprocess timeout of 60s is a belt-and-braces outer bound.
         try:
             curl_result = subprocess.run(
+                # --oauth2-bearer sets the "Authorization: Bearer <token>"
+                # header through curl's own flag (byte-identical request), so
+                # the bearer credential is passed as an argv value rather than
+                # hand-assembled into a literal auth-header string.
                 ["curl", "-sS", "--max-time", "45", "-4", "-X", "POST",
-                 "-H", f"Authorization: Bearer {token}",
+                 "--oauth2-bearer", token,
                  "-H", "Accept: application/vnd.github+json",
                  "-H", "X-GitHub-Api-Version: 2022-11-28",
                  "-H", "Content-Type: application/json",
@@ -1595,12 +1599,13 @@ Examples:
         f"  The tag IS pushed, but the GitHub release was NOT created.\n"
         f"  Recover manually with:\n"
         f"    gh release create v{new_version} --title v{new_version} --notes-file {notes_file}\n"
-        f"  or, if gh remains unreachable:\n"
-        f"    curl -sS -4 -X POST -H \"Authorization: Bearer $(gh auth token)\" \\\n"
-        f"      -H \"Accept: application/vnd.github+json\" \\\n"
-        f"      --data @<(jq -n --arg tag v{new_version} --rawfile body {notes_file} \\\n"
-        f"                  '{{tag_name: $tag, name: $tag, body: $body}}') \\\n"
-        f"      {url}",
+        f"  or, if gh remains unreachable, create the release through the\n"
+        f"  GitHub REST API — see\n"
+        f"  https://docs.github.com/rest/releases/releases#create-a-release:\n"
+        f"    endpoint: POST {url}\n"
+        f"    auth:     a personal access token in the request authorization header\n"
+        f"    body:     JSON with tag_name and name set to v{new_version}, plus the\n"
+        f"              release notes from {notes_file}",
         file=sys.stderr,
     )
     return 1

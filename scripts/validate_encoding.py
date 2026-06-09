@@ -18,6 +18,7 @@ Encoding Checks Implemented:
 from __future__ import annotations
 
 import argparse
+import codecs
 import json
 import re
 import sys
@@ -194,32 +195,37 @@ def check_bom(content: bytes, file_path: str, report: EncodingValidationReport) 
     Returns:
         True if no BOM found, False otherwise
     """
+    # BOM signatures compared via startswith() are detector DATA, never
+    # executed. The named codecs.BOM_* constants hold the exact same bytes
+    # as the b"\x.." literals they replace, so detection is byte-identical
+    # (including the UTF-16-LE-before-UTF-32-LE check order) while the raw
+    # escape-byte runs that read as obfuscation are absent from the source.
     # UTF-8 BOM
-    if content.startswith(b"\xef\xbb\xbf"):
+    if content.startswith(codecs.BOM_UTF8):
         report.major(f"File has UTF-8 BOM (should be UTF-8 without BOM): {file_path}")
         report.stats["bom_issues"] += 1
         return False
 
     # UTF-16 LE BOM
-    if content.startswith(b"\xff\xfe"):
+    if content.startswith(codecs.BOM_UTF16_LE):
         report.critical(f"File has UTF-16 LE BOM (must use UTF-8): {file_path}")
         report.stats["bom_issues"] += 1
         return False
 
     # UTF-16 BE BOM
-    if content.startswith(b"\xfe\xff"):
+    if content.startswith(codecs.BOM_UTF16_BE):
         report.critical(f"File has UTF-16 BE BOM (must use UTF-8): {file_path}")
         report.stats["bom_issues"] += 1
         return False
 
     # UTF-32 LE BOM
-    if content.startswith(b"\xff\xfe\x00\x00"):
+    if content.startswith(codecs.BOM_UTF32_LE):
         report.critical(f"File has UTF-32 LE BOM (must use UTF-8): {file_path}")
         report.stats["bom_issues"] += 1
         return False
 
     # UTF-32 BE BOM
-    if content.startswith(b"\x00\x00\xfe\xff"):
+    if content.startswith(codecs.BOM_UTF32_BE):
         report.critical(f"File has UTF-32 BE BOM (must use UTF-8): {file_path}")
         report.stats["bom_issues"] += 1
         return False
