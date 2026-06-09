@@ -44,9 +44,10 @@ the session uses `$AID_AUTH` or the `--user` flag rather than a
    `prrd-edit.py --user add silver "..."`, `prrd-edit.py --user revise N
    "..."`, `prrd-edit.py --user delete N`. Golden-rule promotion/demotion
    needs USER (or a governance AMP from MANAGER if one exists).
-7. Spawn DEPLOYER / RELEASER subagents for deploy / publish the same way
-   INTEGRATOR does, via the Agent tool (`subagent_type="deployer"` /
-   `"releaser"`).
+7. Run the deploy / publish stages the same way INTEGRATOR's pipeline
+   does — dispatch a general-purpose subagent via the Agent tool (or run
+   the steps inline) for the DEPLOYER / RELEASER role work. This plugin
+   bundles no dedicated deployer/releaser agent.
 8. Self-broadcast transitions — the AMP recipient is AUTONOMOUS itself,
    or optionally a peer AUTONOMOUS for visibility.
 
