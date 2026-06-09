@@ -49,7 +49,12 @@ KNOWN_SERVER_FIELDS = {
     "headers",  # HTTP headers for authentication
     "timeout",  # Connection timeout
     "oauth",  # OAuth config object with clientId and callbackPort
+    "alwaysLoad",  # v2.1.121 — when true, server's tools skip ToolSearch deferral
 }
+
+# Reserved server names (Claude Code refuses to load these)
+# v2.1.128 — `workspace` is reserved; existing servers with that name are skipped.
+RESERVED_SERVER_NAMES = {"workspace"}
 
 # Environment variable pattern: ${VAR} or ${VAR:-default}
 ENV_VAR_PATTERN = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)(?::-([^}]*))?\}")
@@ -147,10 +152,32 @@ def validate_mcp_server(
     """
     ctx = f"{file_context}:{server_name}"
 
+    # Claude Code v2.1.128 reserved certain server names — Claude Code itself
+    # skips them with a warning at load time, so flag them here before any
+    # downstream user is surprised.
+    if server_name in RESERVED_SERVER_NAMES:
+        report.critical(
+            f"MCP server name '{server_name}' is reserved by Claude Code (v2.1.128) — "
+            "rename the server. Reserved names are silently skipped at load time."
+        )
+
     # Check for unknown fields
     for key in config.keys():
         if key not in KNOWN_SERVER_FIELDS:
             report.warning(f"Unknown field '{key}' in server {server_name}")
+
+    # Validate alwaysLoad (v2.1.121)
+    if "alwaysLoad" in config:
+        always_load = config["alwaysLoad"]
+        if not isinstance(always_load, bool):
+            report.major(
+                f"Server {server_name} 'alwaysLoad' must be a boolean, got {type(always_load).__name__}"
+            )
+        elif always_load:
+            report.info(
+                f"Server {server_name} has 'alwaysLoad: true' — all tools skip ToolSearch "
+                "deferral (v2.1.121). Use sparingly so the model's tool list stays focused."
+            )
 
     # Determine transport type
     transport = config.get("type", "stdio")

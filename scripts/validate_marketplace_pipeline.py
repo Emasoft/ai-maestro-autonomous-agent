@@ -47,6 +47,7 @@ from cpv_validation_common import (
     EXIT_MAJOR,
     EXIT_MINOR,
     EXIT_OK,
+    EXPERIMENTAL_PLUGIN_MANIFEST_KEYS,
     Level,
 )
 
@@ -593,6 +594,25 @@ def validate_marketplace_structure(
                         if plugin_version and plugin_version != marketplace_version:
                             version_mismatches.append(
                                 f"{plugin_name}: marketplace={marketplace_version}, plugin.json={plugin_version}"
+                            )
+                        # v2.1.129: surface a soft warning when `themes` or `monitors`
+                        # are declared at the top level instead of under `experimental`.
+                        # Top-level still works, but `claude plugin validate` warns.
+                        misplaced = sorted(EXPERIMENTAL_PLUGIN_MANIFEST_KEYS & plugin_data.keys())
+                        if misplaced:
+                            report.minor(
+                                category,
+                                (
+                                    f"{plugin_name}: top-level {misplaced} should move under "
+                                    "`experimental: {}` (Claude Code v2.1.129; top-level still "
+                                    "works but `claude plugin validate` warns)"
+                                ),
+                                1.0,
+                                suggestion=(
+                                    'Wrap these keys: "experimental": { '
+                                    + ", ".join(f'"{k}": ...' for k in misplaced)
+                                    + " }"
+                                ),
                             )
                     except Exception:
                         pass

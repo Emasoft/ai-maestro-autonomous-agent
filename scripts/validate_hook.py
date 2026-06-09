@@ -68,7 +68,8 @@ EVENTS_WITHOUT_MATCHERS = {
 }
 
 # Valid hook types
-VALID_HOOK_TYPES = {"command", "prompt", "agent"}
+# `mcp_tool` added in Claude Code v2.1.118 — hooks can invoke MCP tools directly.
+VALID_HOOK_TYPES = {"command", "prompt", "agent", "mcp_tool"}
 
 # Events that ONLY support type: "command" hooks (not prompt or agent)
 COMMAND_ONLY_EVENTS = {
@@ -120,6 +121,7 @@ VALID_ENV_VARS = {
     "CLAUDE_PROJECT_DIR",  # All hooks
     "CLAUDE_ENV_FILE",  # SessionStart and Setup only
     "CLAUDE_CODE_REMOTE",  # All hooks
+    "CLAUDE_EFFORT",  # All hooks (v2.1.133) — current effort level
 }
 
 # Script extensions that should be linted
@@ -522,20 +524,46 @@ def validate_command_hook(
     report: ValidationReport,
 ) -> bool:
     """Validate a command-type hook."""
-    if "command" not in hook:
-        report.critical("Command hook missing required 'command' field")
+    # v2.1.139 added the exec form: `args: string[]` spawns the command directly
+    # without a shell, so path placeholders never need quoting.
+    has_command = "command" in hook
+    has_args = "args" in hook
+
+    if not has_command and not has_args:
+        report.critical("Command hook missing required 'command' or 'args' field")
         return False
 
-    command = hook["command"]
-    if not isinstance(command, str):
-        report.critical(f"'command' must be a string, got {type(command).__name__}")
+    if has_command and has_args:
+        report.major("Command hook has both 'command' and 'args' — pick one (shell form vs exec form)")
         return False
 
-    if not command.strip():
-        report.critical("'command' cannot be empty")
-        return False
+    if has_args:
+        args = hook["args"]
+        if not isinstance(args, list):
+            report.critical(f"'args' must be an array of strings, got {type(args).__name__}")
+            return False
+        if not args:
+            report.critical("'args' cannot be empty")
+            return False
+        for i, part in enumerate(args):
+            if not isinstance(part, str):
+                report.critical(f"'args[{i}]' must be a string, got {type(part).__name__}")
+                return False
+        # Synthesize a command string for the downstream portability checks so they
+        # still work on the exec-form arg list.
+        command = " ".join(args)
+        report.passed(f"Args (exec form, v2.1.139): {command[:60]}...")
+    else:
+        command = hook["command"]
+        if not isinstance(command, str):
+            report.critical(f"'command' must be a string, got {type(command).__name__}")
+            return False
 
-    report.passed(f"Command: {command[:60]}...")
+        if not command.strip():
+            report.critical("'command' cannot be empty")
+            return False
+
+        report.passed(f"Command: {command[:60]}...")
 
     # Check for hardcoded absolute paths — plugins must use env vars for portability
     cmd_first_token = command.strip().split()[0] if command.strip() else ""
@@ -645,7 +673,7 @@ def validate_command_hook(
         validate_script(script_path, report)
     elif script_path:
         # Script path detected but doesn't exist
-        if plugin_root and "${CLAUDE_PLUGIN_ROOT}" not in hook["command"]:
+        if plugin_root and "${CLAUDE_PLUGIN_ROOT}" not in command:
             # Absolute path that should exist
             report.major(f"Script not found: {script_path}")
 
@@ -707,6 +735,40 @@ def validate_prompt_hook(
     return True
 
 
+def validate_mcp_tool_hook(
+    hook: dict[str, Any],
+    event_name: str,
+    report: ValidationReport,
+) -> bool:
+    """Validate a type: "mcp_tool" hook (added in Claude Code v2.1.118).
+
+    The MCP-tool hook invokes a specific tool on a connected MCP server in place
+    of running a shell command or producing a prompt. The expected fields are
+    `server` (server name as declared in `.mcp.json` / plugin manifest) and
+    `tool` (tool name on that server). Tool arguments may be supplied via an
+    optional `arguments` object.
+    """
+    if "server" not in hook or not isinstance(hook["server"], str) or not hook["server"].strip():
+        report.critical("mcp_tool hook missing required non-empty 'server' field (MCP server name)")
+        return False
+    if "tool" not in hook or not isinstance(hook["tool"], str) or not hook["tool"].strip():
+        report.critical("mcp_tool hook missing required non-empty 'tool' field (MCP tool name)")
+        return False
+    if "arguments" in hook and not isinstance(hook["arguments"], dict):
+        report.major(
+            f"mcp_tool hook 'arguments' must be an object, got {type(hook['arguments']).__name__}"
+        )
+    # mcp_tool hooks make most sense on events that pass tool-related context.
+    if event_name in {"SessionStart", "Setup", "SubagentStart"}:
+        report.major(
+            f"mcp_tool hook on '{event_name}' is unusual — these events need plain "
+            "command-type hooks for setup work; per Claude Code v2.1.142 prompt/agent "
+            "types are explicitly rejected on these events."
+        )
+    report.passed(f"mcp_tool: {hook['server']}/{hook['tool']}")
+    return True
+
+
 def validate_single_hook(
     hook: Any,
     event_name: str,
@@ -729,11 +791,14 @@ def validate_single_hook(
         return False
 
     # Validate hook type is allowed for this event
+    # v2.1.142 made this a hard error in Claude Code itself: "use a command-type hook
+    # instead" — match that wording so authors can fix it without reading the changelog.
     if hook_type in {"prompt", "agent"} and event_name in COMMAND_ONLY_EVENTS:
         hook_path_str = report.hook_path
         report.critical(
-            f"Event '{event_name}' only supports type 'command' hooks, "
-            f"not '{hook_type}'. Prompt and agent hooks are not supported for this event.",
+            f"Event '{event_name}' only supports type 'command' hooks — "
+            f"use a command-type hook instead of '{hook_type}' "
+            "(Claude Code v2.1.142 rejects prompt/agent types here at load time).",
             hook_path_str,
         )
 
@@ -752,6 +817,9 @@ def validate_single_hook(
             return False
     elif hook_type == "prompt":
         if not validate_prompt_hook(hook, event_name, report):
+            return False
+    elif hook_type == "mcp_tool":
+        if not validate_mcp_tool_hook(hook, event_name, report):
             return False
     elif hook_type == "agent":
         # Agent hooks: require prompt, support model and timeout
@@ -793,18 +861,36 @@ def validate_single_hook(
         else:
             report.info("'once' field detected (only works in skill-defined hooks)")
 
+    # Validate `continueOnBlock` (v2.1.139) — only meaningful on PostToolUse hooks.
+    # When true, the hook's rejection reason is fed back to Claude and the turn
+    # continues instead of stopping.
+    if "continueOnBlock" in hook:
+        cob = hook["continueOnBlock"]
+        if not isinstance(cob, bool):
+            report.major(f"'continueOnBlock' must be a boolean, got {type(cob).__name__}")
+        elif cob and event_name != "PostToolUse":
+            report.minor(
+                f"'continueOnBlock: true' is only meaningful on PostToolUse hooks "
+                f"(event is '{event_name}') — the field is ignored elsewhere."
+            )
+
     # Check for unknown fields — warn but don't block, as custom fields
     # may be consumed by plugin scripts or external tooling
     known_hook_fields = {
         "type",
         "command",
+        "args",  # v2.1.139 exec form (alternative to `command`)
         "prompt",
+        "server",  # v2.1.118 mcp_tool hooks
+        "tool",  # v2.1.118 mcp_tool hooks
+        "arguments",  # v2.1.118 mcp_tool hooks
         "model",
         "timeout",
         "async",
         "matcher",
         "statusMessage",
         "once",
+        "continueOnBlock",  # v2.1.139 — PostToolUse only
         "description",
     }
     for key in hook:

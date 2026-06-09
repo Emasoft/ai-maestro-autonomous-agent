@@ -306,6 +306,56 @@ SKILL_FRONTMATTER_FIELDS = {
     "hooks",
 }
 
+# Known top-level fields in plugin.json. Claude Code v2.1.120 explicitly accepts
+# `$schema` here; v2.1.105 added `monitors`; v2.1.129 then asked plugin authors
+# to move `themes`/`monitors` under the `experimental` object (top-level still
+# works, but `claude plugin validate` warns).
+KNOWN_PLUGIN_MANIFEST_FIELDS = {
+    "$schema",  # v2.1.120
+    "name",
+    "version",
+    "description",
+    "author",
+    "repository",
+    "homepage",
+    "license",
+    "keywords",
+    "tags",
+    "category",
+    "dependencies",
+    "commands",
+    "agents",
+    "skills",
+    "hooks",
+    "mcpServers",
+    "lspServers",  # v2.1.142 — surfaced in `/plugin` details and `claude plugin details`
+    "outputStyles",
+    "themes",  # v2.1.118 themes directory; v2.1.129 → move under `experimental`
+    "monitors",  # v2.1.105 background-monitor support; v2.1.129 → move under `experimental`
+    "experimental",  # v2.1.129 — wrap experimental top-level keys here
+}
+
+# Plugin manifest keys that v2.1.129 expects under `experimental: {}`. Top-level
+# placement still works but `claude plugin validate` warns. We mirror that
+# advice when callers want to surface it.
+EXPERIMENTAL_PLUGIN_MANIFEST_KEYS = {"themes", "monitors"}
+
+# Known top-level fields in marketplace.json. v2.1.120 accepts $schema, version,
+# and description at the top level (previously rejected as unknown).
+KNOWN_MARKETPLACE_MANIFEST_FIELDS = {
+    "$schema",  # v2.1.120
+    "name",
+    "owner",
+    "plugins",
+    "version",  # v2.1.120
+    "description",  # v2.1.120
+    "homepage",
+    "license",
+    "keywords",
+    "tags",
+    "category",
+}
+
 
 def is_binary_file(file_path: Path) -> bool:
     """Check if a file is binary based on extension or content."""

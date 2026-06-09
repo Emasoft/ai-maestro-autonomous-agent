@@ -179,9 +179,20 @@ def validate_description_field(frontmatter: dict[str, Any], body: str, report: V
             "SKILL.md",
         )
 
-    if len(desc) > 500:
-        report.minor(
-            f"Description is long ({len(desc)} chars), consider shortening",
+    # Claude Code v2.1.105 raised the skill description listing cap from 250 to
+    # 1,536 characters and now emits a startup warning when a description is
+    # truncated. We mirror that ceiling here so authors catch it before publish.
+    if len(desc) > 1536:
+        report.major(
+            f"Description is {len(desc)} chars — Claude Code v2.1.105 truncates "
+            "skill descriptions at 1,536 characters in the listing UI. Shorten or "
+            "move detail into the SKILL.md body.",
+            "SKILL.md",
+        )
+    elif len(desc) > 1024:
+        report.nit(
+            f"Description is long ({len(desc)} chars); the v2.1.105 cap is 1,536 — "
+            "trimming improves triggering and /skills readability.",
             "SKILL.md",
         )
 

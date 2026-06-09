@@ -47,21 +47,29 @@ from cpv_validation_common import (
 
 # Known frontmatter fields per official docs (agent-specific)
 # Based on: https://code.claude.com/docs/en/sub-agents.md
+#
+# Main-thread `--agent <name>` loading expanded in late v2.1.x:
+#   - v2.1.116: `hooks:` frontmatter now fires when running as main-thread agent
+#   - v2.1.117: `mcpServers:` frontmatter now loaded for main-thread sessions
+#   - v2.1.119: `--agent` honors `permissionMode`, and `--print` honors
+#               `tools:`/`disallowedTools:`
+# Plugins are encouraged to declare these fields so the same agent works
+# identically whether spawned as a subagent or attached via `--agent`.
 KNOWN_FRONTMATTER_FIELDS = {
     # Required fields
     "name",
     "description",
     # Optional fields
-    "tools",
-    "disallowedTools",
+    "tools",  # v2.1.119: honored by --print mode
+    "disallowedTools",  # v2.1.119: honored by --print mode
     "model",
-    "permissionMode",
+    "permissionMode",  # v2.1.119: honored by --agent for built-in agents
     "skills",
-    "hooks",
+    "hooks",  # v2.1.116: fires when running as main-thread agent
     "color",
     "capabilities",
     "maxTurns",
-    "mcpServers",
+    "mcpServers",  # v2.1.117: loaded for main-thread --agent sessions
     "memory",
     "background",
     "isolation",
