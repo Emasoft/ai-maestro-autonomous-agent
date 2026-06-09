@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2026-06-09
+
+### Features
+
+- Adopt the AI Maestro markdown memory system (#5):
+  - `rules/memory-protocol.md` — recall-before-acting protocol, note schema,
+    and the index-by-symptom law, parameterised for the AUTONOMOUS role.
+  - `autonomous-memory-recall` skill + `scripts/memory_recall.sh` — symptom →
+    ranked notes via `memgrep`, degrading to plain `grep` when memgrep is
+    absent (recall never breaks).
+  - `autonomous-memory-write` skill + `scripts/memory_note_write.py` —
+    schema-validated, atomic note writer with de-duplicated `MEMORY.md`
+    index line and post-write verification.
+  - Real pytest suite (`tests/`) covering the memgrep path, the grep
+    fallback with memgrep absent, empty-corpus behavior, and the note
+    writer's schema/index/overwrite guarantees.
+  - The optional auto-recall hook was deliberately NOT added (issue marks it
+    opt-in/optional; deferred until requested).
+
+### Documentation
+
+- Integrate the approval-tiers + proposal→planned lifecycle +
+  baseline-governance rule into the AUTONOMOUS persona (#4): new
+  "Approval Tiers, the proposal→planned Lifecycle, and Baseline Governance"
+  section after Communication Permissions (R6) — NO-COS direct-to-MANAGER
+  routing, USER-direct Tier-3 fallback (R6.6), two-folder TRDD lifecycle,
+  ratified baseline rulesets — plus the reconciled Error-handling
+  clarification bullet.
+- Persona wires the memory protocol into the AUTONOMOUS workflow (recall
+  before acting in unattended cycles; write after solving) and registers
+  the two memory skills (#5).
+
 ## [1.1.0] - 2026-06-09
 
 ### Features
