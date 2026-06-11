@@ -97,5 +97,11 @@ cat ~/.claude/projects/session.jsonl
 - [Governance Questions and Edge Cases](references/questions.md)
   - [The 10 questions](references/questions.md#the-10-questions)
   - [Edge cases](references/questions.md#edge-cases)
+- [AMP message templates](references/amp-templates.md) — self-id-led bodies for
+  status updates, error reports, Tier-2 approval requests, and peer claims.
+  - [1. Status update → MANAGER](references/amp-templates.md#1-status-update--manager)
+  - [2. Error report → MANAGER](references/amp-templates.md#2-error-report--manager)
+  - [3. Tier-2 approval request → MANAGER](references/amp-templates.md#3-tier-2-approval-request--manager)
+  - [4. Peer claim announcement](references/amp-templates.md#4-peer-claim-announcement)
 - Full persona: `agents/ai-maestro-autonomous-agent-main-agent.md`
 - Workspace scope: `skills/ai-maestro-autonomous-workspace-isolation/SKILL.md`

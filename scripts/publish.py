@@ -1025,6 +1025,66 @@ def update_python_versions(plugin_root: Path, new_version: str) -> list[tuple[bo
     return results
 
 
+def update_readme_version(plugin_root: Path, new_version: str) -> tuple[bool, str]:
+    """Update the `**Version**: X.Y.Z` line in README.md (if present).
+
+    Anchored on the literal `**Version**:` label so it never touches an
+    unrelated version-like token elsewhere in the prose.
+    """
+    path = plugin_root / "README.md"
+    if not path.exists():
+        return True, "README.md not found (skipped)"
+    try:
+        content = path.read_text(encoding="utf-8")
+        pattern = r'^(\*\*Version\*\*:\s*)(\d+\.\d+\.\d+)\s*$'
+        old_v = None
+
+        def _replace(m: re.Match[str]) -> str:
+            nonlocal old_v
+            old_v = m.group(2)
+            return f"{m.group(1)}{new_version}"
+
+        new_content, count = re.subn(pattern, _replace, content, flags=re.MULTILINE)
+        if count == 0:
+            return True, "README.md has no **Version** line (skipped)"
+        path.write_text(new_content, encoding="utf-8")
+        return True, f"README.md: {old_v} -> {new_version}"
+    except Exception as e:
+        return False, f"README.md error: {e}"
+
+
+def update_persona_versions(plugin_root: Path, new_version: str) -> list[tuple[bool, str]]:
+    """Update the `**Plugin**: <name> vX.Y.Z` line in every agents/*.md persona.
+
+    Anchored on the literal `**Plugin**:` label + plugin name, so example
+    text such as "expedite the v2.0 release" is never rewritten.
+    """
+    agents_dir = plugin_root / "agents"
+    results: list[tuple[bool, str]] = []
+    if not agents_dir.is_dir():
+        return results
+    pattern = r'(\*\*Plugin\*\*:\s*\S+\s+v)(\d+\.\d+\.\d+)'
+    for md in sorted(agents_dir.rglob("*.md")):
+        try:
+            content = md.read_text(encoding="utf-8")
+            old_v = None
+
+            def _replace(m: re.Match[str]) -> str:
+                nonlocal old_v
+                old_v = m.group(2)
+                return f"{m.group(1)}{new_version}"
+
+            new_content, count = re.subn(pattern, _replace, content)
+            if count > 0:
+                md.write_text(new_content, encoding="utf-8")
+                rel = md.relative_to(plugin_root)
+                results.append((True, f"{rel}: {old_v} -> {new_version}"))
+        except Exception as e:
+            rel = md.relative_to(plugin_root)
+            results.append((False, f"{rel}: {e}"))
+    return results
+
+
 # ── Version consistency check ────────────────────────────────────────────────
 
 
@@ -1066,6 +1126,34 @@ def check_version_consistency(plugin_root: Path) -> tuple[bool, str]:
         except Exception:
             pass
 
+    # README.md "**Version**: X.Y.Z" display string (kept in sync by do_bump)
+    readme = plugin_root / "README.md"
+    if readme.exists():
+        try:
+            m = re.search(
+                r'^\*\*Version\*\*:\s*(\d+\.\d+\.\d+)\s*$',
+                readme.read_text(encoding="utf-8"),
+                re.MULTILINE,
+            )
+            if m:
+                versions["README.md"] = m.group(1)
+        except Exception:
+            pass
+
+    # agents/*.md persona "**Plugin**: <name> vX.Y.Z" display string
+    agents_dir = plugin_root / "agents"
+    if agents_dir.is_dir():
+        for md in sorted(agents_dir.rglob("*.md")):
+            try:
+                m = re.search(
+                    r'\*\*Plugin\*\*:\s*\S+\s+v(\d+\.\d+\.\d+)',
+                    md.read_text(encoding="utf-8"),
+                )
+                if m:
+                    versions[str(md.relative_to(plugin_root))] = m.group(1)
+            except Exception:
+                pass
+
     if not versions:
         return True, "No version sources found"
 
@@ -1092,6 +1180,8 @@ def do_bump(plugin_root: Path, new_version: str, dry_run: bool = False) -> bool:
     all_results.append(update_plugin_json(plugin_root, new_version))
     all_results.append(update_pyproject_toml(plugin_root, new_version))
     all_results.extend(update_python_versions(plugin_root, new_version))
+    all_results.append(update_readme_version(plugin_root, new_version))
+    all_results.extend(update_persona_versions(plugin_root, new_version))
 
     errors = 0
     for ok, msg in all_results:
