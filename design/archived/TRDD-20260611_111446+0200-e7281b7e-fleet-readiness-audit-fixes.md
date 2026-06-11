@@ -1,9 +1,9 @@
 ---
 trdd-id: e7281b7e-31f6-4740-a7f0-fed48f0ba3be
 title: Fleet-readiness deep audit (issue #6) — close governance gaps M1–M12
-column: planned
+column: completed
 created: 2026-06-11T11:14:46+0200
-updated: 2026-06-11T11:14:46+0200
+updated: 2026-06-11T11:51:44+0200
 current-owner: aimaa
 assignee: aimaa
 priority: 1
@@ -27,9 +27,11 @@ audit-requirements: []
 review-requirements: [human-review]
 runtime-targets: [macos, linux]
 impacts: [ci-pipeline]
-attempts: 0
-last-test-result: not-run
-implementation-commits: []
+attempts: 1
+last-test-result: pass
+implementation-commits: [102876c, 4dad3e2, 71c41bc, 0a6c6e4]
+published-version: 1.3.2
+published-at: 2026-06-11T11:51:44+0200
 external-refs: ["github.com/Emasoft/ai-maestro-autonomous-agent/issues/6"]
 ---
 
@@ -42,9 +44,24 @@ this repo at v1.2.0). USER authorized implementation ("read the github issues an
 implement/fix all pending"). Publishing is pre-authorized by #6's acceptance criteria
 ("version bumped + published") and the USER's directive — logged in `## Approval log`.
 
-**Current state:** authoring fixes. Working tree was clean at `6ed0999` (v1.2.0).
+**Current state:** ✅ COMPLETE. All M1–M12 ✗/PARTIAL addressed or justified.
+Published **v1.3.2** (Plugin Validation + Release CI green). Issue #6 replied
+(comment 4679309846) and closed (completed). Zero open issues.
 
-**NEXT ACTION:** execute Phase 1 (M6: purge all R6 v2 citations → v3).
+**NEXT ACTION:** none — terminal. (TRDD archived to `design/archived/`.)
+
+**M11 BUG AUTOPSY (why it took three releases):** version-sync had THREE hidden
+facets, each found by re-checking the real output:
+1. I patched `do_bump()` — but it has ZERO callers; Step 9 calls
+   `language_bump_version()`. → 1.3.0 shipped README/persona at 1.2.0.
+2. Fixed the live bump path, but Step 11's commit staged a FIXED list excluding
+   README/persona → the bumps were written yet never committed → drift persisted
+   through 1.3.1, tree left dirty.
+3. `update_readme_version`'s `\s*$` greedily ate the blank line after the badge.
+Fix landed across `language_bump_version` (bump) + Step-11 staged list (commit) +
+`[^\S\n]*$` regex. **Lesson: a passing unit test on the wrong function and a
+--dry-run that stops before Step 9 both gave false confidence — verify the
+function the pipeline ACTUALLY calls, against the real post-bump artifact.**
 
 **Load-bearing facts / gotchas:**
 - R6 **v3** model (the delta the docs must encode): COS guards the TEAM BOUNDARY only;
@@ -98,3 +115,5 @@ Verdicts ✓ (no change): M5 (kanban skill keep), M13.
   "implement/fix all pending" directive + issue #6 acceptance criteria ("version bumped +
   published"). No separate MANAGER sign-off needed — the USER (who outranks MANAGER) gave
   the order directly.
+- 2026-06-11T11:51:44+0200 — COMPLETED by aimaa. Published v1.3.2 (CI green); issue #6
+  replied + closed. `planned → completed`; `git mv` to `design/archived/`.
