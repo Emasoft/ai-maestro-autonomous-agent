@@ -1,10 +1,10 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
-    ## [1.3.0] - 2026-06-11
+    ## [1.3.1] - 2026-06-11
 
-### Features
+### Bug Fixes
 
-- Close fleet-readiness audit gaps M1–M12 (#6)    
+- Bump README + persona in the LIVE Step-9 path    
 
 
