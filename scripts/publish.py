@@ -1044,7 +1044,10 @@ def update_readme_version(plugin_root: Path, new_version: str) -> tuple[bool, st
         return True, "README.md not found (skipped)"
     try:
         content = path.read_text(encoding="utf-8")
-        pattern = r'^(\*\*Version\*\*:\s*)(\d+\.\d+\.\d+)\s*$'
+        # `[^\S\n]*$` = trailing horizontal whitespace only — NOT `\s*$`, which is
+        # greedy across newlines and would swallow the blank line after the badge
+        # (collapsing "**Version**: X\n\n## Overview" into "...X\n## Overview").
+        pattern = r'^(\*\*Version\*\*:\s*)(\d+\.\d+\.\d+)[^\S\n]*$'
         old_v = None
 
         def _replace(m: re.Match[str]) -> str:
@@ -1139,7 +1142,7 @@ def check_version_consistency(plugin_root: Path) -> tuple[bool, str]:
     if readme.exists():
         try:
             m = re.search(
-                r'^\*\*Version\*\*:\s*(\d+\.\d+\.\d+)\s*$',
+                r'^\*\*Version\*\*:\s*(\d+\.\d+\.\d+)[^\S\n]*$',
                 readme.read_text(encoding="utf-8"),
                 re.MULTILINE,
             )

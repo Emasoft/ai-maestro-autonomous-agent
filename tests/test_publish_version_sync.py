@@ -41,13 +41,15 @@ def _make_plugin(root: Path, version: str) -> None:
 
 
 def test_update_readme_version_is_anchored(tmp_path: Path) -> None:
-    """update_readme_version bumps the **Version** line only — the 'v2.0 release' decoy is untouched."""
+    """update_readme_version bumps the **Version** line only — decoy and the blank line after it survive."""
     _make_plugin(tmp_path, "1.0.0")
     ok, msg = publish.update_readme_version(tmp_path, "3.4.5")
     assert ok, msg
     text = (tmp_path / "README.md").read_text(encoding="utf-8")
     assert "**Version**: 3.4.5" in text
     assert "v2.0 release" in text  # decoy preserved
+    # the blank line after the badge must survive (regex must not eat the newline)
+    assert "**Version**: 3.4.5\n\nSee the v2.0 release" in text
 
 
 def test_update_persona_versions_is_anchored(tmp_path: Path) -> None:
