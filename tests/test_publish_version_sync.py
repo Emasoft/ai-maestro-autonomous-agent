@@ -96,3 +96,19 @@ def test_do_bump_roundtrip_keeps_all_four_sources_consistent(tmp_path: Path) -> 
     ok, msg = publish.check_version_consistency(tmp_path)
     assert ok, msg
     assert "1.1.0" in msg
+
+
+def test_language_bump_version_is_the_live_path_and_syncs_readme_and_persona(tmp_path: Path) -> None:
+    """language_bump_version (the LIVE Step-9 bumper) updates README + persona, not just the manifest.
+
+    Regression guard for the v1.3.0 incident: patching do_bump alone left this live path
+    bumping only plugin.json/pyproject, so README/persona drifted one version behind.
+    """
+    _make_plugin(tmp_path, "1.0.0")
+    info = publish.ProjectInfo(root=tmp_path, kind=publish.ProjectKind.CLAUDE_PLUGIN, name="demo", version="1.0.0")
+    results = publish.language_bump_version(info, "1.1.0")
+    assert results and all(ok for ok, _ in results), results
+    assert "**Version**: 1.1.0" in (tmp_path / "README.md").read_text(encoding="utf-8")
+    assert "**Plugin**: demo v1.1.0" in (tmp_path / "agents" / "demo-main-agent.md").read_text(encoding="utf-8")
+    ok, msg = publish.check_version_consistency(tmp_path)
+    assert ok, msg  # live path leaves all sources consistent at the new version

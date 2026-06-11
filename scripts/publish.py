@@ -664,6 +664,14 @@ def language_bump_version(info: ProjectInfo, new_version: str) -> list[tuple[boo
     # GO uses git tags — handled at push time, no file update.
     # BASH has no version file — handled at git-tag time.
 
+    # Universal display strings, kind-agnostic: the README **Version** badge and
+    # the agent persona **Plugin** vX.Y.Z line. Bumping them HERE (in the live
+    # Step-9 path) is what keeps them in lockstep with the manifest — without it
+    # they drift one version behind every release (the M11 defect). The matching
+    # check_version_consistency() scan refuses the NEXT publish if they ever drift.
+    results.append(update_readme_version(info.root, new_version))
+    results.extend(update_persona_versions(info.root, new_version))
+
     return results
 
 
