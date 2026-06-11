@@ -9,6 +9,8 @@
   "repository": "https://github.com/Emasoft/ai-maestro-autonomous-agent",
   "license": "MIT",
   "dependencies": [
-    "ai-maestro-plugin"
+    {
+      "name": "ai-maestro-plugin"
+    }
   ]
 }

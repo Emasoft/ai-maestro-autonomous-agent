@@ -91,11 +91,15 @@ def test_prrd_has_project_id_and_silver_rules() -> None:
 
 
 def test_plugin_json_declares_base_dependency() -> None:
-    """plugin.json declares the ai-maestro-plugin dependency (array of strings)."""
+    """plugin.json declares the ai-maestro-plugin dependency in the documented object form."""
     data = json.loads(PLUGIN_JSON.read_text(encoding="utf-8"))
     deps = data.get("dependencies")
-    assert isinstance(deps, list) and all(isinstance(d, str) for d in deps)
-    assert "ai-maestro-plugin" in deps
+    assert isinstance(deps, list) and deps, "dependencies must be a non-empty array"
+    # Canonical Claude Code shape is an array of objects: [{"name": "...", "version"?: "..."}].
+    # Accept a bare-string entry too, for forward/backward tolerance.
+    names = [d["name"] if isinstance(d, dict) else d for d in deps]
+    assert all(isinstance(n, str) for n in names), "every dependency must resolve to a name string"
+    assert "ai-maestro-plugin" in names
 
 
 def test_kanban_skill_documents_pipelines_and_has_no_ghost_dispatch() -> None:
