@@ -1,14 +1,14 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
-    ## [1.3.3] - 2026-06-11
+    ## [1.4.0] - 2026-06-15
 
 ### Documentation
 
-- Mark fleet-readiness audit (#6) completed → archived    
+- Record Claude Code currency review + validator prune (v1.3.3)    
 
-### Miscellaneous
+### Features
 
-- Prune vestigial bundled CPV validators; object-form deps    
+- Adopt global janitor-hosted 3-scope memory; drop per-plugin system    
 
 
