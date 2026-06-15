@@ -56,8 +56,15 @@ logs/
 *.temp
 .cache/
 
-# Claude Code
-.claude/
+# Claude Code cache — ignore everything under .claude/ EXCEPT the PROJECT
+# memory scope, which lives in-repo under .claude/project/memory/ and MUST be
+# tracked + pushed (the shared, cross-dev wiki memory). The bare-dir form would
+# prune the whole tree so git never honors the re-include — use the /** form,
+# then re-include each parent dir before the memory tree (order matters).
+.claude/**
+!.claude/project/
+!.claude/project/memory/
+!.claude/project/memory/**
 
 # LLM Externalizer
 llm_externalizer_output/

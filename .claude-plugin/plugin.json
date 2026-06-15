@@ -1,7 +1,7 @@
 {
   "name": "ai-maestro-autonomous-agent",
   "version": "1.3.3",
-  "description": "Mandatory role-plugin for AUTONOMOUS-titled agents in the AI Maestro ecosystem. Enforces workspace isolation, forbids cross-agent state mutation, respects the AMP communication graph, and coordinates with MANAGER via AMP. Ships 5 bundled skills covering governance rules, workspace isolation, PRRD/TRDD kanban, and markdown memory recall/write.",
+  "description": "Mandatory role-plugin for AUTONOMOUS-titled agents in the AI Maestro ecosystem. Enforces workspace isolation, forbids cross-agent state mutation, respects the AMP communication graph, and coordinates with MANAGER via AMP. Ships 3 bundled skills covering governance rules, workspace isolation, and the PRRD/TRDD kanban; uses the global janitor-hosted markdown memory system.",
   "author": {
     "name": "Emasoft",
     "email": "713559+Emasoft@users.noreply.github.com"

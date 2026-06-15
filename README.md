@@ -55,17 +55,21 @@ With `ai-maestro-autonomous-agent` installed, an AUTONOMOUS agent has:
 
 ## What's in the plugin
 
-```
+```text
 ai-maestro-autonomous-agent/
 ├── .claude-plugin/
 │   └── plugin.json                (manifest)
 ├── ai-maestro-autonomous-agent.agent.toml   (.agent.toml profile)
+├── CLAUDE.md                      (plugin guidance — the global memory system)
 ├── agents/
 │   └── ai-maestro-autonomous-agent-main-agent.md   (main agent persona)
 ├── skills/
 │   ├── ai-maestro-autonomous-governance/           (self-audit checklist)
-│   └── ai-maestro-autonomous-workspace-isolation/  (writable-scope examples)
-├── scripts/                       (publish pipeline + validators)
+│   ├── ai-maestro-autonomous-workspace-isolation/  (writable-scope examples)
+│   └── ai-maestro-autonomous-prrd-trdd-kanban/      (PRRD/TRDD kanban lifecycle)
+├── .claude/project/memory/        (PROJECT-scope wiki memory — git-tracked)
+├── scripts/                       (publish pipeline)
+├── design/                        (PRRD + TRDD lifecycle)
 ├── .github/workflows/             (CI + notify-marketplace)
 ├── CHANGELOG.md
 ├── LICENSE                        (MIT)

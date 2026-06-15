@@ -5,8 +5,9 @@ pre-push-hook.py) was REMOVED: CI (validate.yml/release.yml) and publish.py both
 the latest REMOTE CPV (`cpv-remote-validate`), so the local copies validated nothing and
 had drifted (validate_scoring.py even imported a non-existent validate_plugin). This plugin
 keeps only the load-bearing release chain — publish.py -> gitignore_filter ->
-cpv_validation_common -> smart_exec — plus the memory helpers. These tests prove that chain
-still compiles and imports, and that the vestigial family stays gone.
+cpv_validation_common -> smart_exec. These tests prove that chain still compiles and imports,
+and that the vestigial family (the bundled validators AND the per-plugin memory helpers,
+removed when the global janitor-hosted memory system was adopted) stays gone.
 """
 
 from __future__ import annotations
@@ -19,14 +20,13 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = REPO_ROOT / "scripts"
 
-# The scripts that remain after the prune — every one is reachable from a real entry
-# point (publish.py release pipeline, or the memory skills).
+# The scripts that remain after the prune — every one is reachable from the
+# publish.py release pipeline (the only entry point left in scripts/).
 KEEP_SET = {
     "publish.py",
     "gitignore_filter.py",
     "cpv_validation_common.py",
     "smart_exec.py",
-    "memory_note_write.py",
 }
 
 
@@ -44,7 +44,7 @@ def test_all_remaining_scripts_byte_compile() -> None:
 
 
 def test_keep_set_present() -> None:
-    """The load-bearing release chain + memory helper are present in scripts/."""
+    """The load-bearing release chain is present in scripts/."""
     present = {p.name for p in SCRIPTS.glob("*.py")}
     missing = KEEP_SET - present
     assert not missing, f"load-bearing scripts missing after prune: {missing}"
@@ -59,6 +59,10 @@ def test_vestigial_validators_are_gone() -> None:
     assert not list(SCRIPTS.glob("validate_*.py")), "a vestigial validate_*.py reappeared"
     assert not (SCRIPTS / "lint_files.py").exists(), "lint_files.py reappeared"
     assert not (SCRIPTS / "pre-push-hook.py").exists(), "the superseded pre-push-hook.py reappeared"
+    # The per-plugin memory helpers were removed when the global janitor-hosted memory
+    # system was adopted (TRDD-b48aa385); a reappearance is an accidental restore.
+    assert not (SCRIPTS / "memory_recall.sh").exists(), "the removed memory_recall.sh reappeared"
+    assert not (SCRIPTS / "memory_note_write.py").exists(), "the removed memory_note_write.py reappeared"
 
 
 def test_publish_module_imports() -> None:

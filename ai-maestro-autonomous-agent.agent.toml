@@ -14,7 +14,7 @@ tech_stack = ["generic"]
 
 [skills]
 primary = ["ai-maestro-autonomous-governance", "ai-maestro-autonomous-workspace-isolation"]
-secondary = ["ai-maestro-autonomous-prrd-trdd-kanban", "autonomous-memory-recall", "autonomous-memory-write"]
+secondary = ["ai-maestro-autonomous-prrd-trdd-kanban"]
 specialized = []
 
 [agents]

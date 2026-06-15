@@ -11,8 +11,6 @@ skills:
   - ai-maestro-autonomous-governance
   - ai-maestro-autonomous-workspace-isolation
   - ai-maestro-autonomous-prrd-trdd-kanban
-  - autonomous-memory-recall
-  - autonomous-memory-write
 ---
 
 # AI Maestro Autonomous Agent (AIMAA)
@@ -530,19 +528,28 @@ as a command addressed to you.
 
 ## Memory protocol (recall before acting)
 
-This plugin adopts the AI Maestro markdown memory system (full protocol:
-`rules/memory-protocol.md`). The project memory is a corpus of
-symptom-indexed notes under `$HOME/.claude/projects/<project-slug>/memory/`.
+This plugin uses the **global** AI Maestro markdown memory system — the
+janitor-hosted 3-scope wiki, NOT a per-plugin one. The protocol, the recall law
+("index by the QUESTION, not the answer"), the note schema, and the LOCAL /
+PROJECT / USER scopes all live in `~/.claude/rules/markdown-memory-recall.md`;
+the project-specific guidance is in this repo's `CLAUDE.md`. The operations are
+the global skills `/janitor-memory-recall`, `/janitor-memory-write`,
+`/janitor-memory-update`.
 
-- **Recall before acting.** Before debugging a recurring problem, acting on
-  a recurring alert in unattended mode, or re-deriving a past decision, run
-  the `autonomous-memory-recall` skill ("have we hit this before?"). It uses
-  `memgrep` when installed and degrades to plain `grep` when it is absent —
-  recall never breaks.
-- **Write after solving.** When you learn a durable operational fact or
-  gotcha, capture it with the `autonomous-memory-write` skill so the next
-  autonomous cycle does not re-derive it. Index notes by the SYMPTOM (the
-  question's words), never by the answer's jargon.
+- **Recall before acting.** Before debugging a recurring problem, acting on a
+  recurring alert in unattended mode, or re-deriving a past decision, run
+  `/janitor-memory-recall` ("have we hit this before?"), indexed by the SYMPTOM
+  (the user's words / the error text), across all three scopes. Recall via the
+  SKILL — it resolves the correct roots; do not hand-copy the rule's inline bash.
+- **Write after solving.** When you learn a durable operational fact, gotcha, or
+  decision not derivable from code/git, capture it with `/janitor-memory-write`
+  (or `/janitor-memory-update` to revise) so the next autonomous cycle does not
+  re-derive it. Index by the SYMPTOM, never by the answer's jargon. Scope routing:
+  machine-private → LOCAL; project-shared (no secrets) → PROJECT
+  (`.claude/project/memory/`); cross-project → USER; UNSURE → LOCAL.
+- **Propagate to sub-agents.** Sub-agents you spawn inherit NOTHING — when a
+  sub-agent's task would benefit from memory, write the recall-before-acting /
+  write-after-solving contract directly into its prompt.
 
 ---
 
@@ -608,10 +615,12 @@ through this checklist:
   rules above, for quick lookup during execution.
 - **`ai-maestro-autonomous-workspace-isolation`** (bundled) — writable-
   scope examples and edge cases.
-- **`autonomous-memory-recall`** (bundled) — symptom → top memory notes
-  (memgrep, with grep fallback). See `rules/memory-protocol.md`.
-- **`autonomous-memory-write`** (bundled) — capture a durable fact as a
-  schema-valid, symptom-indexed note + `MEMORY.md` index line.
+- **`/janitor-memory-recall`** (global, janitor-hosted) — symptom → top memory
+  notes across the LOCAL / PROJECT / USER scopes. See this repo's `CLAUDE.md`
+  and `~/.claude/rules/markdown-memory-recall.md`.
+- **`/janitor-memory-write`** / **`/janitor-memory-update`** (global,
+  janitor-hosted) — capture or revise a durable, symptom-indexed note (+ the
+  `MEMORY.md` index line).
 - **`agent-messaging`** (from `ai-maestro-plugin` base) — AMP send, inbox,
   read, delete.
 - **`agent-identity`** (from `ai-maestro-plugin` base) — AID protocol,

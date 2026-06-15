@@ -18,8 +18,6 @@ EXPECTED_SKILLS = {
     "ai-maestro-autonomous-governance",
     "ai-maestro-autonomous-workspace-isolation",
     "ai-maestro-autonomous-prrd-trdd-kanban",
-    "autonomous-memory-recall",
-    "autonomous-memory-write",
 }
 
 
@@ -28,7 +26,7 @@ def _skill_dirs() -> list[Path]:
 
 
 def test_all_expected_skills_present() -> None:
-    """The five bundled skills each have a SKILL.md."""
+    """The three bundled skills each have a SKILL.md."""
     found = {d.name for d in _skill_dirs()}
     assert EXPECTED_SKILLS <= found, f"missing skills: {EXPECTED_SKILLS - found}"
 
