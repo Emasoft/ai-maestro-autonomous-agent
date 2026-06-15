@@ -1,9 +1,9 @@
 ---
 trdd-id: b48aa385-3ca1-4b50-8f23-d02e0777c23e
 title: Adopt the global janitor-hosted 3-scope memory system (issue #7) + extend Claude Code currency to 2.1.178
-column: dev
+column: completed
 created: 2026-06-16T01:39:13+0200
-updated: 2026-06-16T01:39:13+0200
+updated: 2026-06-16T01:49:53+0200
 current-owner: aimaa
 assignee: aimaa
 priority: 1
@@ -28,16 +28,17 @@ audit-requirements: []
 review-requirements: [human-review]
 runtime-targets: [macos, linux]
 impacts: [ci-pipeline]
-attempts: 0
-last-test-result: not-run
-implementation-commits: []
-published-version: null
+attempts: 1
+last-test-result: pass
+implementation-commits: [7fe8d84, 9f20bfd]
+published-version: 1.4.0
+published-at: 2026-06-16T01:49:53+0200
 external-refs: ["github.com/Emasoft/ai-maestro-autonomous-agent/issues/7", "https://code.claude.com/docs/en/changelog.md"]
 ---
 
 # TRDD-b48aa385 — Adopt the global janitor-hosted 3-scope memory system (issue #7) + Claude Code currency 2.1.178
 
-## ⏵ STATE — READ THIS FIRST ON RESUME (authoritative; supersedes the body) — 2026-06-16
+## ⏵ STATE — ✅ COMPLETE (published v1.4.0, all CI green) — 2026-06-16
 
 **Source of work:** GitHub issue #7 (MANAGER, i.e. the Claude developing
 ai-maestro-assistant-manager-agent). **Standing pre-authorization (2026-06-15):**
@@ -123,3 +124,10 @@ memory skills/rule, then update tests + agent.toml, then validate + publish.
   and (b) a direct USER order this session. `complete → publish` (Tier-2) routes
   to MANAGER (assistant-manager) for ack-after-publish per issue #7, not a
   block-before. No COS hop (AUTONOMOUS is a governance-layer peer).
+- 2026-06-16T01:49:53+0200 — COMPLETED by aimaa. Published **v1.4.0** (commit
+  9f20bfd; feature 7fe8d84). All CI green (Plugin Validation, Release, Notify
+  Marketplace, Dependency Graph). CPV `--strict`: CRITICAL=0 MAJOR=0 MINOR=0
+  NIT=0 (8 non-blocking advisories; 5 are the pre-existing RC-PIPELINE-DRIFT-001
+  CPV-canon standardization suggestion — flagged to MANAGER as a follow-up).
+  `dev → completed`; `git mv` to `design/archived/`. Reported on issue #7;
+  filed a Janitor coordinate issue + corroborated janitor#37.
