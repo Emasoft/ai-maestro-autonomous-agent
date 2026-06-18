@@ -1,23 +1,24 @@
 ---
 description: >
   Use when an AUTONOMOUS agent needs to self-audit before executing a
-  destructive or ambiguous action. Walks through 10 governance questions
-  and returns ALLOWED or FORBIDDEN. Trigger with "can I do this?", "am I
-  allowed to", "is this within my scope".
+  destructive or ambiguous action. Walks through 12 governance questions
+  (scope, identity R26, sudo R32, ...) and returns ALLOWED or FORBIDDEN.
+  Trigger with "can I do this?", "am I allowed to", "is this within my scope".
 allowed-tools: "Read, Grep, Glob"
 ---
 
 # AI Maestro Autonomous Governance — Self-Audit Checklist
 
-Before executing any non-trivial action, walk through the 10-question
+Before executing any non-trivial action, walk through the 12-question
 checklist below. If ANY answer triggers FORBIDDEN, stop immediately.
 
 ## Overview
 
-A 10-question self-audit for AUTONOMOUS agents, mapping 1:1 to the
-forbidden-action rules in the main persona. Deterministic: all ALLOWED
-→ action is safe; any FORBIDDEN → stop and escalate via AMP. Full
-per-question criteria and edge cases:
+A 12-question self-audit for AUTONOMOUS agents, mapping to the
+forbidden-action rules and the foundational governance rules (R26–R40) in
+the main persona. Deterministic: all ALLOWED → action is safe; any
+FORBIDDEN → stop and escalate via AMP. Full per-question criteria and
+edge cases:
 [questions](references/questions.md).
 
 ## Prerequisites
@@ -34,7 +35,7 @@ Follow these steps in order. Stop at the first FORBIDDEN outcome.
    target path, every git command, every `gh` command, every AMP
    recipient, and every tmux/API call that mutates another agent.
 2. **Open the [questions](references/questions.md) reference** and
-   read Q1 through Q10 plus the edge cases. Each question has an
+   read Q1 through Q12 plus the edge cases. Each question has an
    ALLOWED/FORBIDDEN decision rule.
 3. **Copy this checklist and track your progress** by marking each
    question ALLOWED or FORBIDDEN as you answer it:
@@ -48,9 +49,11 @@ Follow these steps in order. Stop at the first FORBIDDEN outcome.
    - [ ] Q8 rm -rf scope check
    - [ ] Q9 User-scope installation check
    - [ ] Q10 AMP routing check
+   - [ ] Q11 Identity self-change check (R26)
+   - [ ] Q12 Credential-passthrough check (R32)
 4. **Record the decision**. If any question returns FORBIDDEN, stop
    the audit — the overall verdict is FORBIDDEN.
-5. **If all 10 return ALLOWED**, proceed with the action and log the
+5. **If all 12 return ALLOWED**, proceed with the action and log the
    outcome in `loop.md`.
 6. **If any returned FORBIDDEN**, consult the Edge Cases section of
    [questions](references/questions.md) for escalation patterns and
@@ -58,7 +61,7 @@ Follow these steps in order. Stop at the first FORBIDDEN outcome.
 
 ## Output
 
-- **ALLOWED**: all 10 checks pass → execute the action → log to
+- **ALLOWED**: all 12 checks pass → execute the action → log to
   `loop.md` → send AMP status update to MANAGER on completion.
 - **FORBIDDEN**: any check fails → stop → explain the violated rule →
   propose an alternative → wait for clarification via AMP.
@@ -95,7 +98,7 @@ cat ~/.claude/projects/session.jsonl
 ## Resources
 
 - [Governance Questions and Edge Cases](references/questions.md)
-  - [The 10 questions](references/questions.md#the-10-questions)
+  - [The 12 questions](references/questions.md#the-12-questions)
   - [Edge cases](references/questions.md#edge-cases)
 - [AMP message templates](references/amp-templates.md) — self-id-led bodies for
   status updates, error reports, Tier-2 approval requests, and peer claims.

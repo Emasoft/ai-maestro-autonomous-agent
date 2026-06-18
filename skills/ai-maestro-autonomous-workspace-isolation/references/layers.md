@@ -61,7 +61,7 @@ Right / wrong pairs for the 10 most common write operations.
 
 **Install a Python package** — Right: `cd ~/agents/<my-name>/project && uv venv && uv pip install <pkg>` (venv local to project). Wrong: `pip install <pkg>` (writes to user-scope site-packages).
 
-**Install a Claude Code plugin for yourself** — Right: ask the user or MANAGER to run `aimaestro-agent.sh plugin` (manages your Claude Code plugins). Wrong: `claude plugin install ...` at user scope.
+**Install a Claude Code plugin for yourself** — Right: get **MANAGER** approval, then self-install via the core `ai-maestro-plugin` skills / `aimaestro-agent.sh plugin` (server-side, CPV-scanned) — R27. Wrong: `claude plugin install ...` at user scope.
 
 **Save a work log** — Right: `echo "$LOG" > ~/agents/<my-name>/work-log.md`. Wrong: `echo "$LOG" > ~/.aimaestro/my-log.md`.
 

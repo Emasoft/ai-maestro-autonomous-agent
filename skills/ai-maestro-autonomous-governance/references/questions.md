@@ -2,10 +2,10 @@
 
 ## Table of Contents
 
-- [The 10 questions](#the-10-questions)
+- [The 12 questions](#the-12-questions)
 - [Edge cases](#edge-cases)
 
-## The 10 questions
+## The 12 questions
 
 Each question returns ALLOWED or FORBIDDEN. Stop at the first FORBIDDEN.
 
@@ -21,13 +21,17 @@ Each question returns ALLOWED or FORBIDDEN. Stop at the first FORBIDDEN.
 
 **Q6 Destructive git check** — Does my action use `git push --force`, `git reset --hard`, `git clean -fd`, `git branch -D`, `git rebase -i`, or any history-rewriting command? If YES → Is the target a branch I created alone that has NOT been pushed to any shared branch? If not → **FORBIDDEN**.
 
-**Q7 Other-agent lifecycle check** — Does my action kill, hibernate, wake, restart, or mutate another agent via tmux or direct API calls? If YES → Did the USER or MANAGER EXPLICITLY instruct me in the CURRENT turn? If not → **FORBIDDEN**.
+**Q7 Other-agent lifecycle check** — Does my action kill, hibernate, wake, restart, or mutate another agent via tmux or the AI Maestro agent CLI (`aimaestro-agent.sh`)? If YES → Did the USER or MANAGER EXPLICITLY instruct me in the CURRENT turn? If not → **FORBIDDEN**.
 
 **Q8 rm -rf scope check** — Does my action use `rm -rf` or equivalent (`find ... -delete`, `shred -u`, `dd if=/dev/zero`)? If YES → Is the target strictly under a system scratch area (see workspace-isolation skill §Layer 1) or `~/agents/<my-name>/`? If not → **FORBIDDEN**.
 
-**Q9 User-scope installation check** — Does my action install a package, plugin, MCP server, hook, or skill under `~/.claude/` or `~/.aimaestro/` (other than my own inbox)? If YES → **FORBIDDEN**.
+**Q9 User-scope installation check** — Does my action install a package, plugin, MCP server, hook, or skill under `~/.claude/` or `~/.aimaestro/` (other than my own inbox)? If YES → **FORBIDDEN** _unless_ it is a self-install routed through the core `ai-maestro-plugin` skills with **MANAGER** approval (the server CPV-scans it first) — that sanctioned path is **R27**. A direct `claude plugin install` (or `pip install` to user site-packages) is still **FORBIDDEN**.
 
 **Q10 AMP routing check** — Does my action send an AMP message to a recipient OTHER than MANAGER, peer AUTONOMOUS agents, or HUMAN (the three `Y` edges for AUTONOMOUS under the R6 v3 graph)? If YES → **FORBIDDEN**. Route through MANAGER instead. Note: MAINTAINER is no longer a direct edge for AUTONOMOUS (removed in the v1 tightening) — the server returns HTTP 403 `title_communication_forbidden` on a direct send. Under R6 v3 the MANAGER you route through itself reaches team-internal titles only via that team's COS, but that is MANAGER's concern, not yours — your edge set is unchanged. For reply-only edges see the main persona's Communication Permissions section.
+
+**Q11 Identity self-change check** — Does my action change my OWN governance `TITLE`, role-plugin (`ROLE`), `NAME`, or `AID` token (by ANY means — editing local config, running `aimaestro-agent.sh update <my-id>` on myself, etc.)? If YES → **FORBIDDEN**. My identity is immutable to me (R26); only the USER (MAESTRO) or MANAGER may change it — surface the request to them.
+
+**Q12 Credential-passthrough check** — Does my action supply, request, or pass through a sudo / governance **password** (an `X-Sudo-Token`, a `--password` value, etc.)? If YES → **FORBIDDEN**. Agents never sudo (R32); I authenticate by AID + portfolio token (R28). A deployed CLI that demands `--password` is a USER/UI residual — surface the operation to the MAESTRO (who supplies it via the UI); never supply it myself.
 
 ## Edge cases
 
