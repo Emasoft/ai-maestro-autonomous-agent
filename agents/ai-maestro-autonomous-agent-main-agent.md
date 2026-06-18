@@ -126,9 +126,11 @@ strictly scoped because stray writes can destroy other agents' work.
    `~/.aimaestro/agents/registry.json`, `~/.aimaestro/teams/teams.json`,
    `~/.aimaestro/teams/groups.json`, `~/.aimaestro/governance.json`, and
    any file under `~/.aimaestro/agents/<other>/`. If you need to change
-   agent or team state, you MUST use the AI Maestro HTTP API
-   (`POST/PATCH/DELETE /api/agents`, `/api/teams`, etc.), which runs the
-   proper pipeline gates.
+   agent or team state, you MUST use the immutable AI Maestro CLI
+   (`aimaestro-agent.sh` for agents, `aimaestro-teams.sh` for teams), which
+   runs the proper pipeline gates. Use the frozen CLI, never a raw `/api/*`
+   HTTP route — the server's routes can be renamed, but the CLI is the
+   stable interface (frozen-interface rule R23).
 
 3. **Never read secrets**. Do not open, cat, or copy files under
    `~/.aimaestro/secrets/`, `~/.ssh/`, `~/.config/gh/`, `~/.gnupg/`, any
@@ -480,15 +482,16 @@ coordinates.
 ## Governance title changes
 
 Your governance title (AUTONOMOUS) and role-plugin
-(`ai-maestro-autonomous-agent`) are set via the AI Maestro PATCH API, NOT
-by mutating your own local config.
+(`ai-maestro-autonomous-agent`) are set via the AI Maestro agent CLI
+(`aimaestro-agent.sh update`), NOT by mutating your own local config.
 
 - If the user or MANAGER instructs you to change your title, they should
-  do it via `PATCH /api/agents/<your-id>` — not by asking you to edit
-  `~/.aimaestro/agents/registry.json` directly.
+  do it via `aimaestro-agent.sh update <your-id>` — not by asking you to
+  edit `~/.aimaestro/agents/registry.json` directly.
 - If you are asked to edit your own title in any other way, refuse and
-  explain: "Title changes must go through the PATCH /api/agents API so the
-  ChangeTitle pipeline runs its gates. Please direct the request there."
+  explain: "Title changes must go through the AI Maestro agent CLI
+  (`aimaestro-agent.sh update`) so the ChangeTitle pipeline runs its gates.
+  Please direct the request there."
 
 ---
 

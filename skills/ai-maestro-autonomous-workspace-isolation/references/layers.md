@@ -35,8 +35,8 @@ Three layers: writable locally, writable via `git push`, read-only.
 | Path | OK to write? |
 |---|---|
 | `~/agents/<some-other-agent>/` | NO (READ is fine) |
-| `~/.aimaestro/agents/registry.json` | NO (use HTTP API) |
-| `~/.aimaestro/teams/*.json` | NO (use HTTP API) |
+| `~/.aimaestro/agents/registry.json` | NO (use `aimaestro-agent.sh`) |
+| `~/.aimaestro/teams/*.json` | NO (use `aimaestro-teams.sh`) |
 | `~/.claude/` | NO |
 | `~/.ssh/`, `~/.gnupg/`, `~/.config/gh/` | NO (no read either) |
 | system paths (`/etc`, `/usr`, `/opt`, etc.) | NO |
@@ -49,7 +49,7 @@ TARGET="/path/to/proposed/write/target"
 MY_AGENT_NAME="<your-agent-name>"
 case "$TARGET" in
     $HOME/agents/$MY_AGENT_NAME/*|/tmp/*|/private/tmp/*) echo ALLOWED ;;
-    *) echo "FORBIDDEN — use the HTTP API or a different path" ;;
+    *) echo "FORBIDDEN — use the AI Maestro CLI or a different path" ;;
 esac
 ```
 
@@ -61,7 +61,7 @@ Right / wrong pairs for the 10 most common write operations.
 
 **Install a Python package** — Right: `cd ~/agents/<my-name>/project && uv venv && uv pip install <pkg>` (venv local to project). Wrong: `pip install <pkg>` (writes to user-scope site-packages).
 
-**Install a Claude Code plugin for yourself** — Right: ask the user or MANAGER to call `PATCH /api/agents/<my-id>`. Wrong: `claude plugin install ...` at user scope.
+**Install a Claude Code plugin for yourself** — Right: ask the user or MANAGER to run `aimaestro-agent.sh plugin` (manages your Claude Code plugins). Wrong: `claude plugin install ...` at user scope.
 
 **Save a work log** — Right: `echo "$LOG" > ~/agents/<my-name>/work-log.md`. Wrong: `echo "$LOG" > ~/.aimaestro/my-log.md`.
 
@@ -71,8 +71,8 @@ Right / wrong pairs for the 10 most common write operations.
 
 **Push changes to GitHub** — Right: `cd ~/agents/<my-name>/<repo>/ && git push origin my-branch` (agent-created branch, host-user repo). Wrong: `git push --force`, pushing to `main` directly, or pushing to a repo without write access.
 
-**Stop another agent** — Right: AMP MANAGER explaining why; MANAGER calls the hibernate API. Wrong: `tmux kill-session -t <other-agent>` or editing another agent's settings.
+**Stop another agent** — Right: AMP MANAGER explaining why; MANAGER runs `aimaestro-agent.sh hibernate <other-id>`. Wrong: `tmux kill-session -t <other-agent>` or editing another agent's settings.
 
-**Update my own agent's config** — Right: ask the user or MANAGER to call `PATCH /api/agents/<my-id>`. Wrong: editing `~/.aimaestro/agents/registry.json` directly.
+**Update my own agent's config** — Right: ask the user or MANAGER to run `aimaestro-agent.sh update <my-id>`. Wrong: editing `~/.aimaestro/agents/registry.json` directly.
 
 **Access a secret (e.g. a PAT)** — Right: wait for the user to place the credential in an allowed file under your own workdir (e.g. `~/agents/<my-name>/.env.local`), read from there, never copy or echo. Wrong: reading `~/.ssh/id_ed25519`, `~/.config/gh/hosts.yml`, or any `.env` outside your own workdir.
