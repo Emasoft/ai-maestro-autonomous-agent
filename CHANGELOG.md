@@ -1,14 +1,16 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
-    ## [1.4.0] - 2026-06-15
+    ## [1.4.1] - 2026-06-18
 
 ### Documentation
 
-- Record Claude Code currency review + validator prune (v1.3.3)    
+- Archive TRDD-b48aa385 — global memory adopted + published v1.4.0    
+- Seed publish-pipeline PROJECT note (pre-push hook → publish.py)    
+- Proposal TRDD-5c21e4a0 — RC-PIPELINE-DRIFT-001 (Tier-2, awaiting decision)    
 
-### Features
+### Refactor
 
-- Adopt global janitor-hosted 3-scope memory; drop per-plugin system    
+- Decouple executable /api/* -> frozen aimaestro-*.sh CLI verbs (R23, #8)    
 
 
