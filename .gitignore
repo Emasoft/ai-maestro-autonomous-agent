@@ -65,6 +65,11 @@ logs/
 !.claude/project/
 !.claude/project/memory/
 !.claude/project/memory/**
+# ...but re-ignore janitor detector outputs in the memory dir (machine-local,
+# regenerated each heartbeat scan, may quote flagged content) — they must never
+# reach the shared PROJECT scope, and they would otherwise dirty the tree and
+# abort publish.py's clean-tree gate.
+.claude/project/memory/*-proposed.md
 
 # LLM Externalizer
 llm_externalizer_output/
