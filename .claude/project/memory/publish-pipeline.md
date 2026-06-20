@@ -51,7 +51,7 @@ See [[architecture]].
   file is read by CPV's skill-reference checker as a path `skills/<name>` →
   `[MAJOR] Reference to non-existent skill 'subagents'`. Fix: use a comma list
   (`skills, subagents, hooks, or MCP servers`). (2) `sudo` + `password` adjacency in
-  a **SKILL.md** (e.g. a checklist label `Sudo / governance-password check`) trips
+  a **SKILL.md** (e.g. a checklist label that pairs the elevation keyword with `password`) trips
   `skillaudit:privilege_escalation` (a demoted NIT that still blocks `--strict`).
   Only **SKILL.md** is skillaudit-scanned — the identical text in `references/*.md`
   is NOT — so keep the sudo/password detail in the reference and give the SKILL.md
