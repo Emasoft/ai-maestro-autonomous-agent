@@ -1,8 +1,8 @@
 ---
 name: publish-pipeline
-description: "git push REFUSED by pre-push hook / 'every push MUST go through scripts/publish.py' — how do release + standalone doc commits actually reach origin; how to cut a release"
+description: "git push REFUSED by pre-push hook / 'every push MUST go through scripts/publish.py' — how do release + standalone doc commits actually reach origin; how to cut a release; is --force-templates / CPV canonical-migration safe on this plugin (no — ahead-of-canon, accepted RC-PIPELINE-DRIFT WARNINGs)"
 ocd: 2026-06-16
-lmd: 2026-06-18
+lmd: 2026-06-20
 metadata:
   node_type: memory
   type: project
@@ -41,6 +41,14 @@ The publish gate runs **CPV `--strict`** (Step 5) and BLOCKS on any
 CRITICAL/MAJOR/MINOR/NIT. Two phrasing FALSE-POSITIVES recur when editing the
 persona/skills — reword the *shape* to clear them, never suppress the rule.[^1]
 
+**`--force-templates` / CPV canonical-template clobber must NEVER be run on this
+plugin's pipeline.** The validator's `RC-PIPELINE-DRIFT-001` WARNINGs (7 at v1.5.1)
+are ACCEPTED, intentional, non-blocking drift — not unfixed findings. `release.yml`
++ `notify-marketplace.yml` are AHEAD of canon; a force-clobber would DOWNGRADE them
+and regress the v1.5.1 security SHA-pins. v1.5.1 (TRDD-5c21e4a0) is the USER-ratified
+end-state; the only legitimate forward motion is the ADDITIVE subset (proposal
+TRDD-270ef961).[^2]
+
 See [[architecture]].
 
 ## Notes and lessons learned
@@ -69,3 +77,24 @@ See [[architecture]].
   when a git-tracked, CPV-scanned file must mention the offending shape, describe it
   with a placeholder — never reproduce the literal label/identifier — or you re-block
   your own NEXT publish.
+[^2]: [ocd:2026-06-20 lmd:2026-06-20] Fleet work order #10 (umbrella `ai-maestro#44`,
+  MANAGER/USER directive) asked to `--force-templates` this plugin to CPV 2.136.1
+  canon. A `plugin-fixer` run VERIFIED that is the WRONG action and STOPPED with zero
+  edits (tree clean, version 1.5.1). Three blockers: (a) CPV's OWN validator flags
+  `release.yml`+`notify-marketplace.yml` as *"AHEAD of canon … do NOT run
+  `--force-templates`: it would DOWNGRADE this file"* — this plugin's release pipeline
+  carries SBOM + build-provenance + per-asset SHA256SUMS + idempotent-release + a
+  MARKETPLACE_PAT no-op guard that canon lacks; (b) canon pins DIFFERENT action SHAs
+  (`setup-uv@fac544c…#v8.2.0`, `repository-dispatch@5fc4efd…#v4.0.0`) than the hardened
+  v1.5.1 pins (`@d4b2f3b…#v5.4.2`, `@28959ce…#v4.0.1`), so a clobber regresses security;
+  (c) USER-approved Tier-2 TRDD-5c21e4a0 already did the SAFE SHA-pin subset and
+  explicitly DEFERRED the force-overwrite — v1.5.1 IS the ratified end-state. Plugin was
+  already publish-clean (`--strict`: 113 passed, 0/0/0/0, 7 non-blocking WARNINGs). LESSON:
+  a fleet "bring the pipeline to canonical" directive is NOT a mandate to force-clobber —
+  check the validator's PER-FILE direction (some files say "migrate", AHEAD-of-canon files
+  say "do NOT") AND the SHA-pin preservation FIRST. An already-hardened, ahead-of-canon
+  plugin's correct response is **no-op + report**, never `--force-templates`. The only
+  legitimate forward motion is the ADDITIVE subset (pin CPV ref `@v2.136.1`; harden the
+  validate step) — proposal TRDD-270ef961, gated on Tier-2 approval. A future `publish.py`
+  canon alignment, if ever wanted, must be a reviewed 3-way merge + `--dry-run` +
+  test-release, never a force-overwrite.
