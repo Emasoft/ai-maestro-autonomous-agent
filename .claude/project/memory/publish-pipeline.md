@@ -47,7 +47,7 @@ are ACCEPTED, intentional, non-blocking drift — not unfixed findings. `release
 + `notify-marketplace.yml` are AHEAD of canon; a force-clobber would DOWNGRADE them
 and regress the v1.5.1 security SHA-pins. v1.5.1 (TRDD-5c21e4a0) is the USER-ratified
 end-state; the only legitimate forward motion is the ADDITIVE subset (proposal
-TRDD-270ef961).[^2]
+TRDD-270ef961). A fleet "go canonical" RE-ASK is fast-confirmed, never re-derived.[^2][^4]
 
 **The CPV-canon CI "validate-step hardening" has a LANDMINE.** The safe additive
 upgrade is: pin the CPV ref to a tag (`@v2.136.1`) + add `timeout-minutes`. But do
@@ -125,3 +125,20 @@ See [[architecture]].
   this one is buggy (it's prescribed in `pipeline-rules.md`, scaffolded by
   `generate_plugin_repo.py`, AND enforced by a test). Filed claude-plugins-validation#141.
   A guardrail comment now sits in both workflows so a future canon-upgrade doesn't re-add it.
+[^4]: [ocd:2026-06-20 lmd:2026-06-20] Fleet RE-ASK #11 (MANAGER re-filed ai-maestro#44 as a
+  per-repo tracker, 2026-06-20) prescribed the FULL canonical migration (`--force-templates`) +
+  4 CI-only defects AMAMA hit (CPV#142). Reconciled WITHOUT re-deriving: (a) #11's OWN fix #1
+  carves out this case — *"remote-validation-profile plugins: KEEP your by-design publish.py"*;
+  (b) the 4 CPV#142 fixes don't apply (this plugin has no canonical `ci.yml` / no `uv sync
+  --extra dev`; fix #3 = the owner-env bug already fixed at v1.5.3 → CPV#141; fix #4's
+  "superseded validate.yml" is this plugin's ACTIVE workflow, not a leftover); (c) the
+  force-templates clobber is the USER-deferred item (TRDD-5c21e4a0). FAST-CONFIRM RECIPE — run
+  this to prove the exception in one shot on any future re-ask / CPV bump:
+  `CLAUDE_PRIVATE_USERNAMES=runner uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v2.136.1 --with pyyaml cpv-remote-validate plugin . --strict`
+  → expect EXIT=0, CRITICAL=0/MAJOR=0/MINOR=0/NIT=0, 7 non-blocking WARNINGs (the accepted
+  ahead-of-canon drift). If it passes, the plugin IS canon-clean and the only "gap" is the
+  deferred structural clobber: post the evidence on the tracker, recommend close-as-exception,
+  do NOT force-template (and never override the USER deferral on a MANAGER directive). Note:
+  `=runner` is the canonical-safe value of `CLAUDE_PRIVATE_USERNAMES` in CI (= `$(whoami)` on a
+  GitHub runner); this plugin OMITS it (equivalent — CI green proves it), explicit `=runner` is
+  the canon form if ever wanted.
