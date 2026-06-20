@@ -1,10 +1,12 @@
 ---
 trdd-id: 270ef961-d71a-4c68-a110-4c703f82d84a
 title: CPV canon ADDITIVE reliability subset — pin CPV ref + validate-step timeout/integrity-skip (NOT a template clobber)
-column: planned
+column: published
 approval-tier: 2
 created: 2026-06-20T20:04:49+0200
-updated: 2026-06-20T21:16:17+0200
+updated: 2026-06-20T21:32:36+0200
+published-version: 1.5.3
+implementation-commits: [c35bc16, e645843]
 current-owner: autonomous-agent
 task-type: infra
 parent-trdd: TRDD-5c21e4a0
@@ -75,3 +77,10 @@ external-refs: ["github.com/Emasoft/ai-maestro-autonomous-agent/issues/10", "git
   fix agent, the cpv upgrade agent, then publish + check CI". Interpreted as authorizing THIS additive
   subset (the verified-safe upgrade), NOT the `--force-templates` clobber (verified harmful + deferred
   by TRDD-5c21e4a0). Promoted proposal→planned; implementing the items 1-2 now (item 3 minors deferred).
+- 2026-06-20T21:32:36+0200 — SHIPPED + PUBLISHED v1.5.3 (CI green: Plugin Validation ✓ Release ✓ Notify
+  Marketplace ✓). Item 1 (pin CPV ref `@v2.136.1`) + `timeout-minutes: 20` shipped. **Item 2 REVERTED**:
+  the `CLAUDE_PRIVATE_USERNAMES: ${{ github.repository_owner }}` half of canon's "validate-step hardening"
+  is BUGGY — it flagged the public owner name as 12 false `CRITICAL: private path leaked`, redding v1.5.2's
+  CI (local `--strict` was 0/0/0/0 because `$(whoami)` ≠ owner). v1.5.3 dropped the whole `env` block + added
+  a guardrail comment; CI green. Root cause is CPV canon — filed claude-plugins-validation#141. Lesson in
+  `publish-pipeline.md [^3]`. Net delivered: the high-value CPV-ref pin + per-job timeout; SHA-pins preserved.

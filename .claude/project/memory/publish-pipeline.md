@@ -49,6 +49,15 @@ and regress the v1.5.1 security SHA-pins. v1.5.1 (TRDD-5c21e4a0) is the USER-rat
 end-state; the only legitimate forward motion is the ADDITIVE subset (proposal
 TRDD-270ef961).[^2]
 
+**The CPV-canon CI "validate-step hardening" has a LANDMINE.** The safe additive
+upgrade is: pin the CPV ref to a tag (`@v2.136.1`) + add `timeout-minutes`. But do
+NOT add `CLAUDE_PRIVATE_USERNAMES: ${{ github.repository_owner }}` to a CI validate
+step — that canon recommendation makes the leak scanner flag the PUBLIC owner name
+(in every `github.com/<owner>/…` URL, `Agent:` trailer, author ref) as false
+`CRITICAL: private path leaked`, reddening CI. It PASSES locally because `$(whoami)`
+≠ the owner, so publish.py's local gate doesn't catch it — only CI does. v1.5.2
+shipped red on this; v1.5.3 reverted it.[^3]
+
 See [[architecture]].
 
 ## Notes and lessons learned
@@ -98,3 +107,21 @@ See [[architecture]].
   validate step) — proposal TRDD-270ef961, gated on Tier-2 approval. A future `publish.py`
   canon alignment, if ever wanted, must be a reviewed 3-way merge + `--dry-run` +
   test-release, never a force-overwrite.
+[^3]: [ocd:2026-06-20 lmd:2026-06-20] When USER directed the CPV-canon additive
+  upgrade (TRDD-270ef961), I implemented canon `pipeline-rules.md`'s CI "validate-step
+  hardening" VERBATIM, including `env: CLAUDE_PRIVATE_USERNAMES: ${{ github.repository_owner }}`.
+  v1.5.2 then went RED: 12 × `[CRITICAL] Private path leaked: username 'emasoft' …
+  'Emasoft'`. Root cause: `CLAUDE_PRIVATE_USERNAMES` is the LIST OF USERNAMES THE
+  SCANNER FLAGS AS PRIVATE, not an allowlist — set to the public owner, it flags the
+  owner name that legitimately pervades the repo (github URLs, `Agent:` trailers).
+  Canon's OWN local examples correctly use `$(whoami)` (the machine username, absent
+  from committed files) — a self-contradiction. It passed LOCALLY (and through
+  publish.py's gate) because `$(whoami)` ≠ owner; only CI, which set the env to the
+  owner, failed. Fix: v1.5.3 dropped the whole `env` block (kept the `@v2.136.1` pin +
+  `timeout-minutes`); CI green. LESSON: (1) a green LOCAL `--strict` does NOT prove a
+  green CI when CI injects different env — verify the actual CI run, never assume.
+  (2) `CLAUDE_PRIVATE_USERNAMES` = `$(whoami)` ONLY; never the repo owner; in CI there
+  is no machine username to protect, so omit it. (3) treat CPV "canon" as fallible —
+  this one is buggy (it's prescribed in `pipeline-rules.md`, scaffolded by
+  `generate_plugin_repo.py`, AND enforced by a test). Filed claude-plugins-validation#141.
+  A guardrail comment now sits in both workflows so a future canon-upgrade doesn't re-add it.
