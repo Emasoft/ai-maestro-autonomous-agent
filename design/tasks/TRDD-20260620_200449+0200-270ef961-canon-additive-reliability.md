@@ -1,10 +1,10 @@
 ---
 trdd-id: 270ef961-d71a-4c68-a110-4c703f82d84a
 title: CPV canon ADDITIVE reliability subset — pin CPV ref + validate-step timeout/integrity-skip (NOT a template clobber)
-column: proposal
+column: planned
 approval-tier: 2
 created: 2026-06-20T20:04:49+0200
-updated: 2026-06-20T20:04:49+0200
+updated: 2026-06-20T21:16:17+0200
 current-owner: autonomous-agent
 task-type: infra
 parent-trdd: TRDD-5c21e4a0
@@ -71,3 +71,7 @@ external-refs: ["github.com/Emasoft/ai-maestro-autonomous-agent/issues/10", "git
 ## Approval log
 - 2026-06-20T20:04:49+0200 — Authored as `proposal` (Tier-2) by the AUTONOMOUS agent, surfacing the
   `plugin-fixer` §4 additive subset for MANAGER/USER decision. NOT yet authorized to implement.
+- 2026-06-20T21:16:17+0200 — APPROVED by USER (Tier-2). USER directive: "run the cpv scan, the cpv
+  fix agent, the cpv upgrade agent, then publish + check CI". Interpreted as authorizing THIS additive
+  subset (the verified-safe upgrade), NOT the `--force-templates` clobber (verified harmful + deferred
+  by TRDD-5c21e4a0). Promoted proposal→planned; implementing the items 1-2 now (item 3 minors deferred).
