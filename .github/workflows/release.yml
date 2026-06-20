@@ -35,11 +35,9 @@ jobs:
         uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
 
       - name: CPV strict validation gate (post-hoc safety net)
-        env:
-          # Mirror publish.py's local validator invocation: skip the redundant
-          # GitHub-anchored integrity fetch and allowlist the public repo owner.
-          PLUGIN_SKIP_GITHUB_INTEGRITY: "1"
-          CLAUDE_PRIVATE_USERNAMES: ${{ github.repository_owner }}
+        # NOTE: do NOT set CLAUDE_PRIVATE_USERNAMES to the repo owner here — that buggy
+        # canon recommendation flags the public owner name as false CRITICAL leaks
+        # (claude-plugins-validation#141). CI has no local machine username to protect.
         run: |
           set +e
           uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v2.136.1 \

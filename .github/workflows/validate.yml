@@ -33,12 +33,11 @@ jobs:
         uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
 
       - name: Run CPV validation (--strict via remote launcher)
-        env:
-          # Skip the GitHub-anchored integrity fetch (redundant in CI, which IS
-          # the GitHub state) and allowlist the public repo owner so the secret
-          # scanner does not flag it — mirrors how publish.py runs the validator.
-          PLUGIN_SKIP_GITHUB_INTEGRITY: "1"
-          CLAUDE_PRIVATE_USERNAMES: ${{ github.repository_owner }}
+        # NOTE: do NOT add `CLAUDE_PRIVATE_USERNAMES: ${{ github.repository_owner }}`
+        # here. That canon recommendation (CPV pipeline-rules.md) is buggy — it makes
+        # the leak scanner flag the PUBLIC owner name (present in every github.com/<owner>
+        # URL) as 12 false `CRITICAL: private path leaked`, turning CI red. See
+        # claude-plugins-validation#141. CI has no local machine username to protect.
         run: |
           echo "=== CPV Plugin Validation (--strict) ==="
           set +e
