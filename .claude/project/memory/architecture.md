@@ -38,8 +38,10 @@ agents) over AMP.
   `tasks/`/`proposals/`/`archived/`/`refused/` (TRDD lifecycle).
 
 ## Applies to
-- (radiates down to component/aspect pages as they're written — wire the
-  reciprocal `## Governed by` on each)
+- [[governance-audit-handling]] — how a fleet / MANAGER governance audit is
+  verified-against-live-HEAD then fixed, and the fix-vs-publish Tier-2 split.
+- (more component/aspect pages radiate down here as they're written — wire the
+  reciprocal up-link on each)
 
 ## See also
 - (lateral links to other functionality hubs, once they exist)
