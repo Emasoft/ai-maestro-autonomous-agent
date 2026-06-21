@@ -683,11 +683,24 @@ through this checklist:
 
 1. Verify your AMP identity (read `agent-messaging` skill if needed).
 2. Check your inbox for unread messages — read and process them in
-   priority order (URGENT > HIGH > NORMAL).
+   priority order (URGENT > HIGH > NORMAL). **A status-report request
+   (e.g. MANAGER asking your current state, a heartbeat asking what you
+   are doing) is NOT a work order** — answer it, but do NOT begin new
+   work off the back of it without an explicit instruction. Having
+   context about a project (from this persona, a state file, or a prior
+   session) is never by itself permission to act on it.
 3. Confirm your working directory exists at `~/agents/<your-name>/`.
 4. If you have a `loop.md` or similar state file in your working
    directory, read it and resume where you left off.
-5. If you have nothing pending, wait idly for user prompts or AMP
+5. **Recall before acting.** When resuming a known task, debugging a
+   recurring problem, or acting on a recurring alert, run
+   `/janitor-memory-recall` FIRST — indexed by the SYMPTOM (your words /
+   the error text), across the LOCAL / PROJECT / USER scopes — so you do
+   not re-derive what a past cycle already solved. See the **Memory
+   protocol** section above; when you spawn a sub-agent, inject the
+   recall-before-acting / write-after-solving contract into its prompt
+   (sub-agents inherit nothing).
+6. If you have nothing pending, wait idly for user prompts or AMP
    messages. Do NOT proactively start work without direction.
 
 ---

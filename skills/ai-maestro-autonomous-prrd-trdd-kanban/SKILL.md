@@ -50,7 +50,13 @@ let the human own the decision.
    HUMAN directly, no COS hop). Record USER's reply verbatim in the
    TRDD's `## Approval log`.
 5. `human_review` ALWAYS requires USER — never self-approve it.
-6. Mutate your own project's silver PRRD rules with the `--user` flag:
+6. Mutate your own project's silver PRRD rules per the approval tier. A SILVER
+   PRRD change is **Tier-2 when a MANAGER is reachable**: file a `proposal` and
+   AMP the request straight to MANAGER over your `Y` edge, who approves and
+   promotes it — do NOT self-authorize. The `prrd-edit.py --user` path is the
+   **TRUE-SOLO fallback ONLY** — use it solely when `$AID_AUTH` is unresolvable
+   AND the AI Maestro server is unreachable (the solo/offline case where the
+   local human IS the manager, per the Prerequisites "AID_AUTH fallback"):
    `prrd-edit.py --user add silver "..."`, `prrd-edit.py --user revise N
    "..."`, `prrd-edit.py --user delete N`. Golden-rule promotion/demotion
    needs USER (or a governance AMP from MANAGER if one exists).
@@ -114,7 +120,9 @@ the checklist alone as the gate.
   through `live_auditing`, plus `blocked` / `failed` / `superseded`).
 - USER approval-requests via `amp-send`, with replies logged verbatim in
   each TRDD's `## Approval log`.
-- PRRD silver-rule edits committed via `prrd-edit.py --user`.
+- PRRD silver-rule edits — a Tier-2 proposal to MANAGER when reachable, or
+  `prrd-edit.py --user` only in the true-solo fallback (`$AID_AUTH` AND server
+  both unreachable).
 - Subagent dispatch records for DEPLOYER / RELEASER runs.
 
 ## Error Handling
@@ -131,8 +139,11 @@ the checklist alone as the gate.
 - Ship a feature: design → dev → testing → `ai_review`, then AMP USER
   for `complete → publish`; on approval, spawn the RELEASER subagent and
   log USER's reply in the TRDD.
-- Tighten a workflow rule: `prrd-edit.py --user add silver "PRs require
-  green CI"` — applied directly, no MANAGER check needed.
+- Tighten a workflow rule (TRUE-SOLO / offline only): `prrd-edit.py --user
+  add silver "PRs require green CI"` — applied directly because `$AID_AUTH`
+  and the server are both unreachable, so the local human IS the manager. In
+  ecosystem mode with a reachable MANAGER, the SAME silver change is Tier-2:
+  file a proposal and AMP MANAGER for approval first — do not self-authorize.
 
 ## Resources
 
