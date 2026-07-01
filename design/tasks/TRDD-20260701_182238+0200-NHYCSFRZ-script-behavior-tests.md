@@ -1,9 +1,9 @@
 ---
 trdd-id: NHYCSFRZ
 title: Add real behavior tests for smart_exec.py + gitignore_filter.py + workspace-isolation content guard
-column: dev
+column: complete
 created: 2026-07-01T18:22:38+0200
-updated: 2026-07-01T18:31:27+0200
+updated: 2026-07-01T18:49:27+0200
 current-owner: aimaa-autonomous
 assignee: aimaa-autonomous
 priority: 4
@@ -25,9 +25,9 @@ audit-requirements: []
 review-requirements: []
 runtime-targets: [macos, linux]
 impacts: []
-attempts: 0
+attempts: 1
 test-failures: 0
-last-test-result: not-run
+last-test-result: pass
 implementation-commits: []
 external-refs: ["reports/go-on-yourself-eval/20260701_181031+0200-test-coverage.md"]
 ---
@@ -39,7 +39,9 @@ external-refs: ["reports/go-on-yourself-eval/20260701_181031+0200-test-coverage.
 - **Surfaced by** the go-on-yourself test-coverage evaluation (2026-07-01): suite is
   green (25/25 real) but 3 helper scripts are **import-only** (byte-compile + import,
   ZERO behavior asserted) and the workspace-isolation skill's content is unguarded.
-- **NEXT ACTION:** add the 3 NEW test files below, run suite + lint + mypy, commit.
+- **DONE (2026-07-01):** added test_smart_exec.py (15), test_gitignore_filter.py (6),
+  test_workspace_isolation_content.py (3) — all real/no-mock; suite 30→55 pass;
+  ruff + mypy clean; CPV `--strict` 0/0/0/0 (WARNING=7, unchanged). Awaiting v1.5.4 ship.
 - **Tier-0** — adds tests only; strengthens the quality gate, relaxes nothing.
   Reversible + local.
 - **Supersedes TRDD-AXI79CXE** — the fork authored a duplicate test-coverage-gaps

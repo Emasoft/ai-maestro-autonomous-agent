@@ -1,11 +1,12 @@
 ---
 trdd-id: AXI79CXE
 title: Close the import-only test-coverage gaps — smart_exec, gitignore_filter, workspace-isolation, orphan fixtures
-column: backburner
+column: superseded
 created: 2026-07-01T18:23:02+0200
-updated: 2026-07-01T18:23:02+0200
+updated: 2026-07-01T18:31:27+0200
 current-owner: aimaa-autonomous
 assignee: null
+superseded-by: [TRDD-NHYCSFRZ]
 priority: 5
 severity: LOW
 effort: M
@@ -32,6 +33,15 @@ external-refs: ["reports/go-on-yourself-eval/20260701_181031+0200-test-coverage.
 ---
 
 # TRDD-AXI79CXE — Close the import-only test-coverage gaps
+
+## ⏵ SUPERSEDED — 2026-07-01
+
+Superseded by **TRDD-NHYCSFRZ** (a near-identical test-coverage-gaps TRDD authored
+the same eval turn — this one and NHYCSFRZ were created within seconds of each
+other, one by the phantom fork, one by the orchestrator). NHYCSFRZ carries the
+active, more-actionable spec (exact new test files + function lists + counts) for
+the 3 core gaps and absorbs this TRDD's items 4–5 as explicitly noted out-of-scope.
+Archived, not deleted, per the supersede protocol.
 
 ## Why
 
