@@ -2,7 +2,7 @@
 name: governance-audit-handling
 description: "MANAGER / fleet governance audit landed with findings (silver-PRRD self-auth default, raw /api/ call, missing startup carve-out, recall step) — are these real? how do I handle a fleet audit? it is screened against a CACHED/OLD plugin version, so VERIFY each finding against live HEAD first; expect several already-fixed; fixing is in-scope but PUBLISHING is a separate Tier-2 gate"
 ocd: 2026-06-21
-lmd: 2026-06-21
+lmd: 2026-07-01
 metadata:
   node_type: memory
   type: project
@@ -31,10 +31,13 @@ status-report ≠ work order; add a recall step) — both genuine, added.
 each finding GENUINE / ALREADY-FIXED / PARTIAL; (2) author one TRDD citing the
 issue as the **Tier-2 MANAGER authorization** to MAKE the fixes; (3) make the
 edits, reword SHAPE not rule (CPV `--strict` SHAPE false-positives recur on
-persona/skill edits — see [[publish-pipeline]] [^1]); (4) verify CPV `--strict`
-green; (5) commit to `main` locally (rides the next `publish.py` push — see
-[[publish-pipeline]]); (6) comment on the issue + report to MANAGER with the
-per-finding table, self-id per G1.1; recommend close.
+persona/skill edits — see [[publish-pipeline]] [^1]), AND add a
+`tests/test_content_invariants.py` regression guard for each governance-prose fix
+in the SAME batch — that file IS the project's home for governance-fix guards, so
+shipping a fix without its guard leaves the exact gap a later eval must reopen [^2];
+(4) verify CPV `--strict` green; (5) commit to `main` locally (rides the next
+`publish.py` push — see [[publish-pipeline]]); (6) comment on the issue + report to
+MANAGER with the per-finding table, self-id per G1.1; recommend close.
 
 **The split that matters:** the MANAGER audit authorizes MAKING the doc/governance
 fixes (Tier-2, the issue IS the approval). **PUBLISHING** the release that ships
@@ -59,3 +62,14 @@ See also [[publish-pipeline]] (the release flow + the CPV verify recipe) and
   the audit's authorization to FIX does not extend to SHIP. Keep the commit local
   (it rides the next approved publish) and report, rather than cutting an
   unapproved release.
+[^2]: [ocd:2026-07-01 lmd:2026-07-01] The #12 fixes (C/E/F4, commit `cd063ea`)
+  shipped WITHOUT a `test_content_invariants.py` guard, even though that file's own
+  docstring says it exists to guard "the governance fixes shipped per issue #6". A
+  later go-on-yourself eval (2026-07-01) had to reopen the batch and add the guards
+  (TRDD-QJ30E8TD, commit `84b4ca8`) — pure avoidable rework. Lesson: governance-prose
+  is uncompiled; a fix is only durable once a real (no-mock) content-invariant asserts
+  its load-bearing tokens are present AND the buggy form is gone. Add the guard in the
+  SAME commit batch as the fix, always. The same eval also caught two persona-currency
+  defects the #12 pass missed (`status:`→`column:`, a deprecated MEMORY.md-index
+  instruction) — TRDD-81RC6IXC — reinforcing that a governance edit should sweep the
+  whole cited section for consistency, not just the flagged line.
