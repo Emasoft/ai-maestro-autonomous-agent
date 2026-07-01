@@ -3,7 +3,7 @@ trdd-id: NHYCSFRZ
 title: Add real behavior tests for smart_exec.py + gitignore_filter.py + workspace-isolation content guard
 column: complete
 created: 2026-07-01T18:22:38+0200
-updated: 2026-07-01T18:49:27+0200
+updated: 2026-07-01T18:57:34+0200
 current-owner: aimaa-autonomous
 assignee: aimaa-autonomous
 priority: 4
@@ -28,7 +28,7 @@ impacts: []
 attempts: 1
 test-failures: 0
 last-test-result: pass
-implementation-commits: []
+implementation-commits: [8b4d200]
 external-refs: ["reports/go-on-yourself-eval/20260701_181031+0200-test-coverage.md"]
 ---
 
