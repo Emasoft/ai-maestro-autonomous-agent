@@ -1,8 +1,9 @@
-"""Real (no-mock) regression guards for the governance fixes shipped per issue #6.
+"""Real (no-mock) regression guards for the governance fixes shipped per issues #6 and #12.
 
 Each test reads the actual shipped file and asserts the corrected state, so a
 future edit that re-introduces a fixed defect (R6 v2 citation, version drift,
-ghost dispatch, empty SILVER, missing self-id) fails CI.
+ghost dispatch, empty SILVER, missing self-id, silver-PRRD self-auth default,
+status-report-treated-as-work-order, dropped recall-before-acting) fails CI.
 """
 
 from __future__ import annotations
@@ -119,3 +120,29 @@ def test_amp_templates_every_block_leads_with_self_id() -> None:
     assert len(blocks) >= 4, f"expected >=4 templates, found {len(blocks)}"
     for block in blocks:
         assert block.lstrip().startswith(SELF_ID), f"template does not lead with self-id line: {block[:60]!r}"
+
+
+# ── issue #12 governance-audit fixes (commit cd063ea, TRDD-7c4f9ea4) ──
+
+
+def test_kanban_silver_prrd_is_tier2_not_self_auth() -> None:
+    """Kanban skill: a SILVER PRRD change is Tier-2 when a MANAGER is reachable; prrd-edit.py --user is the TRUE-SOLO fallback only (issue #12 Fix C)."""
+    text = KANBAN.read_text(encoding="utf-8")
+    # Silver-PRRD edits route to MANAGER as a Tier-2 proposal when one is reachable...
+    assert re.search(r"Tier-2 when a MANAGER is\s+reachable", text), "kanban skill must tier silver-PRRD edits to MANAGER"
+    # ...and prrd-edit.py --user is only the true-solo fallback, never the default.
+    assert re.search(r"TRUE-SOLO fallback\s+ONLY", text), "kanban skill must mark prrd-edit.py --user as the true-solo fallback only"
+
+
+def test_persona_status_report_is_not_a_work_order() -> None:
+    """Persona: a status-report request is NOT a work order — answering it is not permission to begin new work (issue #12 Fix E)."""
+    text = PERSONA.read_text(encoding="utf-8")
+    assert "status-report request" in text, "persona must address the status-report-request case"
+    assert re.search(r"NOT a work\s+order", text), "persona must state a status-report request is NOT a work order"
+
+
+def test_persona_documents_recall_before_acting() -> None:
+    """Persona documents the recall-before-acting discipline tied to /janitor-memory-recall (issue #12 Fix F4)."""
+    text = PERSONA.read_text(encoding="utf-8")
+    assert re.search(r"[Rr]ecall before acting", text), "persona must document recall-before-acting"
+    assert "/janitor-memory-recall" in text, "persona must reference the /janitor-memory-recall skill"
