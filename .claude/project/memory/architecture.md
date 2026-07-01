@@ -44,6 +44,9 @@ agents) over AMP.
   reciprocal up-link on each)
 
 ## See also
+- [[fork-delegation-under-autonomous-directive]] — why a forked sub-agent ignores a
+  READ-ONLY mandate (it inherits the autonomous directive) and why its self-report must
+  always be re-verified against live git + gates
 - (lateral links to other functionality hubs, once they exist)
 
 ## Notes and lessons learned

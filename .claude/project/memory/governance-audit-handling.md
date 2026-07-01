@@ -46,8 +46,10 @@ them (cut vX.Y.Z) is a **SEPARATE Tier-2 release gate** — do NOT auto-publish 
 the back of an audit; the fixes ride the next approved release or you request
 publish approval explicitly.[^1]
 
-See also [[publish-pipeline]] (the release flow + the CPV verify recipe) and
-[[architecture]].
+See also [[publish-pipeline]] (the release flow + the CPV verify recipe),
+[[architecture]], and [[fork-delegation-under-autonomous-directive]] (why a fork's
+"CPV is green" self-report must be re-verified — it once reported green on a tree with a
+blocking NIT, which ties to note 3 here).
 
 ## Notes and lessons learned
 [^1]: [ocd:2026-06-21 lmd:2026-06-21] WHY "verify HEAD first" is load-bearing:

@@ -68,9 +68,11 @@ step — that canon recommendation makes the leak scanner flag the PUBLIC owner 
 ≠ the owner, so publish.py's local gate doesn't catch it — only CI does. v1.5.2
 shipped red on this; v1.5.3 reverted it.[^3]
 
-See [[architecture]] and [[governance-audit-handling]] (the latter reuses this
+See [[architecture]], [[governance-audit-handling]] (the latter reuses this
 note's CPV-verify recipe + the local-commit-rides-next-publish flow when fixing a
-governance audit).
+governance audit), and [[fork-delegation-under-autonomous-directive]] (re-verifying a
+fork's publish/CPV self-report — the discipline that caught the inverted #11 premise
+corrected in [^5]).
 
 ## Notes and lessons learned
 
