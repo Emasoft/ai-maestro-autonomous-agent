@@ -3,7 +3,8 @@
 Each test reads the actual shipped file and asserts the corrected state, so a
 future edit that re-introduces a fixed defect (R6 v2 citation, version drift,
 ghost dispatch, empty SILVER, missing self-id, silver-PRRD self-auth default,
-status-report-treated-as-work-order, dropped recall-before-acting) fails CI.
+status-report-treated-as-work-order, dropped recall-before-acting,
+status-vs-column field drift, deprecated MEMORY.md-index instruction) fails CI.
 """
 
 from __future__ import annotations
@@ -146,3 +147,25 @@ def test_persona_documents_recall_before_acting() -> None:
     text = PERSONA.read_text(encoding="utf-8")
     assert re.search(r"[Rr]ecall before acting", text), "persona must document recall-before-acting"
     assert "/janitor-memory-recall" in text, "persona must reference the /janitor-memory-recall skill"
+
+
+# ── go-on-yourself eval currency fixes (2026-07-01, TRDD-81RC6IXC) ──
+
+
+def test_persona_two_folder_table_uses_column_not_status() -> None:
+    """Persona's proposal→planned lifecycle keys on the v2 `column:` field, not a nonexistent `status:` field."""
+    text = PERSONA.read_text(encoding="utf-8")
+    # The corrected forms are present...
+    assert "| Folder | `column:` | Meaning |" in text, "two-folder table header must key on `column:`"
+    assert "the approver sets `column: planned`" in text, "approval prose must set `column: planned`"
+    # ...and the buggy `status:`-as-lifecycle-field forms are gone (TRDD v2 has no `status:` field).
+    assert "| Folder | `status:` | Meaning |" not in text
+    assert "sets `status: planned`" not in text
+
+
+def test_persona_memory_write_has_no_memory_md_index_instruction() -> None:
+    """Persona does not instruct appending a MEMORY.md index/pointer line — the memory rule deprecated it (stub, memgrep-managed)."""
+    text = PERSONA.read_text(encoding="utf-8")
+    assert "/janitor-memory-write" in text, "persona must still document the memory-write skill"
+    # The deprecated "(+ the MEMORY.md index line)" instruction must not come back.
+    assert not re.search(r"MEMORY\.md.{0,4}index line", text), "persona must not tell the agent to write a MEMORY.md index line"

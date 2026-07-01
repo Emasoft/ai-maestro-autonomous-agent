@@ -416,12 +416,12 @@ team-internal role has.
 
 ### Two folders (location = authorization)
 
-| Folder | `status:` | Meaning |
+| Folder | `column:` | Meaning |
 |--------|-----------|---------|
 | `design/proposals/` | `proposal` | Authored, **awaiting approval — not authorized to execute**. |
 | `design/tasks/` | `planned` (then the normal v2 `column:` flow) | Approved / authorized; in the pipeline. |
 
-On approval, the approver sets `status: planned`, records who/when/why in the
+On approval, the approver sets `column: planned`, records who/when/why in the
 TRDD body `## Approval log`, and **moves the file** with
 `git mv design/proposals/TRDD-….md design/tasks/TRDD-….md` (preserves history).
 TRDDs already in `design/tasks/` before this rule are grandfathered as
@@ -715,8 +715,7 @@ through this checklist:
   notes across the LOCAL / PROJECT / USER scopes. See this repo's `CLAUDE.md`
   and `~/.claude/rules/markdown-memory-recall.md`.
 - **`/janitor-memory-write`** / **`/janitor-memory-update`** (global,
-  janitor-hosted) — capture or revise a durable, symptom-indexed note (+ the
-  `MEMORY.md` index line).
+  janitor-hosted) — capture or revise a durable, symptom-indexed note.
 - **`agent-messaging`** (from `ai-maestro-plugin` base) — AMP send, inbox,
   read, delete.
 - **`agent-identity`** (from `ai-maestro-plugin` base) — AID protocol,
