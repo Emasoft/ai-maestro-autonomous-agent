@@ -1,9 +1,9 @@
 ---
 trdd-id: QJ30E8TD
 title: Add content-invariant regression guards for the issue-12 governance fixes
-column: dev
+column: complete
 created: 2026-07-01T18:11:44+0200
-updated: 2026-07-01T18:11:44+0200
+updated: 2026-07-01T18:15:46+0200
 current-owner: aimaa-autonomous
 assignee: aimaa-autonomous
 priority: 4
@@ -24,10 +24,11 @@ audit-requirements: []
 review-requirements: []
 runtime-targets: [macos, linux]
 impacts: []
-attempts: 0
+attempts: 1
 test-failures: 0
-last-test-result: not-run
-implementation-commits: []
+last-test-result: pass
+last-test-at: 2026-07-01T18:15:46+0200
+implementation-commits: [84b4ca8]
 external-refs: ["github.com/Emasoft/ai-maestro-autonomous-agent/issues/12"]
 ---
 
@@ -39,9 +40,11 @@ external-refs: ["github.com/Emasoft/ai-maestro-autonomous-agent/issues/12"]
   are LIVE in the source but have NO regression test. `tests/test_content_invariants.py`
   is the project's established home for "regression guards for the governance fixes"
   (its own module docstring says so, for issue #6). The #12 batch was never added.
-- **NEXT ACTION:** append three focused invariant tests to `tests/test_content_invariants.py`
-  guarding the #12 fixes (see Acceptance criteria), extend its module docstring to cite
-  issue #12, run the full suite (must stay green), commit.
+- **DONE (2026-07-01, commit `84b4ca8`):** three guards appended to
+  `tests/test_content_invariants.py` (`test_kanban_silver_prrd_is_tier2_not_self_auth`,
+  `test_persona_status_report_is_not_a_work_order`,
+  `test_persona_documents_recall_before_acting`) + module docstring extended to cite #12.
+  Full suite 28 passed; ruff + mypy clean. TRDD-doc committed b54d7c6.
 - **Load-bearing facts:** tests are REAL (no mocks) — each reads a shipped file and asserts
   a substring/semantic invariant. Assertions must be ROBUST to rewording (assert the
   load-bearing tokens, not a whole sentence), matching the existing test style.
