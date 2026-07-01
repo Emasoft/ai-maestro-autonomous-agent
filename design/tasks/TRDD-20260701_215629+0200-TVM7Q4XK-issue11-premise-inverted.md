@@ -4,7 +4,7 @@ title: Issue-11 "ahead-of-canon" premise is INVERTED — correct the record + po
 column: backburner
 approval-tier: 3
 created: 2026-07-01T21:56:29+0200
-updated: 2026-07-01T21:56:29+0200
+updated: 2026-07-01T22:06:44+0200
 current-owner: aimaa-autonomous
 assignee: aimaa-autonomous
 priority: 3
@@ -30,7 +30,7 @@ attempts: 0
 test-failures: 0
 last-test-result: not-run
 implementation-commits: []
-external-refs: ["reports/go-on-yourself-eval/20260701_215629+0200-issue11-premise-inverted-verification.md", "github.com/Emasoft/ai-maestro-autonomous-agent/issues/11", "TRDD-5c21e4a0", "RC-PIPELINE-DRIFT-001"]
+external-refs: ["reports/go-on-yourself-eval/20260701_215629+0200-issue11-premise-inverted-verification.md", "reports/go-on-yourself-eval/20260701_182302+0200-CONSOLIDATED-eval-and-decisions.md", "github.com/Emasoft/ai-maestro-autonomous-agent/issues/11", "TRDD-5c21e4a0", "TRDD-270ef961", "RC-PIPELINE-DRIFT-001"]
 ---
 
 # TRDD-TVM7Q4XK — Issue-11 premise inverted: correct the record + port canon workflow hardening
@@ -108,6 +108,24 @@ is ahead when it is behind on provenance/permissions/pinning; (3) the actual sec
   toward canon — confirm no new CRITICAL/MAJOR/MINOR/NIT).
 - A real `publish.py --dry-run` (and, on ship, a real release) exercises the provenance
   attestation path end-to-end.
+
+## Report→TRDD capture (CONSOLIDATED go-on-yourself report, 20260701_182302)
+
+This TRDD is the formal capture of that umbrella report's **R1** (#11 premise inverted →
+correct the record) and **R2** (additive #11 hardening). The report's decisions land as:
+- **D (fixed):** TRDD-QJ30E8TD (issue-#12 guards), TRDD-81RC6IXC (persona currency).
+- **R1** → THIS TRDD (option 1). My 2026-07-01 re-verification CONFIRMS the prior fork's
+  finding — the premise IS inverted.
+- **R2** → THIS TRDD (options 2–3). The pin+`timeout-minutes` sub-part already SHIPPED via
+  TRDD-270ef961 (published v1.5.3); the SBOM/provenance/SHA256SUMS/`HAS_MARKETPLACE_PAT`
+  sub-part remains OPEN (270ef961 wrongly waved it off as "ahead"). **Also fold in R2's
+  `git push` retry wrapper (publish.py Step 13)** — a distinct Tier-2 pipeline-reliability
+  item (a transient push timeout must not leave commit-pushed-without-tag); tracked here.
+- **R3 + R4** (CHANGELOG `--unreleased` latest-only; cliff.toml heading indent) →
+  TRDD-R3JRZURT (parked, Tier-2).
+- **R5** (PRRD G1.1 `Agent: <role>` vs baseline `<plugin-slug>`) — GOLDEN/Tier-3, USER-only,
+  **flag-only** (no executable task); surfaced to USER, no tracking TRDD needed.
+- **R6** (test-coverage gaps) → TRDD-AXI79CXE → superseded by TRDD-NHYCSFRZ (DONE).
 
 ## Approval log
 
