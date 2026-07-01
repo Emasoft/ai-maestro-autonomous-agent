@@ -1,8 +1,8 @@
 ---
 name: publish-pipeline
-description: "git push REFUSED by pre-push hook / 'every push MUST go through scripts/publish.py' — how do release + standalone doc commits actually reach origin; how to cut a release; is --force-templates / CPV canonical-migration safe on this plugin (no — ahead-of-canon, accepted RC-PIPELINE-DRIFT WARNINGs)"
+description: "git push REFUSED by pre-push hook / 'every push MUST go through scripts/publish.py' — how do release + standalone doc commits actually reach origin; how to cut a release; is --force-templates / CPV canonical-migration safe on this plugin (publish.py: NO — custom M11 logic; the release.yml/notify-marketplace.yml workflows are actually BEHIND canon on hardening, NOT ahead — the old 'ahead-of-canon' claim was VERIFIED FALSE 2026-07-01; RC-PIPELINE-DRIFT WARNINGs are accepted non-blocking drift)"
 ocd: 2026-06-16
-lmd: 2026-06-20
+lmd: 2026-07-01
 metadata:
   node_type: memory
   type: project
@@ -41,13 +41,23 @@ The publish gate runs **CPV `--strict`** (Step 5) and BLOCKS on any
 CRITICAL/MAJOR/MINOR/NIT. Two phrasing FALSE-POSITIVES recur when editing the
 persona/skills — reword the *shape* to clear them, never suppress the rule.[^1]
 
-**`--force-templates` / CPV canonical-template clobber must NEVER be run on this
-plugin's pipeline.** The validator's `RC-PIPELINE-DRIFT-001` WARNINGs (7 at v1.5.1)
-are ACCEPTED, intentional, non-blocking drift — not unfixed findings. `release.yml`
-+ `notify-marketplace.yml` are AHEAD of canon; a force-clobber would DOWNGRADE them
-and regress the v1.5.1 security SHA-pins. v1.5.1 (TRDD-5c21e4a0) is the USER-ratified
-end-state; the only legitimate forward motion is the ADDITIVE subset (proposal
-TRDD-270ef961). A fleet "go canonical" RE-ASK is fast-confirmed, never re-derived.[^2][^4]
+**Do not BLINDLY `--force-templates` this plugin's pipeline — but for two reasons, and
+NOT the "ahead-of-canon" one long recorded here (that was VERIFIED FALSE 2026-07-01; see
+[^5]).** (1) `publish.py` carries hard-won custom M11 version-sync logic (plugin.json +
+pyproject + persona + README + uv.lock) a generic clobber would regress — the real, sound
+basis of the USER-ratified TRDD-5c21e4a0. (2) `release.yml` is a by-design **post-hoc
+validate-tag gate** (publish.py creates the release BEFORE the tag push), so a blind
+clobber would reintroduce a conflicting release-creator job. **HOWEVER — contrary to the
+earlier claim — `release.yml` + `notify-marketplace.yml` are BEHIND canon on real
+hardening:** canon has a least-priv `permissions:` block, **build-provenance attestation**,
+`timeout-minutes` on notify, the `HAS_MARKETPLACE_PAT` no-op guard, and **NEWER** SHA-pins
+(`checkout` v6.0.3, `setup-uv` v8.2.0); the plugin has **no** provenance/SBOM/SHA256SUMS
+(anywhere — CI or publish.py) and older/unpinned actions. The correct forward motion is a
+**careful MANUAL port** of canon's hardening into the plugin's architecture (Tier-2), never
+a blind force-template and never "leave them, they're ahead". The `RC-PIPELINE-DRIFT-001`
+WARNINGs (7) are still accepted non-blocking drift. A fleet "go canonical" re-ask still
+gets the `=runner` fast-confirm recipe below — but report the plugin as BEHIND-and-porting,
+never AHEAD.[^2][^4][^5]
 
 **The CPV-canon CI "validate-step hardening" has a LANDMINE.** The safe additive
 upgrade is: pin the CPV ref to a tag (`@v2.136.1`) + add `timeout-minutes`. But do
@@ -88,7 +98,11 @@ governance audit).
   when a git-tracked, CPV-scanned file must mention the offending shape, describe it
   with a placeholder — never reproduce the literal label/identifier — or you re-block
   your own NEXT publish.
-[^2]: [ocd:2026-06-20 lmd:2026-06-20] Fleet work order #10 (umbrella `ai-maestro#44`,
+[^2]: [ocd:2026-06-20 lmd:2026-07-01] ⚠ PARTLY SUPERSEDED by [^5] (2026-07-01): the
+  sub-claims below that `release.yml`/`notify-marketplace.yml` are "AHEAD of canon" carrying
+  SBOM/build-provenance/SHA256SUMS canon lacks, and that canon pins OLDER SHAs, are VERIFIED
+  FALSE — inverted; the plugin is BEHIND canon. The publish.py-custom-logic + USER-deferral
+  points STILL STAND. Original record: Fleet work order #10 (umbrella `ai-maestro#44`,
   MANAGER/USER directive) asked to `--force-templates` this plugin to CPV 2.136.1
   canon. A `plugin-fixer` run VERIFIED that is the WRONG action and STOPPED with zero
   edits (tree clean, version 1.5.1). Three blockers: (a) CPV's OWN validator flags
@@ -127,7 +141,11 @@ governance audit).
   this one is buggy (it's prescribed in `pipeline-rules.md`, scaffolded by
   `generate_plugin_repo.py`, AND enforced by a test). Filed claude-plugins-validation#141.
   A guardrail comment now sits in both workflows so a future canon-upgrade doesn't re-add it.
-[^4]: [ocd:2026-06-20 lmd:2026-06-20] Fleet RE-ASK #11 (MANAGER re-filed ai-maestro#44 as a
+[^4]: [ocd:2026-06-20 lmd:2026-07-01] ⚠ PARTLY SUPERSEDED by [^5] (2026-07-01): this lesson's
+  "ahead-of-canon exception" framing is INVERTED — the 2 workflow files are BEHIND canon (verified
+  via the CPV unified diff). The `=runner` fast-confirm recipe below is STILL VALID (proves the
+  tree is publish-clean), but its conclusion must read "BEHIND-and-porting", never "close as
+  ahead-of-canon exception". Original record: Fleet RE-ASK #11 (MANAGER re-filed ai-maestro#44 as a
   per-repo tracker, 2026-06-20) prescribed the FULL canonical migration (`--force-templates`) +
   4 CI-only defects AMAMA hit (CPV#142). Reconciled WITHOUT re-deriving: (a) #11's OWN fix #1
   carves out this case — *"remote-validation-profile plugins: KEEP your by-design publish.py"*;
@@ -144,3 +162,29 @@ governance audit).
   `=runner` is the canonical-safe value of `CLAUDE_PRIVATE_USERNAMES` in CI (= `$(whoami)` on a
   GitHub runner); this plugin OMITS it (equivalent — CI green proves it), explicit `=runner` is
   the canon form if ever wanted.
+[^5]: [ocd:2026-07-01 lmd:2026-07-01] The claim that `release.yml` + `notify-marketplace.yml`
+  are **AHEAD of canon**, carrying "SBOM + build-provenance + per-asset SHA256SUMS + a
+  MARKETPLACE_PAT no-op guard canon lacks", that `--force-templates` "would DOWNGRADE" them, and
+  that "canon pins OLDER SHAs" — recorded in [^2], the public **#11 v1.5.3 comment**, and the
+  pre-2026-07-01 body of this note — is **VERIFIED FALSE. The direction is INVERTED; the plugin
+  is BEHIND canon.** Re-ran CPV `--strict` at HEAD and READ THE UNIFIED DIFF it prints beneath the
+  WARNING (not just the WARNING sentence): canon's `release.yml` HAS a least-priv `permissions:`
+  block + `id-token`/`attestations: write` **build-provenance** (CPV #121), `checkout`@v6.0.3
+  SHA-pinned, `setup-uv`@v8.2.0 (**newer** than the plugin's v5.4.2), `timeout-minutes: 30`; the
+  plugin has **none** of the provenance/SBOM/SHA256SUMS (grep of `.github/` + `publish.py` = zero
+  hits) and older/unpinned actions. `notify-marketplace.yml`: canon HAS the `HAS_MARKETPLACE_PAT`
+  no-op guard + `timeout-minutes` + defensive `repository-dispatch`@v4.0.0; the plugin DROPPED them
+  and uses the warned-against @v4.0.1. Git pickaxe: `provenance`/`sbom`/`SHA256SUMS` = **0 commits
+  ever** in release.yml — never a regression, the feature list was fabricated. ROOT CAUSE: CPV's
+  per-file text reads *"appears to be at or AHEAD of canon … **or the direction is ambiguous**"* —
+  a HEDGED heuristic; the earlier `plugin-fixer` run + my public comment took the "AHEAD" branch at
+  face value **without reading the diff CPV prints right under it**. LESSON: CPV's
+  "ahead / don't-force-templates" sentence is advisory and can be WRONG — the **unified diff is
+  authoritative; read it**. A prior SELF-REPORT (mine, a fork's, a past note's) is not evidence —
+  re-verify against live tool output + `git log -S`. What STANDS: 5c21e4a0's publish.py-custom-logic
+  reason, and that a *blind* `release.yml` clobber is unsafe for an ARCHITECTURAL reason (post-hoc
+  gate vs release-creator) — just not the "downgrade of ahead hardening" reason. Evidence:
+  `reports/go-on-yourself-eval/20260701_215629+0200-issue11-premise-inverted-verification.md`.
+  Corrective actions (correct the public #11 post; manual-port canon hardening into the 2 workflows
+  WITHOUT clobbering publish.py; add SBOM/provenance/checksums to releases) are GATED — TRDD
+  authored, surfaced to USER.
