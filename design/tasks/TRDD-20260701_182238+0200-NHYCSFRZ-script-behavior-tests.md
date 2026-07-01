@@ -3,7 +3,7 @@ trdd-id: NHYCSFRZ
 title: Add real behavior tests for smart_exec.py + gitignore_filter.py + workspace-isolation content guard
 column: dev
 created: 2026-07-01T18:22:38+0200
-updated: 2026-07-01T18:22:38+0200
+updated: 2026-07-01T18:31:27+0200
 current-owner: aimaa-autonomous
 assignee: aimaa-autonomous
 priority: 4
@@ -14,6 +14,7 @@ parent-trdd: null
 npt: []
 eht: []
 blocked-by: []
+supersedes: [TRDD-AXI79CXE]
 relevant-rules: []
 release-via: publish
 delivery: direct-push
@@ -41,6 +42,14 @@ external-refs: ["reports/go-on-yourself-eval/20260701_181031+0200-test-coverage.
 - **NEXT ACTION:** add the 3 NEW test files below, run suite + lint + mypy, commit.
 - **Tier-0** — adds tests only; strengthens the quality gate, relaxes nothing.
   Reversible + local.
+- **Supersedes TRDD-AXI79CXE** — the fork authored a duplicate test-coverage-gaps
+  TRDD the same turn; this one (more actionable) absorbs it. Two of AXI79CXE's items
+  are consciously OUT OF SCOPE here: **(4) the 4 orphan `tests/fixtures/memory/*.md`** —
+  memory recall is the GLOBAL janitor system, so a recall test here would test the
+  janitor's memgrep, violating "plugin tests are the plugin's job"; disposition =
+  LEAVE + surface to USER (do NOT wire a foreign-code test, do NOT blind-delete a
+  committed fixture). **(5) `cpv_validation_common.py`** — import-smoke suffices
+  (78 KB vendored from CPV upstream, which owns its behavior tests).
 
 ## Why
 
