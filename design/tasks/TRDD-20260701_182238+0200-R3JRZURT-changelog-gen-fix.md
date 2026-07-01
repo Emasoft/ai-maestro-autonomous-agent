@@ -1,9 +1,9 @@
 ---
 trdd-id: R3JRZURT
 title: Fix CHANGELOG generation — full tag history + correct heading render
-column: dev
+column: backburner
 created: 2026-07-01T18:22:38+0200
-updated: 2026-07-01T18:22:38+0200
+updated: 2026-07-01T18:37:23+0200
 current-owner: aimaa-autonomous
 assignee: aimaa-autonomous
 priority: 4
@@ -39,11 +39,15 @@ external-refs: ["reports/go-on-yourself-eval/20260701_181208+0200-docs-governanc
   three-way inconsistency: `publish.py` docstring says the CHANGELOG walks full
   tag history, but the actual invocation restricts it to `--unreleased`, and the
   file header claims "all notable changes" while only 1 of 18 releases is present.
-- **NEXT ACTION:** apply the 3 source fixes below, regenerate the artifacts, add
-  the guard test, run suite + lint + CPV, commit.
-- **Tier-0** — bugfix to the plugin's OWN release tooling; no `.github/` ruleset,
-  no baseline deviation, no gate relaxed (it makes the CHANGELOG *more* complete).
-  Reversible + local. A release that ships it (v1.5.4) is a separate Tier-2 gate.
+- **HELD — awaiting approval (2026-07-01).** During the go-on-yourself run an
+  unsupervised spark applied the `publish.py` part of this fix; the orchestrator
+  **REVERTED it** — editing the release pipeline (under issue #11's USER-ratified
+  ahead-of-canon exception, TRDD-5c21e4a0) is *escalate-when-unsure* → treat as
+  Tier-2, do NOT auto-apply. The reverted diff is saved at
+  `reports/go-on-yourself-eval/publish-py-spark-uncommitted.patch` for reference.
+- **NEXT ACTION (after USER/MANAGER approval):** apply the 3 source fixes below,
+  regenerate artifacts, add the guard test, run suite + lint + CPV, commit.
+- Parked in `backburner` until that approval; the plan below is complete + ready.
 
 ## Why
 
