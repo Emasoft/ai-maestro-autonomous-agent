@@ -31,10 +31,11 @@ status-report ≠ work order; add a recall step) — both genuine, added.
 each finding GENUINE / ALREADY-FIXED / PARTIAL; (2) author one TRDD citing the
 issue as the **Tier-2 MANAGER authorization** to MAKE the fixes; (3) make the
 edits, reword SHAPE not rule (CPV `--strict` SHAPE false-positives recur on
-persona/skill edits — see [[publish-pipeline]] [^1]), AND add a
+persona/skill edits — see [[publish-pipeline]] [^1]; skillaudit SHELL_EXEC also
+false-fires on prose matching a code-execution regex [^3]), AND add a
 `tests/test_content_invariants.py` regression guard for each governance-prose fix
 in the SAME batch — that file IS the project's home for governance-fix guards, so
-shipping a fix without its guard leaves the exact gap a later eval must reopen [^2];
+shipping a fix without its guard leaves the exact gap a later evaluation must reopen [^2];
 (4) verify CPV `--strict` green; (5) commit to `main` locally (rides the next
 `publish.py` push — see [[publish-pipeline]]); (6) comment on the issue + report to
 MANAGER with the per-finding table, self-id per G1.1; recommend close.
@@ -65,11 +66,22 @@ See also [[publish-pipeline]] (the release flow + the CPV verify recipe) and
 [^2]: [ocd:2026-07-01 lmd:2026-07-01] The #12 fixes (C/E/F4, commit `cd063ea`)
   shipped WITHOUT a `test_content_invariants.py` guard, even though that file's own
   docstring says it exists to guard "the governance fixes shipped per issue #6". A
-  later go-on-yourself eval (2026-07-01) had to reopen the batch and add the guards
+  later go-on-yourself evaluation (2026-07-01) had to reopen the batch and add the guards
   (TRDD-QJ30E8TD, commit `84b4ca8`) — pure avoidable rework. Lesson: governance-prose
   is uncompiled; a fix is only durable once a real (no-mock) content-invariant asserts
   its load-bearing tokens are present AND the buggy form is gone. Add the guard in the
-  SAME commit batch as the fix, always. The same eval also caught two persona-currency
+  SAME commit batch as the fix, always. The same evaluation also caught two persona-currency
   defects the #12 pass missed (`status:`→`column:`, a deprecated MEMORY.md-index
   instruction) — TRDD-81RC6IXC — reinforcing that a governance edit should sweep the
   whole cited section for consistency, not just the flagged line.
+[^3]: [ocd:2026-07-01 lmd:2026-07-01] CPV `--strict` skillaudit fires SHELL_EXEC on
+  PROSE that matches one of its code-execution regexes. Here an earlier draft wrote the
+  short form of "evaluation" directly before a parenthesised date, matching the
+  interpreter-call pattern → NIT=1, which BLOCKS the gate. Fix: spell the word out in full
+  so the abbreviation no longer abuts a paren (zero info loss) — NOT a rule suppression.
+  The exact pattern set lives in CPV `scripts/rules/skillaudit_patterns.json` (id
+  SHELL_EXEC); when a memory/governance note discusses exec or publish tooling, do NOT
+  reproduce those code shapes literally in prose — even this lesson DESCRIBES them in words
+  to avoid re-tripping the scanner. Meta-lesson: a commit hash beginning with a two-letter
+  shell verb is NOT a trigger; I neutralized one first on a guess before READING the
+  detector's real patterns. Verify with the process's step (4). See [[publish-pipeline]] [^1].
