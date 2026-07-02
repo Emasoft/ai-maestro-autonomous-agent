@@ -826,9 +826,21 @@ def is_path_gitignored(rel_path: str, patterns: list[str]) -> bool:
 
         # Check if pattern matches any component or the full path
         if is_anchored:
-            # Anchored patterns only match from root
-            if fnmatch.fnmatch(rel_path, pattern):
-                return True
+            # Anchored patterns match from root — against the full path OR any
+            # ancestor-directory prefix of it. Checking only the full path (the
+            # old behavior) meant an anchored directory pattern like
+            # "/reports_dev/" matched only the dir entry "reports_dev", NOT the
+            # nested file "reports_dev/foo.py". walk() hid that bug by pruning
+            # ignored dirs via is_dir_ignored before descending; rglob()
+            # enumerates every descendant directly and relies on THIS predicate,
+            # so nested gitignored files leaked out as if tracked (code-review
+            # w9dtmt0a2 finding #3). Progressive leading prefixes preserve the
+            # anchor: "sub/reports_dev/x" is still NOT matched by "reports_dev".
+            prefix = ""
+            for part in path_parts:
+                prefix = part if not prefix else f"{prefix}/{part}"
+                if fnmatch.fnmatch(prefix, pattern):
+                    return True
         else:
             # Non-anchored patterns can match any component
             if fnmatch.fnmatch(rel_path, pattern):
