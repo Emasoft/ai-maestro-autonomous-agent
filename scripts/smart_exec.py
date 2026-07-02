@@ -263,7 +263,7 @@ def deno_npm_argv(pkg: str, cmd: str, tool_args: list[str], latest: bool = True)
     """Build argv for running an npm package via Deno with minimal permissions."""
     ver = "@latest" if latest else ""
     spec = f"npm:{pkg}{ver}"
-    return [
+    base = [
         "deno",
         "run",
         "--allow-read=.",
@@ -272,9 +272,16 @@ def deno_npm_argv(pkg: str, cmd: str, tool_args: list[str], latest: bool = True)
         "--allow-net",
         "--no-prompt",
         spec,
-        "--",
-        cmd,
-    ] + tool_args
+    ]
+    # When the CLI name equals the package name, `deno run npm:<pkg>` already invokes
+    # the package's own default bin, so DON'T append `-- <cmd>`: that hands the bin its
+    # own name as a stray positional (e.g. `deno run npm:eslint@latest -- eslint .`
+    # makes eslint treat "eslint" as a lint target -> "No files matching 'eslint'").
+    # Only pass `-- <cmd>` to select a differently-named bin. Mirrors the cmd==pkg
+    # special-case in npx_argv / bunx_argv / pnpm_dlx_argv / yarn_dlx_argv.
+    if cmd == pkg:
+        return base + tool_args
+    return base + ["--", cmd] + tool_args
 
 
 def uvx_argv(pkg: str, cmd: str, tool_args: list[str], latest: bool = True) -> list[str]:
@@ -451,9 +458,15 @@ def build_argv_for_executor(executor: str, spec: ToolSpec, tool_args: list[str])
 
 
 def choose_best(spec: ToolSpec, tool_args: list[str], executors: dict[str, bool]) -> tuple[list[str], str]:
-    # Prefer direct if already available (fast, avoids downloads)
+    # Prefer direct if already available (fast, avoids downloads) -- but ONLY for
+    # ecosystems whose `command` is a real standalone PATH binary (python/node/native
+    # tools like ruff/eslint/shellcheck). For deno_builtin the command is a Deno
+    # SUBCOMMAND (fmt/lint/check) that collides with unrelated coreutils binaries --
+    # `have("fmt")` matches the BSD/coreutils text-reflow `fmt`, so a direct match
+    # would silently run the wrong program instead of `deno fmt`. For powershell_module
+    # the command is a cmdlet, never a PATH binary. Gate those two ecosystems out.
     direct_cmd = spec.command or spec.name
-    if have(direct_cmd):
+    if spec.ecosystem not in ("deno_builtin", "powershell_module") and have(direct_cmd):
         return [direct_cmd] + tool_args, "direct"
 
     for ex in PRIORITY.get(spec.ecosystem, []):
