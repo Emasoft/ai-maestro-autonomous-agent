@@ -109,3 +109,19 @@ def test_iterdir_excludes_ignored_top_level_entries(tmp_path: Path) -> None:
     assert "app.log" not in names
     assert "build" not in names
     assert {"keep.txt", "src"} <= names
+
+
+def test_is_path_gitignored_anchored_dir_matches_nested_files() -> None:
+    """is_path_gitignored: anchored dir pattern '/reports_dev/' ignores the dir AND its nested files while keeping the anchor; a non-anchored dir pattern still matches nested files too."""
+    from cpv_validation_common import is_path_gitignored  # scripts/ is on sys.path (inserted at module import)
+
+    anchored = ["/reports_dev/"]
+    # anchored dir pattern must ignore the dir itself AND every nested file (rglob enumerates
+    # each descendant and relies solely on this predicate -> pre-fix these nested files leaked).
+    assert is_path_gitignored("reports_dev/foo.py", anchored) is True  # nested file (the w9dtmt0a2 #3 regression)
+    assert is_path_gitignored("reports_dev", anchored) is True  # the dir entry itself
+    assert is_path_gitignored("reports_dev/a/b.py", anchored) is True  # deeply nested file
+    # the anchor is preserved: a same-named dir BELOW the root is NOT matched
+    assert is_path_gitignored("sub/reports_dev/foo.py", anchored) is False
+    # a NON-anchored dir pattern also matches the nested file (component match, unchanged behavior)
+    assert is_path_gitignored("reports_dev/foo.py", ["reports_dev/"]) is True

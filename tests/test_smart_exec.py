@@ -92,14 +92,29 @@ def test_npm_exec_argv_uses_package_form() -> None:
 
 def test_deno_npm_argv_latest_and_version_pin() -> None:
     """deno_npm_argv pins @latest by default and drops the suffix when latest=False (version-pin branch)."""
+    # cmd==pkg ("eslint"), so NO trailing `-- eslint` is appended (see the cmd==pkg guard).
     assert smart_exec.deno_npm_argv("eslint", "eslint", ["."]) == [
         "deno", "run", "--allow-read=.", "--allow-write=.", "--allow-env", "--allow-net",
-        "--no-prompt", "npm:eslint@latest", "--", "eslint", ".",
+        "--no-prompt", "npm:eslint@latest", ".",
     ]
     assert smart_exec.deno_npm_argv("eslint", "eslint", ["."], latest=False) == [
         "deno", "run", "--allow-read=.", "--allow-write=.", "--allow-env", "--allow-net",
-        "--no-prompt", "npm:eslint", "--", "eslint", ".",
+        "--no-prompt", "npm:eslint", ".",
     ]
+
+
+def test_deno_npm_argv_no_stray_positional_when_cmd_equals_pkg() -> None:
+    """deno_npm_argv omits the `-- <pkg>` positional when cmd==pkg, mirroring the npx/bunx guard so eslint isn't handed its own name as a lint target."""
+    argv = smart_exec.deno_npm_argv("eslint", "eslint", ["."])
+    assert "--" not in argv  # no separator -> nothing appended after the npm spec
+    assert "eslint" not in argv  # the bin name is NOT a standalone trailing positional (it lives only inside "npm:eslint@latest")
+    assert argv[-1] == "."  # the real tool arg is last, not a spurious "eslint"
+    assert argv == [
+        "deno", "run", "--allow-read=.", "--allow-write=.", "--allow-env", "--allow-net",
+        "--no-prompt", "npm:eslint@latest", ".",
+    ]
+    # guard the untouched differ-branch: when cmd != pkg, `-- <cmd>` is still appended
+    assert smart_exec.deno_npm_argv("typescript", "tsc", ["--noEmit"])[-3:] == ["--", "tsc", "--noEmit"]
 
 
 # ── python executors ──────────────────────────────────────────────────────────
@@ -195,3 +210,15 @@ def test_choose_best_prefers_direct_when_binary_present(monkeypatch: pytest.Monk
     _pin_have(monkeypatch)  # direct binary "available" -> fast path, no executor download
     argv, chosen = smart_exec.choose_best(smart_exec.resolve_tool("ruff"), ["check", "."], {})
     assert (argv, chosen) == (["ruff", "check", "."], "direct")
+
+
+def test_choose_best_deno_builtin_never_dispatched_as_direct(monkeypatch: pytest.MonkeyPatch) -> None:
+    """choose_best gates a deno_builtin tool (deno-fmt, command 'fmt') out of the direct fast-path so it runs `deno fmt`, not the colliding coreutils `fmt`."""
+    _pin_have(monkeypatch)  # every probe True -> pre-fix, have("fmt") matched coreutils and returned the "direct" label
+    spec = smart_exec.resolve_tool("deno-fmt")
+    assert (spec.ecosystem, spec.command) == ("deno_builtin", "fmt")  # the colliding-command deno_builtin case
+    argv, chosen = smart_exec.choose_best(spec, ["--check"], {})
+    assert chosen != "direct"  # must NOT be dispatched as the bare colliding binary
+    assert chosen == "deno"  # falls through to the deno executor instead
+    assert argv[0] == "deno" and argv[0] != "fmt"  # argv[0] is the deno runner, not coreutils `fmt`
+    assert argv[:2] == ["deno", "fmt"]  # i.e. `deno fmt --check`
