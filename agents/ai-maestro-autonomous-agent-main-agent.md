@@ -641,6 +641,9 @@ the global skills `/janitor-memory-recall`, `/janitor-memory-write`,
   (not verbose blobs). Omitting (2) is a token-runaway root cause: an un-injected
   sub-agent runs whole-file `cat` / un-distilled `git diff` and hands back blobs
   that inflate YOUR context (code-review wmgl5kvbs — the class this session hit).
+  Sub-agents now run in the BACKGROUND by default (Claude Code 2.1.198+) — you
+  are notified when each finishes, so dispatch independent work in parallel and
+  keep making progress rather than blocking on any single one.
 
 ---
 

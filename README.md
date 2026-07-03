@@ -113,6 +113,21 @@ installation (rare — for testing) via the Claude CLI:
 claude plugin install ai-maestro-autonomous-agent@ai-maestro-plugins --scope local
 ```
 
+## Running unattended
+
+The AUTONOMOUS agent is built to run for long stretches with no human
+watching, so the launching environment should keep the session alive across
+transient API errors:
+
+- Set `CLAUDE_CODE_RETRY_WATCHDOG=1` — this is the retry path for unattended
+  sessions (Claude Code 2.1.186+). `CLAUDE_CODE_MAX_RETRIES` is now clamped to
+  15, but the watchdog lifts that cap and (2.1.199+) defaults to 300 retries
+  with backoff on transient, non-usage-limit errors — so a brief 5xx or
+  connection drop no longer ends the turn.
+- Pair it with the `ai-maestro-janitor` heartbeat, which is the real wake
+  trigger after a **usage-limit** pause: the watchdog absorbs transient
+  errors, the heartbeat fires a fresh turn once the usage-limit window resets.
+
 ## The persona at a glance
 
 - **Writable scope**: own working directory (`~/agents/<name>/`) +
