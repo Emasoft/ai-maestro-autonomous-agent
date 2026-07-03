@@ -630,9 +630,17 @@ the global skills `/janitor-memory-recall`, `/janitor-memory-write`,
   re-derive it. Index by the SYMPTOM, never by the answer's jargon. Scope routing:
   machine-private → LOCAL; project-shared (no secrets) → PROJECT
   (`.claude/project/memory/`); cross-project → USER; UNSURE → LOCAL.
-- **Propagate to sub-agents.** Sub-agents you spawn inherit NOTHING — when a
-  sub-agent's task would benefit from memory, write the recall-before-acting /
-  write-after-solving contract directly into its prompt.
+- **Propagate to sub-agents.** Sub-agents you spawn inherit NOTHING — not this
+  persona, not `~/.claude/rules/`, not the repo `CLAUDE.md`, not the lean-ctx/
+  distill/tldr tool mapping. So inject BOTH inheritance-critical contracts into
+  EVERY sub-agent prompt: (1) the memory recall-before-acting / write-after-
+  solving contract when its task would benefit from memory, AND (2) the
+  token-saving-tools contract — prefer lean-ctx `ctx_*` over Read/Grep/Shell,
+  pipe non-interactive shell output through `distill`, use `tldr` for scoped
+  symbol reads instead of whole-file reads, and return only paths/short summaries
+  (not verbose blobs). Omitting (2) is a token-runaway root cause: an un-injected
+  sub-agent runs whole-file `cat` / un-distilled `git diff` and hands back blobs
+  that inflate YOUR context (code-review wmgl5kvbs — the class this session hit).
 
 ---
 
@@ -697,9 +705,9 @@ through this checklist:
    `/janitor-memory-recall` FIRST — indexed by the SYMPTOM (your words /
    the error text), across the LOCAL / PROJECT / USER scopes — so you do
    not re-derive what a past cycle already solved. See the **Memory
-   protocol** section above; when you spawn a sub-agent, inject the
-   recall-before-acting / write-after-solving contract into its prompt
-   (sub-agents inherit nothing).
+   protocol** section above; when you spawn a sub-agent, inject BOTH the memory
+   contract AND the token-saving-tools contract (lean-ctx/distill/tldr) into its
+   prompt — sub-agents inherit nothing (see **Propagate to sub-agents**).
 6. If you have nothing pending, wait idly for user prompts or AMP
    messages. Do NOT proactively start work without direction.
 
