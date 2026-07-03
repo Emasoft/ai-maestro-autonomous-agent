@@ -1,9 +1,9 @@
 ---
 trdd-id: V7HJ492I
 title: Fix 3 code-review w9dtmt0a2 findings — smart_exec deno dispatch x2 + gitignore anchored-dir leak
-column: testing
+column: complete
 created: 2026-07-03T01:51:24+0200
-updated: 2026-07-03T01:51:24+0200
+updated: 2026-07-03T02:01:48+0200
 current-owner: ai-maestro-autonomous-agent
 assignee: ai-maestro-autonomous-agent
 priority: 3
@@ -28,9 +28,9 @@ runtime-targets: [macos, linux]
 impacts: []
 attempts: 1
 test-failures: 0
-last-test-result: partial
-last-test-at: 2026-07-03T01:51:24+0200
-implementation-commits: [3e55ace, e2706db]
+last-test-result: pass
+last-test-at: 2026-07-03T02:01:48+0200
+implementation-commits: [3e55ace, e2706db, f81f501]
 external-refs: []
 ---
 
@@ -41,16 +41,16 @@ external-refs: []
 
 ## ⏵ STATE — READ THIS FIRST ON RESUME (authoritative; supersedes the body) — 2026-07-03
 
-- **Current state:** all 3 findings FIXED + COMMITTED + VERIFIED. Only the
-  regression-test EHT remains.
+- **Current state:** DONE. All 3 findings FIXED + COMMITTED + VERIFIED, and the
+  regression-test EHT is landed (commit `f81f501`, suite 25 passed).
   - #1 smart_exec deno_builtin direct fast-path guard → commit `3e55ace`
   - #2 smart_exec deno_npm `cmd==pkg` stray-positional → commit `3e55ace`
   - #3 gitignore anchored-dir nested-file leak (root cause in
     `is_path_gitignored`) → commit `e2706db`, ad-hoc verified 9/9 cases PASS.
-- **NEXT ACTION:** add exactly 3 regression tests (one per finding), extending
-  the EXISTING test files — `tests/test_smart_exec.py` (#1, #2) and
-  `tests/test_gitignore_filter.py` (#3). Then run the suite; on green →
-  `column: complete`.
+- **NEXT ACTION:** none — TRDD complete. 3 regression tests landed in
+  `tests/test_smart_exec.py` (#1, #2) and `tests/test_gitignore_filter.py` (#3),
+  commit `f81f501`, independently re-run green (25 passed). The fixes ship with
+  the next plugin publish (gated on USER decision #1).
 - **Load-bearing facts:**
   - The fixes intentionally PRESERVE the direct fast-path for python/node/native
     (real PATH binaries); only `deno_builtin` (Deno subcommands like fmt/lint/
