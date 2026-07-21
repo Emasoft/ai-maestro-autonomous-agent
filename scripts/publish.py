@@ -777,15 +777,15 @@ All notable changes to this project will be documented in this file.
 """
 body = """
 {% if version %}\
-    ## [{{ version | trim_start_matches(pat=\"v\") }}] - {{ timestamp | date(format=\"%Y-%m-%d\") }}
+## [{{ version | trim_start_matches(pat=\"v\") }}] - {{ timestamp | date(format=\"%Y-%m-%d\") }}
 {% else %}\
-    ## [Unreleased]
+## [Unreleased]
 {% endif %}\
 {% for group, commits in commits | group_by(attribute=\"group\") %}
-    ### {{ group | upper_first }}
-    {% for commit in commits %}
-        - {% if commit.breaking %}[**breaking**] {% endif %}{{ commit.message | upper_first }}\
-    {% endfor %}
+### {{ group | upper_first }}
+{% for commit in commits %}
+- {% if commit.breaking %}[**breaking**] {% endif %}{{ commit.message | upper_first }}\
+{% endfor %}
 {% endfor %}\n
 """
 trim = true
@@ -824,12 +824,17 @@ sort_commits = "oldest"
 def run_git_cliff(root: Path, new_version: str) -> str:
     """Run git-cliff to (re)generate CHANGELOG.md and extract release notes.
 
-    Uses the `--bump --unreleased --tag vX.Y.Z -o CHANGELOG.md` pattern to
-    regenerate the full changelog file in one call. This matches the
-    upstream git-cliff recommended pipeline and handles both fresh-generation
-    and update cases uniformly — git-cliff walks the full tag history from
-    the start of the repo and produces the complete CHANGELOG.md with the
+    Uses the `--bump --tag vX.Y.Z -o CHANGELOG.md` pattern to regenerate the
+    full changelog file in one call, so git-cliff walks the FULL tag history
+    from the start of the repo and produces the complete CHANGELOG.md with the
     new version section at the top.
+
+    `--unreleased` is deliberately NOT passed here. It restricts the walk to
+    commits since the last tag, and combined with `-o` (which overwrites) it
+    rewrote CHANGELOG.md as latest-version-only — 17 of 18 releases were
+    silently dropped from the file while this docstring still claimed full
+    history (TRDD-R3JRZURT B1). The flag IS correct on the release-notes call
+    below, which is intentionally latest-only.
 
     Release notes (latest-only, header stripped) are extracted in a second
     call and written to .git-cliff-release-notes.md so a subsequent
@@ -838,11 +843,12 @@ def run_git_cliff(root: Path, new_version: str) -> str:
     Any git-cliff error exits the pipeline.
     """
     # 1. Generate / regenerate CHANGELOG.md with the new version at the top.
+    #    NOTE: no `--unreleased` here — see the docstring. With it, `-o` overwrote
+    #    the file with only the newest section.
     run(
         [
             "git-cliff",
             "--bump",
-            "--unreleased",
             "--tag", f"v{new_version}",
             "-o", "CHANGELOG.md",
         ],
