@@ -11,3 +11,11 @@ line-length = 320
 
 [tool.mypy]
 ignore_missing_imports = true
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+    "mypy",
+    "pytest-split>=0.9",
+]

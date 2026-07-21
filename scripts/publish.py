@@ -1207,6 +1207,76 @@ def do_bump(plugin_root: Path, new_version: str, dry_run: bool = False) -> bool:
 # ── Main pipeline ────────────────────────────────────────────────────────────
 
 
+# ── DEPENDENCY-RESOLUTION TAG (added by `cpv standardize --fix`, CPV issue #165) ──
+# Since Claude Code 2.1.110 a version-constrained dependency on this plugin
+# ({"name": "<this-plugin>", "version": ">=1.2"}) is resolved by listing THIS repo's
+# tags, keeping ONLY those starting with "<this-plugin>--v", and fetching the highest
+# one satisfying the range. The plain vX.Y.Z tag is IGNORED by that resolver.
+#
+# So without the tag below, releases of this plugin are UN-DEPENDABLE: every dependent
+# fails to install with `no-matching-tag` and is DISABLED. The breakage is invisible
+# from the depending side (an already-installed dependent keeps working), which is how
+# it stayed hidden for months in the wild — do NOT remove this stage because "nothing
+# seems to need it". NOTE the separator is a DOUBLE hyphen (`--v`); the single-hyphen
+# `-v` form seen on some ecosystem tags matches the resolver's prefix filter and is
+# therefore silently useless.
+
+
+def _cpv_dependency_tag_name(root: Path, new_ver: str) -> str | None:
+    """The `{plugin-name}--v{version}` tag Claude Code resolves dependencies against.
+
+    The name is read from the MANIFEST, never from the directory name, so renaming
+    the checkout (or the plugin) cannot silently desync the tag from the plugin it
+    names. Returns None when the name is unreadable — the caller then WARNS loudly
+    rather than inventing a name, because a SILENT skip is exactly how this defect
+    survived unnoticed across many releases.
+    """
+    manifest = root / ".claude-plugin" / "plugin.json"
+    if not manifest.is_file():
+        return None
+    try:
+        name = json.loads(manifest.read_text(encoding="utf-8")).get("name")
+    except (json.JSONDecodeError, OSError):
+        return None
+    return f"{name}--v{new_ver}" if name else None
+
+
+def _cpv_dependency_push_refs(root: Path, new_ver: str) -> list[str]:
+    """Create the dependency-resolution tag locally and return it as a push-ref list.
+
+    Idempotent: an existing tag is left alone. Returns [] when the tag cannot be
+    built, so the release still pushes rather than crashing the pipeline.
+
+    It is called from INSIDE the release push's argv so the tag lands in the SAME
+    push as the release tag — a release can never ship with one ref and not the other.
+    """
+    dep_tag = _cpv_dependency_tag_name(root, new_ver)
+    if dep_tag is None:
+        print(
+            "  WARNING: cannot read the plugin name from .claude-plugin/plugin.json "
+            "- SKIPPING the dependency tag. Plugins depending on this one will fail "
+            "to resolve this release with `no-matching-tag`."
+        )
+        return []
+    probe = subprocess.run(
+        ["git", "rev-parse", "--verify", f"refs/tags/{dep_tag}"],
+        capture_output=True,
+        text=True,
+        cwd=str(root),
+        check=False,
+        timeout=10,
+    )
+    if probe.returncode != 0:
+        subprocess.run(
+            ["git", "tag", "-a", dep_tag, "-m", dep_tag.replace("--v", " ")],
+            cwd=str(root),
+            check=True,
+            timeout=10,
+        )
+        print(f"  Dependency tag {dep_tag} created.")
+    return [dep_tag]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
@@ -1581,7 +1651,7 @@ Examples:
     # allow the push. No env var needed — process trees can't be spoofed.
     print(f"\n{BLUE}=== Step 13: Push commit + tag to origin/{default_branch} ==={NC}")
     run(["git", "push", "origin", "HEAD"], cwd=git_root)
-    run(["git", "push", "origin", f"v{new_version}"], cwd=git_root)
+    run(["git", "push", "origin", f"v{new_version}"] + _cpv_dependency_push_refs(plugin_root, new_version), cwd=git_root)
     print(f"\n{GREEN}ok Published v{new_version} ({info.name}){NC}")
 
     # ── Step 14: Create GitHub release with release notes (MANDATORY) ──

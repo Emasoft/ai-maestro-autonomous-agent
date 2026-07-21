@@ -15,6 +15,13 @@ PowerShell exists, so its happy-path can only be asserted with the probe pinned;
 injection-validation happens BEFORE the probe, so those ValueError cases need no patch.
 """
 
+# cspell:ignore monkeypatch
+# Declared inline rather than in .cspell.json's global `words` list: the skillaudit
+# TOOL_SHADOW detector reads an entry in that list as a tool redefinition and raises a
+# BLOCKING MAJOR on it (CPV's own standardize generates the entry, so it regresses the
+# gate it ships). An inline directive keeps the SPELL gate green without suppressing a
+# security rule or editing .cspell.json's schema.
+
 from __future__ import annotations
 
 import importlib.util
