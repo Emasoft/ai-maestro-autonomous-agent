@@ -32,9 +32,33 @@ permissions:
 jobs:
   notify:
     runs-on: ubuntu-latest
+    # Bound the job. Without this it inherits the 6-hour default, so a hung
+    # dispatch burns Actions minutes for hours. Canon carries it; this plugin
+    # had dropped it (TRDD-TVM7Q4XK).
+    timeout-minutes: 10
     steps:
       - name: Checkout plugin
-        uses: actions/checkout@v4
+        # Pinned to a full commit SHA so a rewritten tag cannot change what runs.
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # No-op guard for the OPTIONAL MARKETPLACE_PAT secret. A fork — or this repo
+      # before the secret is provisioned — has no token. WITHOUT this guard the
+      # dispatch step runs with an empty token and fails the whole workflow on EVERY
+      # push to main, turning a missing optional secret into permanently red CI.
+      # A secret cannot be tested in a job-level `if:`, so probe it in a step and gate
+      # the dispatch on the output. Read through env — never interpolated into the script.
+      - name: Check for MARKETPLACE_PAT
+        id: pat
+        env:
+          MARKETPLACE_PAT: ${{ secrets.MARKETPLACE_PAT }}
+        run: |
+          set -euo pipefail
+          if [ -n "${MARKETPLACE_PAT:-}" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::MARKETPLACE_PAT is not set — skipping marketplace dispatch (no-op, not a failure)."
+          fi
 
       - name: Extract plugin name and version
         id: plugin
@@ -47,6 +71,7 @@ jobs:
           echo "ref=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
 
       - name: Dispatch plugin-updated to marketplace
+        if: steps.pat.outputs.present == 'true'
         uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
         with:
           token: ${{ secrets.MARKETPLACE_PAT }}
@@ -61,13 +86,30 @@ jobs:
               "triggered_by": "${{ github.actor }}"
             }
 
+      # `always()` so the summary still records a SKIPPED dispatch. Values are passed
+      # through env rather than interpolated directly into the script — an `${{ }}`
+      # expansion inside a `run:` block is textual substitution and is the standard
+      # Actions expression-injection vector, so we never do it even for values that
+      # currently come from our own plugin.json.
       - name: Job summary
+        if: always()
+        env:
+          PLUGIN_NAME: ${{ steps.plugin.outputs.name }}
+          PLUGIN_VERSION: ${{ steps.plugin.outputs.version }}
+          PLUGIN_REF: ${{ steps.plugin.outputs.ref }}
+          TARGET: ${{ env.MARKETPLACE_OWNER }}/${{ env.MARKETPLACE_REPO }}
+          DISPATCHED: ${{ steps.pat.outputs.present }}
         run: |
           {
             echo "## Marketplace Notification"
             echo ""
-            echo "- Plugin: ${{ steps.plugin.outputs.name }}"
-            echo "- Version: ${{ steps.plugin.outputs.version }}"
-            echo "- Ref: ${{ steps.plugin.outputs.ref }}"
-            echo "- Target: ${{ env.MARKETPLACE_OWNER }}/${{ env.MARKETPLACE_REPO }}"
+            echo "- Plugin: ${PLUGIN_NAME:-unknown}"
+            echo "- Version: ${PLUGIN_VERSION:-unknown}"
+            echo "- Ref: ${PLUGIN_REF:-unknown}"
+            echo "- Target: ${TARGET:-unknown}"
+            if [ "${DISPATCHED:-false}" = "true" ]; then
+              echo "- Dispatch: sent"
+            else
+              echo "- Dispatch: SKIPPED (MARKETPLACE_PAT not set)"
+            fi
           } >> "$GITHUB_STEP_SUMMARY"

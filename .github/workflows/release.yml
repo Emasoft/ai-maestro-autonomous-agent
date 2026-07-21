@@ -17,22 +17,34 @@ on:
 # purpose is to catch regressions where someone bypasses publish.py and
 # pushes a tag directly — CI will flag the broken release.
 
+# Least-privilege token. This gate only READS the tagged tree and runs a
+# validator — it creates no release, uploads no asset, writes nothing back —
+# so it needs no write scope. Without an explicit block the job silently
+# inherits the repository default, which may be read/write. Canon carries
+# this and the plugin did not (TRDD-TVM7Q4XK: the gap was real; the earlier
+# "plugin is ahead of canon" claim was inverted).
+permissions:
+  contents: read
+
 jobs:
   validate-tag:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      # Every action — first-party included — is pinned to a full commit SHA so a
+      # rewritten tag cannot silently change what executes in the release gate.
+      # The trailing comment records the human-readable version the SHA resolves to.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.12'
 
       - name: Install uv
-        uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5.4.2
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
 
       - name: CPV strict validation gate (post-hoc safety net)
         # NOTE: do NOT set CLAUDE_PRIVATE_USERNAMES to the repo owner here — that buggy
