@@ -1,9 +1,9 @@
 ---
 trdd-id: R3JRZURT
 title: Fix CHANGELOG generation — full tag history + correct heading render
-column: backburner
+column: complete
 created: 2026-07-01T18:22:38+0200
-updated: 2026-07-01T18:37:23+0200
+updated: 2026-07-21T22:35:19+0200
 current-owner: aimaa-autonomous
 assignee: aimaa-autonomous
 priority: 4
@@ -26,8 +26,9 @@ runtime-targets: [macos, linux]
 impacts: []
 attempts: 0
 test-failures: 0
-last-test-result: not-run
-implementation-commits: []
+last-test-result: pass
+last-test-at: 2026-07-21T22:35:19+0200
+implementation-commits: [b326c65]
 external-refs: ["reports/go-on-yourself-eval/20260701_181208+0200-docs-governance.md"]
 ---
 
@@ -39,15 +40,26 @@ external-refs: ["reports/go-on-yourself-eval/20260701_181208+0200-docs-governanc
   three-way inconsistency: `publish.py` docstring says the CHANGELOG walks full
   tag history, but the actual invocation restricts it to `--unreleased`, and the
   file header claims "all notable changes" while only 1 of 18 releases is present.
-- **HELD — awaiting approval (2026-07-01).** During the go-on-yourself run an
-  unsupervised spark applied the `publish.py` part of this fix; the orchestrator
-  **REVERTED it** — editing the release pipeline (under issue #11's USER-ratified
-  ahead-of-canon exception, TRDD-5c21e4a0) is *escalate-when-unsure* → treat as
-  Tier-2, do NOT auto-apply. The reverted diff is saved at
-  `reports/go-on-yourself-eval/publish-py-spark-uncommitted.patch` for reference.
-- **NEXT ACTION (after USER/MANAGER approval):** apply the 3 source fixes below,
-  regenerate artifacts, add the guard test, run suite + lint + CPV, commit.
-- Parked in `backburner` until that approval; the plan below is complete + ready.
+- **DONE 2026-07-21 — USER approved; applied in commit `b326c65`.**
+  (Superseded: the 2026-07-01 "HELD — awaiting approval / parked in backburner" state.
+  The earlier revert was correct at the time — an unsupervised spark had applied the
+  publish.py part without the Tier-2 approval this needed.)
+- **B1 fixed** — dropped `--unreleased` from the CHANGELOG-generation call and
+  reconciled the docstring that had claimed full-history all along. KEPT on the
+  release-notes call, which is intentionally latest-only.
+- **B2 fixed in BOTH copies** — `cliff.toml` and the `ensure_cliff_config` embedded
+  default (a fresh checkout regenerates from the latter, so fixing one would have left
+  the bug latent).
+- **Verified empirically, not by inspection:** git-cliff dry-run → real regeneration
+  took `CHANGELOG.md` from **1 → 19** version sections (Unreleased + all 18 releases
+  back to 1.0.1), with **0** indented headings and **0** indented bullets. Regenerated
+  without `--bump`/`--tag` so the file reflects real history plus an Unreleased section
+  instead of pre-claiming an unshipped version.
+- **Guard test:** `tests/test_changelog_generation.py` (6 tests) asserts the flag split
+  across both git-cliff calls, that NEITHER template copy emits indented markdown, and
+  that the committed artifact keeps >1 section. Suite 83 passed, ruff clean,
+  CPV `--strict` EXIT=0 0/0/0/0.
+- **NEXT ACTION:** none. Ships with the next release (publish is USER-gated).
 
 ## Why
 

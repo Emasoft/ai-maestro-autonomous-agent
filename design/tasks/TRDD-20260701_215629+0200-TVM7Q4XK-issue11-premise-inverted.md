@@ -1,10 +1,10 @@
 ---
 trdd-id: TVM7Q4XK
 title: Issue-11 "ahead-of-canon" premise is INVERTED — correct the record + port canon workflow hardening
-column: backburner
+column: complete
 approval-tier: 3
 created: 2026-07-01T21:56:29+0200
-updated: 2026-07-01T22:06:44+0200
+updated: 2026-07-21T22:35:19+0200
 current-owner: aimaa-autonomous
 assignee: aimaa-autonomous
 priority: 3
@@ -29,7 +29,7 @@ impacts: [ci-pipeline]
 attempts: 0
 test-failures: 0
 last-test-result: not-run
-implementation-commits: []
+implementation-commits: [3dd64f3, f255127]
 external-refs: ["reports/go-on-yourself-eval/20260701_215629+0200-issue11-premise-inverted-verification.md", "reports/go-on-yourself-eval/20260701_182302+0200-CONSOLIDATED-eval-and-decisions.md", "github.com/Emasoft/ai-maestro-autonomous-agent/issues/11", "TRDD-5c21e4a0", "TRDD-270ef961", "RC-PIPELINE-DRIFT-001"]
 ---
 
@@ -55,8 +55,36 @@ external-refs: ["reports/go-on-yourself-eval/20260701_215629+0200-issue11-premis
   demoted the error to lesson [^5] (+ [^2]/[^4] markers); wrote the evidence report;
   authored this TRDD. **No workflow edits, no public post, no force-template, no reversal
   of 5c21e4a0 — all four gated.**
-- **NEXT ACTION: NONE without USER decision.** The corrective options below are
-  Tier-2/Tier-3. Parked in `backburner`.
+- **RESOLVED 2026-07-21 — USER approved options 1 + 2; both executed.**
+  - **Option 1 (Tier-3, public correction) — DONE.** Correction posted to issue #11:
+    `.../ai-maestro-autonomous-agent/issues/11#issuecomment-5038748584`. Retracts the
+    ahead-of-canon claim, tables the claim-vs-reality diff, names the root cause (read
+    CPV's *hedged* heuristic line, never the unified diff printed beneath it), and
+    states plainly that the commits are LOCAL/UNPUSHED. Issue left OPEN — the work is
+    unreleased and the backfill tag is outstanding.
+  - **Option 2 (Tier-2, workflow hardening) — DONE, commit `3dd64f3`.** Least-privilege
+    `permissions` on release.yml; ALL actions SHA-pinned at current versions
+    (checkout v4→v7.0.1, setup-python v5→v7.0.0, setup-uv v5.4.2→v9.0.0);
+    `timeout-minutes` + the `MARKETPLACE_PAT` no-op guard on notify-marketplace.yml;
+    job summary moved to env indirection. Guarded by `tests/test_workflow_hardening.py`.
+  - **Option 3 (SBOM / provenance / SHA256SUMS) — CLOSED as NOT APPLICABLE, with
+    evidence.** `publish.py` creates the release via `gh release create --notes-file`
+    and uploads NO assets: this plugin ships as a git ref consumed by the marketplace,
+    not as a built artifact. There is nothing to attest or checksum, so canon's steps
+    would no-op or fail. Canon carries them because canon's `release.yml` BUILDS and
+    uploads assets while ours is a post-hoc validate gate — the architectural
+    divergence this TRDD already flagged. Revisit only if this plugin ever ships real
+    release assets.
+  - **Option 4 (reopen 5c21e4a0) — NOT taken.** Confirmed it still stands, for its own
+    correct reason: canon's publish.py is 278 lines vs our 1805, so `--force-templates`
+    would regress ~1500 lines of custom version-sync logic.
+- **Also landed while here (`f255127`, via CPV per USER instruction):** the publish
+  pipeline was updated with `cpv-remote-validate standardize . --fix`, which surfaced a
+  separate latent breakage — publish.py never emitted the `<plugin>--v{version}` tag
+  Claude Code resolves dependencies against, so every dependent would install with
+  `no-matching-tag` and be DISABLED. Fixed; see TRDD-P8QK3ZTR.
+- **STILL OPEN (both gated on USER):** backfill the
+  `ai-maestro-autonomous-agent--v1.5.3` tag (needs a push), and publish the release.
 - **What STANDS (do NOT overcorrect):** TRDD-5c21e4a0's core reason — don't blindly
   `--force-templates` **publish.py** (custom M11 version-sync logic) — is SOUND and
   unaffected. A *blind* `release.yml` clobber is still unsafe, but for an ARCHITECTURAL
