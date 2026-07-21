@@ -1,299 +1,229 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
 ## [Unreleased]
 
 ### Bug Fixes
 
-- Correct status→column field + drop deprecated MEMORY.md-index line (TRDD-81RC6IXC)
-- Clear CPV --strict SHELL_EXEC false-positive in governance note
+- **persona:** Correct status→column field + drop deprecated MEMORY.md-index line (TRDD-81RC6IXC) (4710380)
+- **memory:** Clear CPV --strict SHELL_EXEC false-positive in governance note (e73b63e)
+- **changelog:** Walk full tag history and stop indenting headings (TRDD-R3JRZURT) (b326c65)
+- **pipeline:** Re-pin CPV to v2.162.0, add publish.py --gate, add CI-parity preflight (5a9e9c9)
 
 ### Documentation
 
-- Close TRDD-270ef961 published v1.5.3; record CLAUDE_PRIVATE_USERNAMES canon trap
-- Record fleet re-ask #11 reconciliation + one-shot canon-clean recipe (publish-pipeline [^4])
-- Fix #12 audit — gate silver-PRRD --user, add startup carve-outs (TRDD-7c4f9ea4)
-- Record implementation-commit cd063ea on TRDD-7c4f9ea4 (backtracking)
-- Add governance-audit-handling note (verify-HEAD-first + fix-vs-publish split)
-- Add TRDD-QJ30E8TD — regression guards for issue-12 governance fixes
-- Add TRDD-81RC6IXC — persona currency fixes (impl 4710380)
-- Add TRDD-AXI79CXE — backburner test-coverage gaps (go-on-yourself eval)
-- Record the guard-with-each-governance-fix lesson (go-on-yourself eval)
-- Add TRDD-R3JRZURT (changelog-gen fix) + TRDD-NHYCSFRZ (script behavior tests)
-- Supersede TRDD-AXI79CXE via TRDD-NHYCSFRZ (duplicate test-coverage TRDD)
-- Park R3JRZURT changelog-gen fix -- Tier-2 publish.py change reverted pending approval
-- Capture the fork-delegation-under-autonomous-directive lesson
-- Correct issue-11 "ahead-of-canon" premise — it is INVERTED (TRDD-TVM7Q4XK)
-- Cite CONSOLIDATED eval report from TVM7Q4XK + capture-map (report->TRDD)
-- Wire reciprocal back-links to fork-delegation note (LINK LAW)
-- Add TRDD-V7HJ492I for 3 code-review w9dtmt0a2 findings and fixes, impl-commits 3e55ace e2706db, Agent ai-maestro-autonomous-agent
-- Flip TRDD-V7HJ492I to complete, 3 regression tests landed f81f501 suite green, Agent ai-maestro-autonomous-agent
-- Add TRDD-DUXFCQXT for code-review wmgl5kvbs finding and fix, impl-commit a318308, Agent ai-maestro-autonomous-agent
-- Sync plugin guidance to Claude Code 2.1.181-2.1.200 (TRDD-BFDQH5A7)
-- Add TRDD-BFDQH5A7 for CC 2.1.181-2.1.200 sync, impl-commit b2dd4d2, Agent ai-maestro-autonomous-agent
+- **trdd+memory:** Close TRDD-270ef961 published v1.5.3; record CLAUDE_PRIVATE_USERNAMES canon trap (263cebf)
+- **memory:** Record fleet re-ask #11 reconciliation + one-shot canon-clean recipe (publish-pipeline [^4]) (d742645)
+- **governance:** Fix #12 audit — gate silver-PRRD --user, add startup carve-outs (TRDD-7c4f9ea4) (cd063ea)
+- **trdd:** Record implementation-commit cd063ea on TRDD-7c4f9ea4 (backtracking) (57890f5)
+- **memory:** Add governance-audit-handling note (verify-HEAD-first + fix-vs-publish split) (790144a)
+- **trdd:** Add TRDD-QJ30E8TD — regression guards for issue-12 governance fixes (b54d7c6)
+- **trdd:** Add TRDD-81RC6IXC — persona currency fixes (impl 4710380) (bbd1e41)
+- **trdd:** Add TRDD-AXI79CXE — backburner test-coverage gaps (go-on-yourself eval) (ff2da90)
+- **memory:** Record the guard-with-each-governance-fix lesson (go-on-yourself eval) (0091271)
+- **trdd:** Add TRDD-R3JRZURT (changelog-gen fix) + TRDD-NHYCSFRZ (script behavior tests) (0edd4ae)
+- **trdd:** Supersede TRDD-AXI79CXE via TRDD-NHYCSFRZ (duplicate test-coverage TRDD) (febd39d)
+- **trdd:** Park R3JRZURT changelog-gen fix -- Tier-2 publish.py change reverted pending approval (25d2e96)
+- **memory:** Capture the fork-delegation-under-autonomous-directive lesson (c9f1486)
+- **memory+trdd:** Correct issue-11 "ahead-of-canon" premise — it is INVERTED (TRDD-TVM7Q4XK) (c081577)
+- **trdd:** Cite CONSOLIDATED eval report from TVM7Q4XK + capture-map (report->TRDD) (1dd6ca4)
+- **memory:** Wire reciprocal back-links to fork-delegation note (LINK LAW) (d8941c6)
+- Add TRDD-V7HJ492I for 3 code-review w9dtmt0a2 findings and fixes, impl-commits 3e55ace e2706db, Agent ai-maestro-autonomous-agent (6a9e244)
+- Flip TRDD-V7HJ492I to complete, 3 regression tests landed f81f501 suite green, Agent ai-maestro-autonomous-agent (2da3a7f)
+- Add TRDD-DUXFCQXT for code-review wmgl5kvbs finding and fix, impl-commit a318308, Agent ai-maestro-autonomous-agent (56851aa)
+- Sync plugin guidance to Claude Code 2.1.181-2.1.200 (TRDD-BFDQH5A7) (b2dd4d2)
+- Add TRDD-BFDQH5A7 for CC 2.1.181-2.1.200 sync, impl-commit b2dd4d2, Agent ai-maestro-autonomous-agent (2eb404c)
+- **trdd:** Close TVM7Q4XK + R3JRZURT, add P8QK3ZTR for the CPV pipeline update (d824516)
 
-### Miscellaneous
+### Miscellaneous Tasks
 
-- Finalize QJ30E8TD state — complete, impl 84b4ca8
-- Finalize NHYCSFRZ backtracking -- implementation-commits 8b4d200
+- **trdd:** Finalize QJ30E8TD state — complete, impl 84b4ca8 (884392f)
+- **trdd:** Finalize NHYCSFRZ backtracking -- implementation-commits 8b4d200 (28f0896)
+- Port canon workflow hardening into release + notify-marketplace (TRDD-TVM7Q4XK) (3dd64f3)
 
 ### Security
 
-- Port canon workflow hardening into release + notify-marketplace (TRDD-TVM7Q4XK)
-- Update publish pipeline via CPV standardize --fix (TRDD-TVM7Q4XK)
+- Update publish pipeline via CPV standardize --fix (TRDD-TVM7Q4XK) (f255127)
 
-### Tests
+### Testing
 
-- Guard the issue-12 fixes in test_content_invariants (TRDD-QJ30E8TD)
-- Real behavior tests for smart_exec + gitignore_filter + workspace-isolation (TRDD-NHYCSFRZ)
-- 3 regression tests for code-review w9dtmt0a2 findings plus correct stale deno_npm expectation left red by 3e55ace, 25 passed, TRDD-V7HJ492I, Agent ai-maestro-autonomous-agent
-
+- **governance:** Guard the issue-12 fixes in test_content_invariants (TRDD-QJ30E8TD) (84b4ca8)
+- Real behavior tests for smart_exec + gitignore_filter + workspace-isolation (TRDD-NHYCSFRZ) (8b4d200)
+- 3 regression tests for code-review w9dtmt0a2 findings plus correct stale deno_npm expectation left red by 3e55ace, 25 passed, TRDD-V7HJ492I, Agent ai-maestro-autonomous-agent (f81f501)
 ## [1.5.3] - 2026-06-20
 
 ### Bug Fixes
 
-- Drop CLAUDE_PRIVATE_USERNAMES from validate steps — it flagged the owner (TRDD-270ef961)
-
-### Miscellaneous
-
-- V1.5.3
-
+- **ci:** Drop CLAUDE_PRIVATE_USERNAMES from validate steps — it flagged the owner (TRDD-270ef961) (e645843)
 ## [1.5.2] - 2026-06-20
 
 ### Documentation
 
-- Archive TRDD-5c21e4a0 — SHA-pin 3rd-party actions, published v1.5.1
-- Record CPV devitalization recurrence trap (v1.5.1)
-- Propose CPV canon ADDITIVE reliability subset (TRDD-270ef961)
-- Record CPV --force-templates / ahead-of-canon trap (publish-pipeline [^2])
+- **trdd:** Archive TRDD-5c21e4a0 — SHA-pin 3rd-party actions, published v1.5.1 (3668e3f)
+- **memory:** Record CPV devitalization recurrence trap (v1.5.1) (82fc292)
+- **trdd:** Propose CPV canon ADDITIVE reliability subset (TRDD-270ef961) (0751287)
+- **memory:** Record CPV --force-templates / ahead-of-canon trap (publish-pipeline [^2]) (74c0d09)
 
-### Miscellaneous
+### Miscellaneous Tasks
 
-- Re-ignore .claude/project/memory/*-proposed.md
-- V1.5.2
-
-### Ci
-
-- Pin CPV ref @v2.136.1 + harden validate steps (TRDD-270ef961)
-
+- **pipeline:** Pin CPV ref @v2.136.1 + harden validate steps (TRDD-270ef961) (c35bc16)
+- **gitignore:** Re-ignore .claude/project/memory/*-proposed.md (257ca5e)
 ## [1.5.1] - 2026-06-20
 
 ### Bug Fixes
 
-- SHA-pin third-party GitHub Actions (TRDD-5c21e4a0)
-- Devitalize skillaudit:privilege_escalation false-positives
+- **ci:** SHA-pin third-party GitHub Actions (TRDD-5c21e4a0) (6acab99)
+- **docs:** Devitalize skillaudit:privilege_escalation false-positives (4f764e5)
 
 ### Documentation
 
-- Archive TRDD-81869520 — governance R26-R40 published v1.5.0 (#9)
-- Record CPV --strict false-positive shapes (slash-lists, sudo+password)
-
-### Miscellaneous
-
-- V1.5.1
-
+- **trdd:** Archive TRDD-81869520 — governance R26-R40 published v1.5.0 ([#9](https://github.com/Emasoft/ai-maestro-autonomous-agent/issues/9)) (cfdc737)
+- **memory:** Record CPV --strict false-positive shapes (slash-lists, sudo+password) (86e11a3)
 ## [1.5.0] - 2026-06-18
 
 ### Documentation
 
-- Archive TRDD-fc155c40 — /api decoupling published v1.4.1 (#8)
-- Propagate governance R26-R40 into persona + skills + scenarios (#9)
-
-### Miscellaneous
-
-- V1.5.0
-
+- **trdd:** Archive TRDD-fc155c40 — /api decoupling published v1.4.1 ([#8](https://github.com/Emasoft/ai-maestro-autonomous-agent/issues/8)) (842e397)
+- Propagate governance R26-R40 into persona + skills + scenarios ([#9](https://github.com/Emasoft/ai-maestro-autonomous-agent/issues/9)) (7d92fef)
 ## [1.4.1] - 2026-06-18
 
 ### Documentation
 
-- Archive TRDD-b48aa385 — global memory adopted + published v1.4.0
-- Seed publish-pipeline PROJECT note (pre-push hook → publish.py)
-- Proposal TRDD-5c21e4a0 — RC-PIPELINE-DRIFT-001 (Tier-2, awaiting decision)
-
-### Miscellaneous
-
-- V1.4.1
+- **trdd:** Archive TRDD-b48aa385 — global memory adopted + published v1.4.0 (273de6d)
+- **memory:** Seed publish-pipeline PROJECT note (pre-push hook → publish.py) (6907e0e)
+- **trdd:** Proposal TRDD-5c21e4a0 — RC-PIPELINE-DRIFT-001 (Tier-2, awaiting decision) (6da604b)
 
 ### Refactor
 
-- Decouple executable /api/* -> frozen aimaestro-*.sh CLI verbs (R23, #8)
-
+- Decouple executable /api/* -> frozen aimaestro-*.sh CLI verbs (R23, #8) (2d27167)
 ## [1.4.0] - 2026-06-15
 
 ### Documentation
 
-- Record Claude Code currency review + validator prune (v1.3.3)
+- **trdd:** Record Claude Code currency review + validator prune (v1.3.3) (35015d3)
 
 ### Features
 
-- Adopt global janitor-hosted 3-scope memory; drop per-plugin system
-
-### Miscellaneous
-
-- V1.4.0
-
+- **memory:** Adopt global janitor-hosted 3-scope memory; drop per-plugin system (7fe8d84)
 ## [1.3.3] - 2026-06-11
 
 ### Documentation
 
-- Mark fleet-readiness audit (#6) completed → archived
+- **trdd:** Mark fleet-readiness audit ([#6](https://github.com/Emasoft/ai-maestro-autonomous-agent/issues/6)) completed → archived (ee2a38e)
 
-### Miscellaneous
+### Miscellaneous Tasks
 
-- Prune vestigial bundled CPV validators; object-form deps
-- V1.3.3
-
+- **scripts:** Prune vestigial bundled CPV validators; object-form deps (a25d181)
 ## [1.3.2] - 2026-06-11
 
 ### Bug Fixes
 
-- Stop update_readme_version eating the README blank line
-- Stage README + persona in the Step-11 release commit
-
-### Miscellaneous
-
-- V1.3.2
-
+- **publish:** Stop update_readme_version eating the README blank line (71c41bc)
+- **publish:** Stage README + persona in the Step-11 release commit (0a6c6e4)
 ## [1.3.1] - 2026-06-11
 
 ### Bug Fixes
 
-- Bump README + persona in the LIVE Step-9 path
-
-### Miscellaneous
-
-- V1.3.1
-
+- **publish:** Bump README + persona in the LIVE Step-9 path (4dad3e2)
 ## [1.3.0] - 2026-06-11
 
 ### Features
 
-- Close fleet-readiness audit gaps M1–M12 (#6)
-
-### Miscellaneous
-
-- V1.3.0
-
+- **governance:** Close fleet-readiness audit gaps M1–M12 ([#6](https://github.com/Emasoft/ai-maestro-autonomous-agent/issues/6)) (102876c)
 ## [1.2.0] - 2026-06-09
 
 ### Bug Fixes
 
-- Replace broken references/ link with universal-skill prose pointer
-- Restructure ai-maestro-autonomous-prrd-trdd-kanban to CPV 7-section format (<5000)
-- Remove ghost deployer/releaser subagent dispatch from kanban skill
-- Devitalize scanner-signature shapes for CPV strict (9 findings → 0)
-- Plugin description now reflects the 5 bundled skills
+- **skill:** Replace broken references/ link with universal-skill prose pointer (449a1af)
+- **skill:** Restructure ai-maestro-autonomous-prrd-trdd-kanban to CPV 7-section format (<5000) (89fa5e0)
+- **skill:** Remove ghost deployer/releaser subagent dispatch from kanban skill (b2ca5f3)
+- **security:** Devitalize scanner-signature shapes for CPV strict (9 findings → 0) (e3da481)
+- **manifest:** Plugin description now reflects the 5 bundled skills (d02cc38)
 
 ### Documentation
 
-- Approval tiers + lifecycle + baseline governance; memory wiring (#4, #5)
+- **persona:** Approval tiers + lifecycle + baseline governance; memory wiring (#4, #5) (e151466)
 
 ### Features
 
-- Add AUTONOMOUS's PRRD/TRDD/Kanban layer
-- Add Approval discipline section to ai-maestro-autonomous-prrd-trdd-kanban
-- Bootstrap PRRD with G1 GitHub self-id golden rule
-- Align with Claude Code v2.1.81–v2.1.143 plugin contract (v1.1.0)
-- Adopt the markdown memory system (#5)
+- **workflow:** Add AUTONOMOUS's PRRD/TRDD/Kanban layer (42ab63e)
+- **workflow:** Add Approval discipline section to ai-maestro-autonomous-prrd-trdd-kanban (25952ce)
+- **prrd:** Bootstrap PRRD with G1 GitHub self-id golden rule (643049b)
+- **validators:** Align with Claude Code v2.1.81–v2.1.143 plugin contract (v1.1.0) (26deea4)
+- **memory:** Adopt the markdown memory system ([#5](https://github.com/Emasoft/ai-maestro-autonomous-agent/issues/5)) (8eb049f)
 
-### Miscellaneous
+### Miscellaneous Tasks
 
-- Add .tldrignore for TLDR code indexer
-- Bump version to 1.2.0
-- V1.2.0
-
+- Add .tldrignore for TLDR code indexer (1e378d2)
 ## [1.0.8] - 2026-04-26
 
 ### Bug Fixes
 
-- Strip #anchor before referenced-file existence check
-
-### Miscellaneous
-
-- V1.0.8
+- **validators:** Strip #anchor before referenced-file existence check (4afa264)
 
 ### Styling
 
-- Code-fence external server refs and add 2 example blocks
-
+- **agent:** Code-fence external server refs and add 2 example blocks (9c568f6)
 ## [1.0.7] - 2026-04-22
 
 ### Bug Fixes
 
-- POST GitHub release via curl -4 in Step 14
-- Try gh first, fall back to curl -4 in Step 14
-
-### Miscellaneous
-
-- V1.0.6
-- V1.0.7
-
+- **publish:** POST GitHub release via curl -4 in Step 14 (ff55a01)
+- **publish:** Try gh first, fall back to curl -4 in Step 14 (d630788)
 ## [1.0.5] - 2026-04-22
 
-### Miscellaneous
+### Miscellaneous Tasks
 
-- Ignore /.rechecker/ runtime state
-- V1.0.5
-
+- **gitignore:** Ignore /.rechecker/ runtime state (758bc81)
 ## [1.0.4] - 2026-04-22
 
 ### Bug Fixes
 
-- Stage uv.lock in Step 11 release commit (closes #3)
+- **publish:** Stage uv.lock in Step 11 release commit ([#3](https://github.com/Emasoft/ai-maestro-autonomous-agent/issues/3)) (965e63f)
 
-### Miscellaneous
+### Miscellaneous Tasks
 
-- Update uv.lock
-- V1.0.4
-
+- Update uv.lock (948a715)
 ## [1.0.3] - 2026-04-22
 
 ### Documentation
 
-- Sync R6 v2 comm graph (AUTONOMOUS row) — closes #1 (#2)
+- Sync R6 v2 comm graph (AUTONOMOUS row) — closes #1 ([#2](https://github.com/Emasoft/ai-maestro-autonomous-agent/issues/2)) (77731de)
 
-### Miscellaneous
+### Miscellaneous Tasks
 
-- Update uv.lock
-- V1.0.3
+- Update uv.lock (6644f0f)
 
 ### Styling
 
-- Sort imports (ruff I001)
-- Sort imports (ruff I001)
-
+- **pre-push-hook:** Sort imports (ruff I001) (9127d13)
+- **validators:** Sort imports (ruff I001) (958ec38)
 ## [1.0.2] - 2026-04-15
 
 ### Bug Fixes
 
-- Type git() return as CompletedProcess[str]
-
-### Miscellaneous
-
-- V1.0.2
-
+- **pre-push-hook:** Type git() return as CompletedProcess[str] (4ec630d)
 ## [1.0.1] - 2026-04-15
 
 ### Bug Fixes
 
-- Address 25 strict-validation findings from plugin-fixer
-- Add ## Overview, numbered Instructions, reference TOCs, .python-version
-- Progressive disclosure — move full Q1-Q10 and Layer tables to references
-- Convert backtick ref mentions to markdown links; inline full TOCs
-- Trim SKILL.md Overview/Examples sections for size
-- Consolidate reference files to reduce TOC-embed burden
-- Restore questions.md content lost to a placeholder overwrite
-- Add input/output example pairs in governance SKILL.md
-- Switch governance examples to code-fenced format
+- **cpv:** Address 25 strict-validation findings from plugin-fixer (f2b04a8)
+- **cpv:** Add ## Overview, numbered Instructions, reference TOCs, .python-version (ae8dfb7)
+- **cpv:** Progressive disclosure — move full Q1-Q10 and Layer tables to references (4c0ab6a)
+- **cpv:** Convert backtick ref mentions to markdown links; inline full TOCs (88a5d63)
+- **cpv:** Trim SKILL.md Overview/Examples sections for size (53923ad)
+- **cpv:** Consolidate reference files to reduce TOC-embed burden (e28c1c3)
+- **cpv:** Restore questions.md content lost to a placeholder overwrite (e226667)
+- **cpv:** Add input/output example pairs in governance SKILL.md (d55af7d)
+- **cpv:** Switch governance examples to code-fenced format (e886954)
 
 ### Features
 
-- Initial ai-maestro-autonomous-agent plugin v1.0.0
+- Initial ai-maestro-autonomous-agent plugin v1.0.0 (aa55b87)
 
-### Miscellaneous
+### Miscellaneous Tasks
 
-- Update uv.lock
-- V1.0.1
-
-
+- Update uv.lock (73f3b98)
+---
+*Generated by [git-cliff](https://git-cliff.org)*

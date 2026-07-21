@@ -48,7 +48,7 @@ mandatory governance role-plugin.
    (no version pin — base plugin tracks latest). Cleared the lone CPV dep-pin WARNING
    (10→9 advisory warnings).
 2. **Pruned 18 verified-vestigial scripts** (commit a25d181, −17,199 LOC): 16 `validate_*.py`
-   + `lint_files.py` + the superseded `scripts/pre-push-hook.py`. Import-graph analysis
+   plus `lint_files.py` and the superseded `scripts/pre-push-hook.py`. Import-graph analysis
    proved nothing reachable imports/invokes them; `validate_scoring.py` even imported a
    non-existent `validate_plugin`. KEPT the load-bearing chain
    `publish.py → gitignore_filter → cpv_validation_common → smart_exec` + memory helpers.

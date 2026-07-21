@@ -34,7 +34,7 @@ external-refs: ["github.com/Emasoft/ai-maestro-autonomous-agent/issues/10", "git
   `remote_validation.py --strict` = `PASSED:113 | CRITICAL:0 MAJOR:0 MINOR:0 NIT:0 | WARNING:7`
   (all 7 non-blocking advisories). Tree clean, version 1.5.1, v1.5.1 SHA-pins intact.
 - **Force-templates is FORBIDDEN here** (do NOT do it): CPV's own validator says `release.yml`
-  + `notify-marketplace.yml` are AHEAD of canon ("would DOWNGRADE"); canon pins DIFFERENT action
+  and `notify-marketplace.yml` are AHEAD of canon ("would DOWNGRADE"); canon pins DIFFERENT action
   SHAs than the PRESERVE-mandated v1.5.1 pins; and USER-approved Tier-2 [[TRDD-5c21e4a0]]
   (published as v1.5.1, 2026-06-20) already did the SAFE subset and explicitly DEFERRED the clobber.
   v1.5.1 IS the ratified end-state of the migration question.
