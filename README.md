@@ -113,6 +113,48 @@ installation (rare — for testing) via the Claude CLI:
 claude plugin install ai-maestro-autonomous-agent@ai-maestro-plugins --scope local
 ```
 
+## Usage
+
+The plugin is a **role plugin**, not a command surface: it ships no slash
+commands. Once installed, its single agent is what you interact with, and
+its three skills load on demand.
+
+**Invoke the agent.** `agents/ai-maestro-autonomous-agent-main-agent.md`
+is dispatched by name as a subagent — AI Maestro's prompt builder does
+this automatically for an AUTONOMOUS-titled agent, and you can dispatch it
+by hand for testing:
+
+```text
+Agent(subagent_type: "ai-maestro-autonomous-agent-main-agent",
+      prompt: "<the task, verbatim>")
+```
+
+**Load a skill directly.** The agent pulls these in as it needs them; you
+can also invoke one yourself when you want just the rules:
+
+```text
+Skill({skill: "ai-maestro-autonomous-agent:ai-maestro-autonomous-governance"})
+Skill({skill: "ai-maestro-autonomous-agent:ai-maestro-autonomous-workspace-isolation"})
+Skill({skill: "ai-maestro-autonomous-agent:ai-maestro-autonomous-prrd-trdd-kanban"})
+```
+
+| Skill | Answers |
+|---|---|
+| `ai-maestro-autonomous-governance` | Which operations AUTONOMOUS may perform alone, and which need MANAGER or USER approval |
+| `ai-maestro-autonomous-workspace-isolation` | What AUTONOMOUS may read and write, and the cross-agent mutations that are forbidden |
+| `ai-maestro-autonomous-prrd-trdd-kanban` | How AUTONOMOUS drives a TRDD through every kanban column solo (no team, no COS) |
+
+**Verify the install** — the agent and skills should appear in the
+plugin listing:
+
+```bash
+claude plugin list
+```
+
+Memory is the global janitor-hosted 3-scope wiki, so recall and capture
+go through `/janitor-memory-recall` and `/janitor-memory-write` rather
+than any plugin-local store.
+
 ## Running unattended
 
 The AUTONOMOUS agent is built to run for long stretches with no human

@@ -24,6 +24,21 @@ Usage:
   uv run python scripts/publish.py --patch --dry-run  # run every validation
                                                       # step then stop before
                                                       # bump/commit/push
+  uv run python scripts/publish.py --gate             # read-only pre-push gate:
+                                                      # every validation step,
+                                                      # no bump/commit/tag/push
+
+Gate mode (--gate):
+  Runs Steps 1-7 only — clean-tree check, language-native tests, language-native
+  lint, CPV lint, CPV `--strict` plugin validation, CI-parity preflight, version
+  consistency, and the git-cliff availability precheck — then returns. It mutates
+  no git state and takes no bump type, so it is safe to call from a git hook.
+  `git-hooks/pre-push` invokes exactly this mode; before it existed that hook
+  died with `unrecognized arguments: --gate`, i.e. the canonical CPV pre-push
+  hook shipped in this repo could never actually gate a push. Gate mode is NOT a
+  bypass: it is a strict SUBSET of the release pipeline's checks, running the
+  same functions with the same fail-fast semantics, and it deliberately cannot
+  reach the bump/commit/tag/push stages at all.
 
 Exit codes:
     0 - Success (every step passed with 0 errors)
@@ -1299,9 +1314,17 @@ Examples:
   %(prog)s --major              # 1.0.0 -> 2.0.0, commit, push
   %(prog)s --patch --dry-run    # run every validation step fully, then
                                 # stop before bump/commit/push
+  %(prog)s --gate               # pre-push gate: every validation step,
+                                # no bump/commit/tag/push (used by
+                                # git-hooks/pre-push)
         """,
     )
-    bump_group = parser.add_mutually_exclusive_group(required=True)
+    # The bump flags stay mutually exclusive, but `required=` moves to the
+    # manual check below: --gate takes no bump type (it never reaches the bump
+    # stage), while a release run must still name exactly one. argparse cannot
+    # express "required unless --gate", so the rule is enforced explicitly and
+    # loudly rather than being silently relaxed for both modes.
+    bump_group = parser.add_mutually_exclusive_group(required=False)
     bump_group.add_argument("--major", action="store_true", help="Bump major version")
     bump_group.add_argument("--minor", action="store_true", help="Bump minor version")
     bump_group.add_argument("--patch", action="store_true", help="Bump patch version")
@@ -1313,7 +1336,28 @@ Examples:
             "bump, commit, and push. Does NOT skip any check."
         ),
     )
+    parser.add_argument(
+        "--gate",
+        action="store_true",
+        help=(
+            "Pre-push gate mode: run the clean-tree check, tests, lint, CPV "
+            "lint, CPV --strict validation, CI-parity preflight, version "
+            "consistency, and the git-cliff precheck, then stop. Mutates no "
+            "git state and needs no bump type. Called by git-hooks/pre-push."
+        ),
+    )
     args = parser.parse_args()
+
+    if args.gate:
+        # Reject the combinations that would misrepresent what gate mode does:
+        # it cannot bump, so accepting a bump flag would imply a release is
+        # under way, and --dry-run is already gate mode's whole semantics.
+        if args.major or args.minor or args.patch:
+            parser.error("--gate runs no version bump; drop --major/--minor/--patch")
+        if args.dry_run:
+            parser.error("--gate is already a no-mutation run; --dry-run is redundant")
+    elif not (args.major or args.minor or args.patch):
+        parser.error("one of --major, --minor, --patch is required (or use --gate)")
 
     # ── Self-integrity check ──
     # Scan this script's own source for forbidden bypass patterns. If someone
@@ -1449,8 +1493,17 @@ Examples:
     # The hook refuses any future `git push` unless publish.py is the caller.
     # Regenerated from the inline template on every run so local edits can't
     # survive as a bypass.
-    print(f"\n{BLUE}=== Step 0.5: Install pre-push hook (strict gate) ==={NC}")
-    ensure_pre_push_hook(git_root)
+    #
+    # Skipped in gate mode: the gate is itself invoked BY a pre-push hook, and
+    # rewriting the hook file plus re-running `git config core.hooksPath` in the
+    # middle of the push it is currently gating would mutate repo state during a
+    # read-only check. The release path still refreshes the hook every run, so
+    # the "local edits cannot survive" guarantee is unchanged.
+    if args.gate:
+        print(f"\n{BLUE}=== Step 0.5: Install pre-push hook — skipped (gate mode){NC}")
+    else:
+        print(f"\n{BLUE}=== Step 0.5: Install pre-push hook (strict gate) ==={NC}")
+        ensure_pre_push_hook(git_root)
 
     # ── Step 1: Clean working tree ──
     print(f"\n{BLUE}=== Step 1: Check working tree ==={NC}")
@@ -1517,6 +1570,29 @@ Examples:
     else:
         print(f"\n{YELLOW}=== Step 5: CPV strict validate — skipped (not a claude plugin){NC}")
 
+    # ── Step 5.5: CI-parity preflight ──
+    # `cpv-remote-validate plugin . --strict` (Step 5) does NOT run the gates
+    # ci.yml's Lint job runs — jscpd copy-paste, actionlint, mypy --strict,
+    # `uv sync --extra dev`, Mega-Linter, and the static CIP-1..8 checks. That
+    # gap is the whole #137-143 failure shape: a plugin passes --strict locally,
+    # publishes, and only then red-CIs on a defect no local gate could see. The
+    # preflight closes it, and it runs BEFORE the bump/commit/tag/push so a
+    # pipeline defect can never leave a half-published state.
+    #
+    # A MISSING local tool degrades to a WARNING inside the preflight and never
+    # blocks — so this is a parity gate, not a new dependency on the developer's
+    # machine. A real over-threshold or static defect exits non-zero and run()
+    # fails the pipeline, exactly like every other mandatory step.
+    if info.has_kind(ProjectKind.CLAUDE_PLUGIN):
+        print(f"\n{BLUE}=== Step 5.5: CI-parity preflight (mandatory) ==={NC}")
+        run([
+            "uvx", "--from", "git+https://github.com/Emasoft/claude-plugins-validation",
+            "--with", "pyyaml", "cpv-remote-validate", "ci-preflight", str(plugin_root),
+        ], cwd=git_root)
+        print(f"{GREEN}ok CI-parity preflight passed{NC}")
+    else:
+        print(f"\n{YELLOW}=== Step 5.5: CI-parity preflight — skipped (not a claude plugin){NC}")
+
     # ── Step 6: Version consistency ──
     print(f"\n{BLUE}=== Step 6: Check version consistency ==={NC}")
     ok, msg = check_version_consistency(plugin_root)
@@ -1533,6 +1609,16 @@ Examples:
     print(f"\n{BLUE}=== Step 7: git-cliff availability check (mandatory) ==={NC}")
     ensure_git_cliff_available()
     print(f"{GREEN}ok git-cliff is installed{NC}")
+
+    # ── Gate mode ends here ──
+    # Every check above is read-only. Everything below (Step 8 onward) computes
+    # and writes the new version, commits, tags, and pushes — which is exactly
+    # what a pre-push hook must NOT do. Returning here is the whole difference
+    # between the gate and a release; no check has been skipped to get here.
+    if args.gate:
+        print(f"\n{GREEN}{BOLD}ok Gate passed — all validation steps green.{NC}")
+        print(f"  {BLUE}(gate mode: no bump, no commit, no tag, no push){NC}")
+        return 0
 
     # ── Step 8: Compute new version ──
     current = info.version
