@@ -66,9 +66,13 @@ jobs:
           set -euo pipefail
           NAME=$(python3 -c "import json; print(json.load(open('.claude-plugin/plugin.json'))['name'])")
           VERSION=$(python3 -c "import json; print(json.load(open('.claude-plugin/plugin.json'))['version'])")
-          echo "name=$NAME" >> "$GITHUB_OUTPUT"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "ref=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+          # Grouped redirect rather than three separate `>>` appends: shellcheck
+          # SC2129, which actionlint surfaces as an error in ci.yml's Lint job.
+          {
+            echo "name=$NAME"
+            echo "version=$VERSION"
+            echo "ref=${GITHUB_SHA}"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Dispatch plugin-updated to marketplace
         if: steps.pat.outputs.present == 'true'
