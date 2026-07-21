@@ -12,5 +12,13 @@
     {
       "name": "ai-maestro-plugin"
     }
-  ]
+  ],
+  "cpv": {
+    "pipeline": {
+      "intentional_divergence": [
+        "scripts/publish.py",
+        "cliff.toml"
+      ]
+    }
+  }
 }
