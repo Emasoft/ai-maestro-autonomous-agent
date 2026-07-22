@@ -67,6 +67,7 @@
     "clippy",
     "commitlint",
     "conftest",
+    "coreutils",
     "cprint",
     "cspell",
     "dataclass",
