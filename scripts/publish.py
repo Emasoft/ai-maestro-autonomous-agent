@@ -1340,6 +1340,69 @@ def _cpv_dependency_push_refs(root: Path, new_ver: str) -> list[str]:
     return [dep_tag]
 
 
+# ── Interrupted-publish recovery helpers ──────────────────────────────────────
+# A publish is four irreversible acts: bump files, commit, tag, push. Only the
+# push is atomic (Step 13); the first three are already durable on disk by the
+# time it runs. So when the push fails — transient network drop, a rejected ref,
+# a GitHub 503 — the working copy is left AT the new version, committed and
+# tagged, while origin is still one release behind.
+#
+# Re-running publish.py then read the LOCAL version as its bump baseline and
+# produced N+2: the tagged-but-never-pushed N+1 was skipped forever, silently,
+# and nothing resolves that version for any dependent plugin. This is not
+# hypothetical — it is the failure CPV's own pipeline hit shipping v2.64.0.
+#
+# The fix is to make the baseline ORIGIN, not the working copy, and to make each
+# already-completed act a no-op on re-run. Every helper below is read-only and
+# fails CLOSED (returns None / False) so a git error can never be mistaken for
+# "already done" — the worst case is that the pre-existing behaviour resumes.
+
+
+def _git_capture(root: Path, args: list[str]) -> str | None:
+    """Run a read-only git command; return stripped stdout, or None if it failed."""
+    proc = subprocess.run(
+        ["git", *args],
+        capture_output=True,
+        text=True,
+        cwd=str(root),
+        check=False,
+        timeout=10,
+    )
+    return proc.stdout.strip() if proc.returncode == 0 else None
+
+
+def _read_remote_version(root: Path, branch: str) -> str | None:
+    """Read `.claude-plugin/plugin.json`'s version as it exists on origin/<branch>.
+
+    Returns None when origin has no such ref or blob (first publish, offline,
+    shallow clone) — the caller then falls back to the local value, i.e. exactly
+    the behaviour that predates this guard.
+    """
+    blob = _git_capture(root, ["show", f"origin/{branch}:.claude-plugin/plugin.json"])
+    if blob is None:
+        return None
+    try:
+        version = json.loads(blob).get("version")
+    except (json.JSONDecodeError, AttributeError):
+        return None
+    return version if isinstance(version, str) and parse_semver(version) else None
+
+
+def _git_porcelain_clean(root: Path) -> bool:
+    """True iff the working tree has no changes. A failed git call reads as NOT clean."""
+    return _git_capture(root, ["status", "--porcelain"]) == ""
+
+
+def _head_commit_message(root: Path) -> str:
+    """HEAD's subject line, or '' when it cannot be read (never matches a release subject)."""
+    return _git_capture(root, ["log", "-1", "--pretty=%s"]) or ""
+
+
+def _local_tag_exists(root: Path, tag: str) -> bool:
+    """True iff `tag` already exists locally (the mark of an interrupted run's tag step)."""
+    return _git_capture(root, ["rev-parse", "--verify", f"refs/tags/{tag}"]) is not None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
@@ -1668,7 +1731,34 @@ Examples:
         print(f"{RED}x Current version '{current}' is not valid semver{NC}", file=sys.stderr)
         return 1
 
-    new_version = bump_semver(current, bump_type)
+    # The bump baseline is what ORIGIN has, not what this working copy has.
+    # Three cases, and only three:
+    #   * origin unreadable / equal to local  -> normal bump from local (unchanged)
+    #   * local is exactly one <bump_type> ahead of origin -> an interrupted
+    #     publish already produced this version; RESUME it instead of bumping past it
+    #   * anything else -> the working copy and origin disagree in a way this
+    #     script cannot safely interpret, so refuse rather than guess a baseline
+    remote_version = _read_remote_version(plugin_root, default_branch)
+    diverged = remote_version is not None and remote_version != current
+    resumed = diverged and bump_semver(remote_version or "", bump_type) == current
+
+    if resumed:
+        new_version: str | None = current
+        print(
+            f"  Local plugin.json is already at {current} — skipping bump "
+            f"(resuming an interrupted publish; origin/{default_branch} is at {remote_version})."
+        )
+    elif diverged:
+        print(
+            f"{RED}x Local version {current} is neither origin/{default_branch}'s "
+            f"{remote_version} nor a {bump_type} bump of it. Refusing to guess a "
+            f"release baseline — reconcile the working copy with origin first.{NC}",
+            file=sys.stderr,
+        )
+        return 1
+    else:
+        new_version = bump_semver(current, bump_type)
+
     if new_version is None:
         print(f"{RED}x bump_semver failed for '{current}' ({bump_type}){NC}", file=sys.stderr)
         return 1
@@ -1763,10 +1853,17 @@ Examples:
                     staged.append(str(md_path.relative_to(plugin_root)))
             except Exception:
                 pass
-    if staged:
-        run(["git", "add", *staged], cwd=git_root)
-    run(["git", "commit", "-m", f"chore(release): v{new_version}"], cwd=git_root)
-    print(f"{GREEN}ok Committed v{new_version} (bump + CHANGELOG){NC}")
+    release_subject = f"chore(release): v{new_version}"
+    if _head_commit_message(git_root) == release_subject and _git_porcelain_clean(git_root):
+        # An interrupted run already made this exact commit and Step 9/10 rewrote
+        # the same values, so there is nothing to add. Committing anyway would
+        # abort on "nothing to commit" and strand the release one step from done.
+        print(f"{GREEN}ok HEAD is already '{release_subject}' and the tree is clean — skipping commit{NC}")
+    else:
+        if staged:
+            run(["git", "add", *staged], cwd=git_root)
+        run(["git", "commit", "-m", release_subject], cwd=git_root)
+        print(f"{GREEN}ok Committed v{new_version} (bump + CHANGELOG){NC}")
 
     # ── Step 12: Create annotated tag with the release notes as body ──
     print(f"\n{BLUE}=== Step 12: Create annotated tag v{new_version} ==={NC}")
@@ -1775,8 +1872,15 @@ Examples:
         final_notes = notes_path.read_text(encoding="utf-8").strip()
     else:
         final_notes = f"Release v{new_version}"
-    run(["git", "tag", "-a", f"v{new_version}", "-m", final_notes], cwd=git_root)
-    print(f"{GREEN}ok Tagged v{new_version} (annotated, body = release notes){NC}")
+    if _local_tag_exists(git_root, f"v{new_version}"):
+        # `git tag -a` on an existing tag is a hard error, so an interrupted run
+        # that got as far as tagging could never be resumed. Leave the existing
+        # tag alone — Step 13 pushes it. Same idempotent shape the dependency-tag
+        # helper above already uses.
+        print(f"{GREEN}ok Tag v{new_version} already exists locally — skipping tag step{NC}")
+    else:
+        run(["git", "tag", "-a", f"v{new_version}", "-m", final_notes], cwd=git_root)
+        print(f"{GREEN}ok Tagged v{new_version} (annotated, body = release notes){NC}")
 
     # ── Step 13: Push commit + tag to origin ──
     # The pre-push hook verifies its caller via PROCESS ANCESTRY: it walks
