@@ -1,6 +1,6 @@
 ---
 name: publish-pipeline
-description: "git push REFUSED by pre-push hook / 'every push MUST go through scripts/publish.py' — how do release + standalone doc commits actually reach origin; how to cut a release; is --force-templates / CPV canonical-migration safe on this plugin (publish.py + cliff.toml are now DECLARED intentional divergences so a force-template SKIPS them — the protection is machine-enforced, not a memory note; the canon workflow hardening was manually ported 2026-07-22; SBOM/provenance/SHA256SUMS are NOT APPLICABLE here — publish.py uploads no release assets)"
+description: "git push REFUSED by pre-push hook / 'every push MUST go through scripts/publish.py' — how do release + standalone doc commits actually reach origin; how to cut a release; is --force-templates / CPV canonical-migration safe on this plugin (publish.py + cliff.toml are now DECLARED intentional divergences so a force-template SKIPS them — the protection is machine-enforced, not a memory note; the canon workflow hardening was manually ported 2026-07-22; SBOM/provenance/SHA256SUMS are NOT APPLICABLE here — publish.py uploads no release assets) / which pre-push hook does git actually run, .githooks or git-hooks / the divergence declaration names a file git never executes / an interrupted publish skipped a version and nothing resolves it / why did the release commit reach origin with no tag / is the bump baseline really origin if nothing fetches"
 ocd: 2026-06-16
 lmd: 2026-07-22
 metadata:
@@ -15,6 +15,23 @@ PROCESS ANCESTRY (not an env var), so a push succeeds only when it descends from
 `publish.py`. The error reads: *"git push REFUSED by pre-push hook. Strict publish
 policy: every push to origin MUST go through scripts/publish.py."*
 
+**WHICH hook file is live: `.githooks/pre-push`, never `git-hooks/pre-push`.**
+`core.hooksPath` is set to `.githooks`, and publish.py REGENERATES that file from
+its own inline template on every run. `git-hooks/pre-push` is a 12-line canon-shaped
+file CPV's `standardize --fix` created that git never executes — and it carries a
+WEAKER policy (it only runs `publish.py --gate`, with no ancestry check), so anyone
+who repointed `core.hooksPath` at it would silently lose the gate. It is also the
+path named in `cpv.pipeline.intentional_divergence`, i.e. the declaration protects
+the INERT copy.[^7] Resolve the SELECTOR (`git config --get core.hooksPath`) before
+believing any claim about "the pre-push hook".
+
+**Scope of the ancestry gate — do not overstate it.** It is a substring test over an
+ancestor's argv, so any command line containing `python` before `scripts/publish.py`
+passes whether or not publish.py is the interpreter target, and `git push --no-verify`
+skips pre-push hooks entirely. It stops the accidental push and the `FOO=1 git push`
+workaround; it is enforced discipline, NOT a security boundary. The matcher is
+deliberately loose so legitimate wrappers (`uv run python …`) keep working.
+
 **Cut a release / push anything:**
 
 ```bash
@@ -28,6 +45,21 @@ publish.py bumps the version across `plugin.json` + `pyproject.toml` + the perso
 + `README.md` + `uv.lock`, runs git-cliff for `CHANGELOG.md`, commits
 `chore(release): vX.Y.Z`, tags, pushes commit + tag, and creates the GitHub
 release. It requires a CLEAN working tree (Step 1) — commit your work first.
+
+**Two release-safety properties added 2026-07-22 — both exist because a publish is
+four irreversible acts (bump, commit, tag, push) and only the last talks to origin:**
+
+- **The push is ONE `git push --atomic origin HEAD vX.Y.Z {plugin}--vX.Y.Z`.** It used
+  to be two pushes (branch, then tags); `run()` `sys.exit()`s on failure, so a tag-push
+  failure after a successful branch push left origin holding the release COMMIT with
+  neither tag — nothing resolves that version and the next run bumps PAST it.
+- **The bump baseline is ORIGIN, fetched first, not the local manifest.** Three cases
+  only: origin == local → bump; local exactly one bump ahead → **RESUME** that version
+  (commit/tag steps skip what the interrupted run already did; the push never skips);
+  anything else → **REFUSE** rather than guess. Every probe fails CLOSED, so a git
+  error reads as "not done yet". The fetch matters: `git show origin/<branch>:…`
+  resolves a LOCAL tracking ref, and this clone's was 36 days stale when the guard
+  landed — an unfetched baseline defeats the guard in both directions.[^8]
 
 **Consequence for standalone doc/TRDD commits:** a commit you make directly on
 `main` (archiving a completed TRDD, recording a decision, seeding a memory note)
@@ -209,3 +241,23 @@ corrected in [^5]).
   `ci.yml` at CPV v2.12.32, so [^4]'s "this plugin has no canonical ci.yml" expired with the
   canon, not with the plugin — a claim about CANON has a shelf life measured in CPV
   releases, and must be re-read from the live canon, never carried forward.
+[^7]: [id:ATOM-DECLARED-HOOK-IS-THE-DEAD-ONE, status:valid, keywords:"which_pre_push_hook_does_git_run core_hooksPath_selects_githooks git-hooks_dir_is_dead_canon_shape divergence_declaration_names_the_inert_file weaker_policy_hiding_under_the_same_name", ocd:2026-07-22, lmd:2026-07-22]
+  DO NOT reason about "the pre-push hook" from a filename, BECAUSE this repo has TWO and
+  `core.hooksPath` decides: `.githooks/pre-push` (66 lines, ancestry gate, regenerated by
+  publish.py) is live, `git-hooks/pre-push` (12 lines, `--gate` only, no ancestry check)
+  is dead canon shape from `standardize --fix` — and the `intentional_divergence` entry
+  names the DEAD one, so the live gate is undeclared. I confirmed that declaration by
+  checking the STRING was present, never that it named the file git runs. DO resolve the
+  selector (`git config --get core.hooksPath`) first. Severity stays LOW only because
+  publish.py rewrites the live hook every run, so a clobber self-heals.
+[^8]: [id:ATOM-ORIGIN-BASELINE-NEEDS-A-FETCH, status:valid, keywords:"baseline_is_origin_but_never_fetched git_show_origin_branch_reads_local_tracking_ref stale_tracking_ref_defeats_the_resume_guard bumped_onto_an_already_published_version interrupted_publish_skips_a_version_forever", ocd:2026-07-22, lmd:2026-07-22]
+  DO NOT treat "the baseline is now ORIGIN" as true just because the code reads
+  `origin/<branch>`, BECAUSE `git show origin/…` resolves a LOCAL remote-tracking ref that
+  is only as fresh as the last fetch — publish.py never fetched, and this clone's ref was
+  36 days old (FETCH_HEAD Jun 16, ref dated Jun 20, while 49 commits sat unpushed). Stale-
+  behind → the guard sees no divergence and bumps onto a version another machine already
+  published, and the atomic push fails AFTER bump+commit+tag, producing the exact dirty
+  state the guard exists to prevent; stale by >1 bump → it refuses a legitimate publish.
+  DO fetch before reading, read-only and non-fatal so offline falls back to prior behavior.
+  Third instance in one day of one defect class: a guarantee stated more broadly than the
+  mechanism delivers (see also [^7] and the hook's "rejects any shell" claim).
