@@ -1371,8 +1371,34 @@ def _git_capture(root: Path, args: list[str]) -> str | None:
     return proc.stdout.strip() if proc.returncode == 0 else None
 
 
+def _refresh_remote_ref(root: Path, branch: str) -> None:
+    """Best-effort refresh of `origin/<branch>` before it is used as a release baseline.
+
+    `_read_remote_version` resolves `origin/<branch>`, which is a LOCAL
+    remote-tracking ref — only as fresh as the last fetch. In a long-lived clone
+    that is routinely WEEKS stale (this repo's was 36 days old when the guard was
+    added), and a stale baseline defeats the resume logic in BOTH directions:
+
+      * stale-behind -> the guard sees the old version, decides "no divergence",
+        and bumps onto a version another machine already published. The atomic
+        push then fails at the very END, leaving the bumped+committed+tagged
+        working copy this guard exists to prevent.
+      * stale by more than one bump -> the "neither origin's version nor a bump
+        of it" branch refuses a perfectly legitimate publish.
+
+    Deliberately NON-FATAL and read-only: it updates tracking refs only, never the
+    working tree, and a failure (offline, no remote, auth prompt) simply leaves the
+    ref as-is — `_read_remote_version` then returns the stale-or-None value and the
+    pre-existing behaviour resumes. Fetching is not a push; nothing is published here.
+    """
+    _git_capture(root, ["fetch", "--quiet", "origin", branch])
+
+
 def _read_remote_version(root: Path, branch: str) -> str | None:
     """Read `.claude-plugin/plugin.json`'s version as it exists on origin/<branch>.
+
+    Call `_refresh_remote_ref` first: this resolves the LOCAL tracking ref, which is
+    only as current as the last fetch.
 
     Returns None when origin has no such ref or blob (first publish, offline,
     shallow clone) — the caller then falls back to the local value, i.e. exactly
@@ -1738,6 +1764,7 @@ Examples:
     #     publish already produced this version; RESUME it instead of bumping past it
     #   * anything else -> the working copy and origin disagree in a way this
     #     script cannot safely interpret, so refuse rather than guess a baseline
+    _refresh_remote_ref(plugin_root, default_branch)
     remote_version = _read_remote_version(plugin_root, default_branch)
     diverged = remote_version is not None and remote_version != current
     resumed = diverged and bump_semver(remote_version or "", bump_type) == current

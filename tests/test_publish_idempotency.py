@@ -188,3 +188,26 @@ def test_push_is_never_skipped() -> None:
         "the push sits at the release path's top level; indenting it under an "
         f"`if` would make the one non-idempotent act skippable (indent={indent})"
     )
+
+
+def test_release_baseline_is_refreshed_before_it_is_read() -> None:
+    """The origin baseline is fetched before use, so the resume guard cannot read a stale ref.
+
+    `_read_remote_version` resolves `origin/<branch>` — a LOCAL tracking ref, only as
+    fresh as the last fetch (this clone's was 36 days stale when the guard landed).
+    Without a refresh the guard silently bumps onto an already-published version, and
+    the push fails only AFTER bump+commit+tag — the exact dirty state it exists to
+    prevent. The fetch must therefore precede the read at the call site.
+    """
+    src = (Path(__file__).resolve().parents[1] / "scripts" / "publish.py").read_text(
+        encoding="utf-8"
+    )
+    assert "def _refresh_remote_ref(" in src, "the baseline refresh helper went missing"
+    assert '"fetch"' in src, "_refresh_remote_ref must actually fetch"
+
+    refresh_at = src.index("_refresh_remote_ref(plugin_root")
+    read_at = src.index("_read_remote_version(plugin_root")
+    assert refresh_at < read_at, (
+        "the refresh must run BEFORE the baseline is read; reading first makes the "
+        "fetch pointless for this release"
+    )
