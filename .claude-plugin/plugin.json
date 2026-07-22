@@ -17,7 +17,8 @@
     "pipeline": {
       "intentional_divergence": [
         "scripts/publish.py",
-        "cliff.toml"
+        "cliff.toml",
+        "git-hooks/pre-push"
       ]
     }
   }
