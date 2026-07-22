@@ -1,8 +1,8 @@
 ---
 name: publish-pipeline
-description: "git push REFUSED by pre-push hook / 'every push MUST go through scripts/publish.py' — how do release + standalone doc commits actually reach origin; how to cut a release; is --force-templates / CPV canonical-migration safe on this plugin (publish.py: NO — custom M11 logic; the release.yml/notify-marketplace.yml workflows are actually BEHIND canon on hardening, NOT ahead — the old 'ahead-of-canon' claim was VERIFIED FALSE 2026-07-01; RC-PIPELINE-DRIFT WARNINGs are accepted non-blocking drift)"
+description: "git push REFUSED by pre-push hook / 'every push MUST go through scripts/publish.py' — how do release + standalone doc commits actually reach origin; how to cut a release; is --force-templates / CPV canonical-migration safe on this plugin (publish.py + cliff.toml are now DECLARED intentional divergences so a force-template SKIPS them — the protection is machine-enforced, not a memory note; the canon workflow hardening was manually ported 2026-07-22; SBOM/provenance/SHA256SUMS are NOT APPLICABLE here — publish.py uploads no release assets)"
 ocd: 2026-06-16
-lmd: 2026-07-01
+lmd: 2026-07-22
 metadata:
   node_type: memory
   type: project
@@ -41,23 +41,27 @@ The publish gate runs **CPV `--strict`** (Step 5) and BLOCKS on any
 CRITICAL/MAJOR/MINOR/NIT. Two phrasing FALSE-POSITIVES recur when editing the
 persona/skills — reword the *shape* to clear them, never suppress the rule.[^1]
 
-**Do not BLINDLY `--force-templates` this plugin's pipeline — but for two reasons, and
-NOT the "ahead-of-canon" one long recorded here (that was VERIFIED FALSE 2026-07-01; see
-[^5]).** (1) `publish.py` carries hard-won custom M11 version-sync logic (plugin.json +
-pyproject + persona + README + uv.lock) a generic clobber would regress — the real, sound
-basis of the USER-ratified TRDD-5c21e4a0. (2) `release.yml` is a by-design **post-hoc
-validate-tag gate** (publish.py creates the release BEFORE the tag push), so a blind
-clobber would reintroduce a conflicting release-creator job. **HOWEVER — contrary to the
-earlier claim — `release.yml` + `notify-marketplace.yml` are BEHIND canon on real
-hardening:** canon has a least-priv `permissions:` block, **build-provenance attestation**,
-`timeout-minutes` on notify, the `HAS_MARKETPLACE_PAT` no-op guard, and **NEWER** SHA-pins
-(`checkout` v6.0.3, `setup-uv` v8.2.0); the plugin has **no** provenance/SBOM/SHA256SUMS
-(anywhere — CI or publish.py) and older/unpinned actions. The correct forward motion is a
-**careful MANUAL port** of canon's hardening into the plugin's architecture (Tier-2), never
-a blind force-template and never "leave them, they're ahead". The `RC-PIPELINE-DRIFT-001`
-WARNINGs (7) are still accepted non-blocking drift. A fleet "go canonical" re-ask still
-gets the `=runner` fast-confirm recipe below — but report the plugin as BEHIND-and-porting,
-never AHEAD.[^2][^4][^5]
+**`--force-templates` protection is now DECLARED, not remembered.** `publish.py` and
+`cliff.toml` are listed in `plugin.json` → `cpv.pipeline.intentional_divergence`, so a
+future force-template SKIPS them instead of clobbering. That is the durable fix: the two
+reasons below no longer depend on a human reading this note first.[^6] (1) `publish.py`
+carries hard-won custom M11 version-sync logic (plugin.json + pyproject + persona + README
++ uv.lock) — canon is 278 lines, ours ~1926 — the sound basis of USER-ratified
+TRDD-5c21e4a0. (2) `release.yml` is a by-design **post-hoc validate-tag gate** (publish.py
+creates the release BEFORE the tag push), so a blind clobber would reintroduce a
+conflicting release-creator job.
+
+**The canon hardening was MANUALLY PORTED 2026-07-22** (the corrective action [^5] left
+gated): `release.yml` + `notify-marketplace.yml` now carry a least-priv `permissions:`
+block, full 40-hex SHA-pins, per-job `timeout-minutes`, and the `MARKETPLACE_PAT` no-op
+guard — with `tests/test_workflow_hardening.py` (globs ALL workflows) proving it stays.
+The full CPV pipeline migration (§1–§5) then landed `ci.yml` (canon merged `validate.yml`
+INTO `ci.yml` at v2.12.32 — the old "this plugin has no canonical ci.yml" is obsolete) and
+a `publish.py --gate` pre-flight. **SBOM / build-provenance / SHA256SUMS are NOT
+APPLICABLE here** — publish.py uploads **no release assets**; the plugin ships as a git
+ref, so there is nothing to attest or checksum. [^5]'s "add them to releases" corrective
+was written before that was verified.[^6] The `RC-PIPELINE-DRIFT` WARNINGs (now 4, was 9)
+remain accepted non-blocking drift.[^2][^4][^5]
 
 **The CPV-canon CI "validate-step hardening" has a LANDMINE.** The safe additive
 upgrade is: pin the CPV ref to a tag (`@v2.136.1`) + add `timeout-minutes`. But do
@@ -189,4 +193,19 @@ corrected in [^5]).
   `reports/go-on-yourself-eval/20260701_215629+0200-issue11-premise-inverted-verification.md`.
   Corrective actions (correct the public #11 post; manual-port canon hardening into the 2 workflows
   WITHOUT clobbering publish.py; add SBOM/provenance/checksums to releases) are GATED — TRDD
-  authored, surfaced to USER.
+  authored, surfaced to USER. **[2026-07-22: the first two were DONE; the third is
+  N/A — see [^6].]**
+[^6]: [id:ATOM-PIPE-DVRG, status:valid, keywords:"do_not_force_templates_lives_in_plugin.json_not_a_memory_note cpv.pipeline.intentional_divergence SBOM_provenance_not_applicable_no_release_assets canon_merged_validate.yml_into_ci.yml guard_test_globs_all_workflows", ocd:2026-07-22, lmd:2026-07-22]
+  DO NOT encode a "never force-template file X" rule as prose in a memory note or a TRDD,
+  BECAUSE the tool that does the clobbering never reads either — this note has now argued
+  the same point across [^2], [^4], and [^5], and it still could not have STOPPED a
+  `--force-templates` run. DO declare the file in `plugin.json` →
+  `cpv.pipeline.intentional_divergence` and back it with a guard test, so the protection is
+  enforced by the tool instead of remembered by a human. Two facts corrected in the same
+  pass: (a) **SBOM / provenance / SHA256SUMS are NOT APPLICABLE** — [^5] listed "add them to
+  releases" as a gap, but publish.py uploads **no release assets** at all (the plugin ships
+  as a git ref), so there is nothing to attest; a gap inferred from "canon has X, we don't"
+  is only real if the FEATURE X protects exists here. (b) canon merged `validate.yml` INTO
+  `ci.yml` at CPV v2.12.32, so [^4]'s "this plugin has no canonical ci.yml" expired with the
+  canon, not with the plugin — a claim about CANON has a shelf life measured in CPV
+  releases, and must be re-read from the live canon, never carried forward.
