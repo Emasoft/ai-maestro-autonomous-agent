@@ -81,7 +81,7 @@ jobs:
         # `body-max-line-length` OFF. Dependabot's machine-generated commit body
         # embeds a multi-line YAML dependency block that ALWAYS exceeds the
         # 100-char default, so with the bare fallback config EVERY Dependabot PR
-        # on EVERY canonical-pipeline plugin failed this gate, forever. The gate
+        # on EVERY cpv-canonical-pipeline plugin failed this gate, forever. The gate
         # itself is NOT weakened — type-enum / subject rules still reject a
         # badly-typed human commit.
         #
@@ -167,7 +167,7 @@ jobs:
         # vendor scripts/validate_plugin.py. Matches publish.py's local gate
         # so CI and local gate agree. Issue #11: do NOT call local
         # scripts/validate_plugin.py — it does not exist in scaffolded plugins.
-        # Root-cause #2: CPV is PINNED to @v2.162.0 so the cold
+        # Root-cause #2: CPV is PINNED to @v3.1.0 so the cold
         # uvx-from-git build is cached per tag and a stricter future CPV
         # release cannot break this gate with no plugin change.
         env:
@@ -193,7 +193,7 @@ jobs:
           PLUGIN_REPO_LINT_PHASE_TIMEOUT: "600"
         run: |
           set +e
-          uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v2.162.0 \
+          uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v3.1.0 \
               --with pyyaml \
               cpv-remote-validate plugin . --strict \
               > "$RUNNER_TEMP/cpv-validation-report.txt" 2>&1

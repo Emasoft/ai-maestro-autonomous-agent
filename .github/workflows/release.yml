@@ -52,7 +52,11 @@ jobs:
         # (claude-plugins-validation#141). CI has no local machine username to protect.
         run: |
           set +e
-          uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v2.136.1 \
+          # Pinned to the SAME CPV tag as ci.yml's validate job and publish.py's
+          # local gate. All three MUST agree: this workflow is the post-hoc net
+          # for a tag pushed around publish.py, so a laxer pin here would let a
+          # tag pass the safety net that the local gate would have rejected.
+          uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v3.1.0 \
             --with pyyaml \
             cpv-remote-validate plugin . --strict
           EXIT_CODE=$?
