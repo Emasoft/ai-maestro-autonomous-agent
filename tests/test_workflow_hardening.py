@@ -154,6 +154,119 @@ def test_notify_has_marketplace_pat_no_op_guard() -> None:
     )
 
 
+# ---------------------------------------------------------------------------
+# Parity between the two callsites that run the SAME remote-CPV strict gate.
+#
+# ci.yml's `validate` job and release.yml's `validate-tag` job invoke the very
+# same `uvx --from git+…@<pin> cpv-remote-validate plugin . --strict`. They had
+# silently diverged: the release gate carried none of the cold-build
+# affordances ci.yml documents (30-min ceiling, uv cache, integrity skip,
+# repo-lint phase cap) and treated a failed uvx BUILD as a validation verdict.
+# The divergence is invisible until a real tag is pushed onto a cold runner,
+# which is the worst possible moment to discover it — hence these guards.
+# ---------------------------------------------------------------------------
+
+CI = WORKFLOWS / "ci.yml"
+
+
+def _step_named(path: Path, job: str, needle: str) -> dict:
+    for step in _load(path)["jobs"][job]["steps"]:
+        if needle in str(step.get("name", "")) or needle in str(step.get("uses", "")):
+            return step
+    raise AssertionError(f"no step matching {needle!r} in {path.name}:{job}")
+
+
+def test_release_gate_honours_the_cold_build_ceiling() -> None:
+    """The release gate allows at least as long as ci.yml for the cold `uvx --from git+…` CPV build.
+
+    That build is empirically 12-20 min on a cold runner. A ceiling inside that
+    window cancels a healthy build mid-flight and reports a phantom failure on a
+    tag that is actually fine.
+    """
+    release_cap = int(_load(RELEASE)["jobs"]["validate-tag"]["timeout-minutes"])
+    ci_cap = int(_load(CI)["jobs"]["validate"]["timeout-minutes"])
+    assert release_cap >= 25, (
+        f"release gate timeout-minutes={release_cap} is inside the documented 12-20 min "
+        "cold-build window; the documented floor is 25"
+    )
+    assert release_cap >= ci_cap, (
+        f"the release gate ({release_cap}m) must not be tighter than ci.yml's Validate "
+        f"job ({ci_cap}m) — they run the identical command"
+    )
+
+
+def test_release_gate_reuses_the_uv_cache() -> None:
+    """The release gate enables the uv cache, so the cold CPV build is not repaid on every tag."""
+    step = _step_named(RELEASE, "validate-tag", "astral-sh/setup-uv")
+    assert (step.get("with") or {}).get("enable-cache") is True, (
+        "without enable-cache the release gate rebuilds CPV from source on EVERY "
+        "release — the exact worst case for the job's own timeout"
+    )
+
+
+@pytest.mark.parametrize("path", ALL_WORKFLOWS, ids=lambda p: p.name)
+def test_every_checkout_disables_credential_persistence(path: Path) -> None:
+    """No checkout leaves the token in .git/config (zizmor `artipacked`, issue #151)."""
+    offenders = [
+        f"{path.name}:{job}:{step.get('name') or step.get('uses')}"
+        for job, job_body in _load(path)["jobs"].items()
+        for step in job_body.get("steps", [])
+        if "actions/checkout" in str(step.get("uses", ""))
+        and (step.get("with") or {}).get("persist-credentials") is not False
+    ]
+    assert not offenders, f"checkout without persist-credentials: false: {offenders}"
+
+
+def test_release_gate_carries_the_same_validator_env_as_ci() -> None:
+    """The release gate sets the integrity-skip and repo-lint caps ci.yml documents."""
+    env = _step_named(RELEASE, "validate-tag", "CPV strict validation gate").get("env") or {}
+    assert env.get("PLUGIN_SKIP_GITHUB_INTEGRITY") == "1", (
+        "a fresh-checkout runner already matches its own manifest; the live "
+        "raw.githubusercontent.com fetch adds only latency and hang risk"
+    )
+    assert int(env.get("PLUGIN_REPO_LINT_PHASE_TIMEOUT", 0)) > 0, (
+        "issue #162: without an aggregate REPO LINT cap the linter fan-out can "
+        "march past the job's own timeout with orphaned children"
+    )
+
+
+def test_release_gate_separates_infra_failure_from_a_validation_verdict() -> None:
+    """A failed uvx BUILD is reported as infra failure, not as 'someone bypassed publish.py'.
+
+    A cold `uvx --from git+…` build that dies on a transient GitHub fetch exits 1
+    or 2 — indistinguishable from a findings verdict by exit code alone. Only the
+    SUMMARY line proves the validator actually ran and produced a verdict.
+    """
+    script = _step_named(RELEASE, "validate-tag", "CPV strict validation gate")["run"]
+    assert "SUMMARY: CRITICAL=" in script, (
+        "the gate must confirm a real verdict was produced before blaming the tag"
+    )
+    assert "FAILED TO RUN" in script, (
+        "the gate must have a distinct branch for an infra/network/install failure"
+    )
+
+
+@pytest.mark.parametrize("path", ALL_WORKFLOWS, ids=lambda p: p.name)
+def test_no_workflow_seeds_the_private_username_allowlist(path: Path) -> None:
+    """No workflow sets CLAUDE_PRIVATE_USERNAMES — it is the list CPV FLAGS, not an allowlist.
+
+    Seeding it with the PUBLIC repo owner makes CPV report every github.com/<owner>/
+    URL and the owner's no-reply email as a CRITICAL private-path leak, red-lighting
+    --strict CI on a repo with nothing wrong with it (claude-plugins-validation#141).
+    """
+    data = _load(path)
+    scopes = [data.get("env") or {}]
+    for job in data["jobs"].values():
+        scopes.append(job.get("env") or {})
+        scopes.extend((step.get("env") or {}) for step in job.get("steps", []))
+    # Parsed env mappings only — a comment SAYING "do not set this" is the
+    # documentation of the trap, not the trap itself.
+    assert not [s for s in scopes if "CLAUDE_PRIVATE_USERNAMES" in s], (
+        f"{path.name} sets CLAUDE_PRIVATE_USERNAMES; in CI there is no developer "
+        "local username to protect and the public owner is public"
+    )
+
+
 def test_publish_emits_dependency_resolution_tag() -> None:
     """publish.py emits the `<plugin>--v<version>` tag Claude Code resolves dependencies against.
 

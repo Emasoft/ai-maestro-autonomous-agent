@@ -29,7 +29,14 @@ permissions:
 jobs:
   validate-tag:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # Cold-install ceiling. This gate runs the SAME `uvx --from git+…` build of
+    # CPV as ci.yml's Validate job — empirically 12-20 min on a COLD runner. The
+    # uv cache below makes every later run fast, but the FIRST cold build per
+    # cache key must fit under this cap, so it matches ci.yml (30 min; do NOT
+    # lower below 25). The previous 20 sat INSIDE the documented cold-build
+    # window: a cold release gate could be cancelled mid-build and report a
+    # phantom failure on a perfectly good tag.
+    timeout-minutes: 30
     steps:
       # Every action — first-party included — is pinned to a full commit SHA so a
       # rewritten tag cannot silently change what executes in the release gate.
@@ -37,6 +44,12 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          # zizmor artipacked: don't persist the checkout token in .git/config
+          # (issue #151), as every other checkout in this repo already does. It
+          # matters MORE here than anywhere else: the next step executes
+          # third-party code fetched at runtime by uvx, so a usable credential
+          # left inside the working tree is exactly the exposure to remove.
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -44,12 +57,32 @@ jobs:
           python-version: '3.12'
 
       - name: Install uv
+        # enable-cache: true keys an actions/cache on UV_CACHE_DIR so the cold
+        # `uvx --from git+…` build of CPV (12-20 min, issue #114) is paid ONCE
+        # per runner/cache key instead of on EVERY tag push. Without it this
+        # gate was a guaranteed cold build on every single release — the exact
+        # worst case for the timeout above.
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          enable-cache: true
 
       - name: CPV strict validation gate (post-hoc safety net)
-        # NOTE: do NOT set CLAUDE_PRIVATE_USERNAMES to the repo owner here — that buggy
-        # canon recommendation flags the public owner name as false CRITICAL leaks
-        # (claude-plugins-validation#141). CI has no local machine username to protect.
+        env:
+          # On a fresh-checkout runner the local self-hash manifest already
+          # matches the code, so CPV's GitHub-anchored integrity fetch (a live
+          # urlopen to raw.githubusercontent.com) adds no security but real
+          # latency/hang risk. Skipped here exactly as in ci.yml's Validate job.
+          #
+          # NOTE: do NOT set CLAUDE_PRIVATE_USERNAMES to the repo owner here — that buggy
+          # canon recommendation flags the public owner name as false CRITICAL leaks
+          # (claude-plugins-validation#141). CI has no local machine username to protect.
+          PLUGIN_SKIP_GITHUB_INTEGRITY: "1"
+          # Issue #162: cap the AGGREGATE REPO LINT wall-clock. Each linter is
+          # already per-linter-bounded, but on a cold runner uv/npm serialize the
+          # concurrent first-run fetches on a global cache lock, so the ~17-linter
+          # fan-out degrades toward serial and the phase can march past this job's
+          # own timeout-minutes with orphaned uv/python children.
+          PLUGIN_REPO_LINT_PHASE_TIMEOUT: "600"
         run: |
           set +e
           # Pinned to the SAME CPV tag as ci.yml's validate job and publish.py's
@@ -58,16 +91,27 @@ jobs:
           # tag pass the safety net that the local gate would have rejected.
           uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v3.1.0 \
             --with pyyaml \
-            cpv-remote-validate plugin . --strict
+            cpv-remote-validate plugin . --strict \
+            > "$RUNNER_TEMP/cpv-validation-report.txt" 2>&1
           EXIT_CODE=$?
           set -e
-          # Strict mode: ANY non-zero exit fails the gate. If the tag was
-          # pushed by publish.py, this should always pass because publish.py
-          # ran the same validator locally first. A failure here means
-          # someone bypassed publish.py — investigate immediately.
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "::error::CPV strict validation failed for pushed tag $GITHUB_REF_NAME (exit $EXIT_CODE)"
+          cat "$RUNNER_TEMP/cpv-validation-report.txt"
+          if [ "$EXIT_CODE" -eq 0 ]; then
+            echo "Validation passed"
+            exit 0
+          fi
+          # CPV's verdict exit codes are 1-4. Anything else — and any 1-4 with no
+          # SUMMARY line — means the validator never produced a verdict at all: a
+          # cold `uvx --from git+…` build that dies on a transient GitHub fetch
+          # exits 1 or 2 exactly like a findings verdict. Blaming that on the tag
+          # sends the release owner hunting a rogue push that never happened, so
+          # discriminate infra failure from a real verdict BEFORE accusing the tag.
+          if [ "$EXIT_CODE" -ge 1 ] && [ "$EXIT_CODE" -le 4 ] \
+             && grep -q "SUMMARY: CRITICAL=" "$RUNNER_TEMP/cpv-validation-report.txt"; then
+            echo "::error::CPV strict validation failed for pushed tag $GITHUB_REF_NAME (exit $EXIT_CODE: CRITICAL/MAJOR/MINOR/NIT found)"
             echo "::error::This tag was likely pushed without going through scripts/publish.py"
             echo "::error::The GitHub release (if any) should be rolled back by the release owner"
-            exit $EXIT_CODE
+            exit "$EXIT_CODE"
           fi
+          echo "::error::CPV validator FAILED TO RUN (exit $EXIT_CODE) — infra/network/install failure, NOT a validation verdict. No findings were produced; do not read this as CRITICAL/MAJOR/MINOR/NIT. See the log above (a cold 'uvx --from git+...' build can fail on a transient GitHub git-fetch)."
+          exit 1

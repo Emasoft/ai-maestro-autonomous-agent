@@ -40,6 +40,12 @@ jobs:
       - name: Checkout plugin
         # Pinned to a full commit SHA so a rewritten tag cannot change what runs.
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # zizmor artipacked: don't persist the checkout token in .git/config
+          # (issue #151), matching every other checkout in this repo. This job
+          # only READS plugin.json and dispatches with a separate PAT, so it
+          # never needs the workflow token on disk.
+          persist-credentials: false
 
       # No-op guard for the OPTIONAL MARKETPLACE_PAT secret. A fork — or this repo
       # before the secret is provisioned — has no token. WITHOUT this guard the
