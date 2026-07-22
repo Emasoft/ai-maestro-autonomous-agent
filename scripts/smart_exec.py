@@ -562,8 +562,12 @@ def main(argv: list[str]) -> int:
         tool_args = tool_args[1:]
 
     try:
+        # Catch ONLY the "no executor available" signal choose_best raises. A bare
+        # `except Exception` also swallowed AttributeError/TypeError from a bug in
+        # the argv builders and reported them as an ordinary tool-selection failure,
+        # so a genuine defect looked identical to "you don't have bunx installed".
         argv2, chosen = choose_best(spec, tool_args, ex)
-    except Exception as e:
+    except RuntimeError as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
 

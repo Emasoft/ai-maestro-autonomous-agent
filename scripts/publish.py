@@ -116,9 +116,19 @@ find_publish_ancestor() {
         #            python3.12 scripts/publish.py
         #            /usr/bin/env python3 scripts/publish.py
         #            /abs/path/to/python scripts/publish.py
-        # Rejects:   bash -c "touch scripts/publish.py && git push"
+        # Rejects:   bash -c "touch scripts/publish.py && git push"   (no "python")
         #            git push
-        #            any shell where publish.py is not the actual interpreter target
+        #
+        # SCOPE OF THE GUARANTEE — do not overstate it. This is a SUBSTRING test
+        # over an ancestor's argv, so any command line containing "python" before
+        # "scripts/publish.py" passes, whether or not publish.py is the actual
+        # interpreter target. It stops the accidental push and the casual
+        # env-var workaround (`FOO=1 git push` cannot fake a process tree); it is
+        # NOT an adversarial control, and `git push --no-verify` skips pre-push
+        # hooks outright. Treat it as enforced discipline, not a security boundary.
+        # The matcher is deliberately loose because it must keep accepting every
+        # legitimate wrapper (`uv run python ...`, `/usr/bin/env python3 ...`);
+        # tightening it risks locking the maintainer out of publishing entirely.
         case "${cmd}" in
             *python*scripts/publish.py*|*python*/scripts/publish.py*)
                 return 0
@@ -1297,8 +1307,11 @@ def _cpv_dependency_push_refs(root: Path, new_ver: str) -> list[str]:
     Idempotent: an existing tag is left alone. Returns [] when the tag cannot be
     built, so the release still pushes rather than crashing the pipeline.
 
-    It is called from INSIDE the release push's argv so the tag lands in the SAME
-    push as the release tag — a release can never ship with one ref and not the other.
+    Its result is pushed by the SINGLE `git push --atomic` in Step 13, together with
+    the branch and the release tag — a release can never ship with one ref and not
+    the other. (Before the push was made atomic this guarantee held only between the
+    two TAGS; the branch went out in an earlier, separate push that could succeed
+    while the tag push failed.)
     """
     dep_tag = _cpv_dependency_tag_name(root, new_ver)
     if dep_tag is None:
@@ -1771,8 +1784,18 @@ Examples:
     # Because this process IS scripts/publish.py, the hook will find it and
     # allow the push. No env var needed — process trees can't be spoofed.
     print(f"\n{BLUE}=== Step 13: Push commit + tag to origin/{default_branch} ==={NC}")
-    run(["git", "push", "origin", "HEAD"], cwd=git_root)
-    run(["git", "push", "origin", f"v{new_version}"] + _cpv_dependency_push_refs(plugin_root, new_version), cwd=git_root)
+    # ONE `--atomic` push for the branch AND both tags. This was previously two
+    # separate pushes (HEAD, then the tags), which is not all-or-nothing: run()
+    # sys.exit()s on failure, so if the branch push succeeded and the tag push
+    # then failed (network drop, rejected ref, remote hiccup), origin was left
+    # holding the release COMMIT with NO `vX.Y.Z` and NO `{plugin}--vX.Y.Z`.
+    # That state is silently broken — main advertises the new version while
+    # nothing resolves it, and the next run bumps PAST it, so the skipped
+    # version never gets tagged at all. `--atomic` makes the remote accept all
+    # refs or none, which is what the dependency-tag helper's docstring already
+    # promised ("a release can never ship with one ref and not the other").
+    dep_refs = _cpv_dependency_push_refs(plugin_root, new_version)
+    run(["git", "push", "--atomic", "origin", "HEAD", f"v{new_version}", *dep_refs], cwd=git_root)
     print(f"\n{GREEN}ok Published v{new_version} ({info.name}){NC}")
 
     # ── Step 14: Create GitHub release with release notes (MANDATORY) ──

@@ -7,17 +7,19 @@ All validators should use this to skip gitignored files/directories.
 
 Usage:
     gi = GitignoreFilter(plugin_root)
-    for path in gi.walk_files(plugin_root, skip_dirs={"__pycache__"}):
-        # path is a Path object, gitignored files are excluded
+    for dirpath, dirnames, filenames in gi.walk(plugin_root, skip_dirs={"__pycache__"}):
+        # os.walk-shaped tuple; gitignored dirs are pruned and files excluded
         ...
 
-    for path in gi.rglob(plugin_root, "*.pyc"):
-        # gitignored matches excluded
+    for path in gi.rglob("*.pyc", plugin_root):
+        # Path objects; gitignored matches excluded. NOTE the order: pattern
+        # FIRST, root second (root is optional and defaults to the filter root).
         ...
 """
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 from cpv_validation_common import is_path_gitignored, parse_gitignore
@@ -61,18 +63,39 @@ class GitignoreFilter:
         directory: Path,
         skip_dirs: set[str],
         skip_hidden: bool,
+        _seen: set[Path] | None = None,
     ):
         """Recursive directory walk using pathlib only (cross-platform).
 
-        Yields (dirpath: Path, subdirs: list[str], files: list[str]).
-        Compatible with os.walk() return signature but uses Path objects.
+        Yields (dirpath: str, subdirs: list[str], files: list[str]) — the same
+        shape as os.walk(), whose dirpath is likewise a str.
+
+        `_seen` carries the set of already-visited REAL directories. os.walk
+        defaults to followlinks=False; Path.is_dir() follows symlinks, so
+        without this guard a link pointing at any ancestor (a vendored dir
+        symlinked back to the repo root is enough) recurses until Python
+        raises RecursionError and the whole scan dies.
         """
+        if _seen is None:
+            _seen = set()
+        try:
+            real = directory.resolve()
+        except OSError:
+            return
+        if real in _seen:
+            return
+        _seen.add(real)
+
         subdirs: list[str] = []
         files: list[str] = []
 
         try:
             entries = sorted(directory.iterdir())
         except PermissionError:
+            # Skip what we cannot read, but never SILENTLY: an unreadable
+            # directory that vanishes from the walk makes a validator report
+            # "clean" for a subtree it never actually looked at.
+            print(f"warning: skipping unreadable directory {directory}", file=sys.stderr)
             return
 
         for entry in entries:
@@ -92,7 +115,7 @@ class GitignoreFilter:
 
         # Recurse into non-ignored subdirectories
         for subdir_name in subdirs:
-            yield from self._walk_pathlib(directory / subdir_name, skip_dirs, skip_hidden)
+            yield from self._walk_pathlib(directory / subdir_name, skip_dirs, skip_hidden, _seen)
 
     def walk(
         self,

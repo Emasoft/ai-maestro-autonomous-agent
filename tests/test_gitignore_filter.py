@@ -125,3 +125,22 @@ def test_is_path_gitignored_anchored_dir_matches_nested_files() -> None:
     assert is_path_gitignored("sub/reports_dev/foo.py", anchored) is False
     # a NON-anchored dir pattern also matches the nested file (component match, unchanged behavior)
     assert is_path_gitignored("reports_dev/foo.py", ["reports_dev/"]) is True
+
+
+def test_walk_terminates_on_symlink_cycle(tmp_path: Path) -> None:
+    """walk: a symlink pointing back at an ancestor does not recurse forever.
+
+    os.walk defaults to followlinks=False, but this walker uses Path.is_dir(),
+    which FOLLOWS symlinks — so before the visited-set guard a single link back
+    to the repo root (a vendored dir symlinked to '.' is enough) recursed until
+    Python raised RecursionError and killed the entire scan.
+    """
+    root = _build_tree(tmp_path)
+    (root / "src" / "loop").symlink_to(root, target_is_directory=True)
+    gi = GitignoreFilter(root)
+
+    visited = [dirpath for dirpath, _d, _f in gi.walk(root)]
+
+    # Terminates, visits each real directory once, and still finds real content.
+    assert len(visited) == len(set(visited)), f"a directory was walked twice: {visited}"
+    assert any(Path(d).name == "src" for d in visited), "the real src/ dir was skipped"

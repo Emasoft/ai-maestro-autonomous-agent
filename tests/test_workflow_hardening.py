@@ -168,3 +168,31 @@ def test_publish_emits_dependency_resolution_tag() -> None:
         "the dependency tag must use the DOUBLE-hyphen `--v` separator; the single-hyphen "
         "form does not match Claude Code's resolver prefix filter and is silently useless"
     )
+
+
+def test_publish_pushes_branch_and_tags_atomically() -> None:
+    """The release push is ONE `--atomic` push carrying the branch and both tags.
+
+    Splitting it (push HEAD, then push the tags) is not all-or-nothing: run()
+    sys.exit()s on failure, so a tag-push failure after a successful branch push
+    leaves origin with the release COMMIT and no `vX.Y.Z` / `<plugin>--vX.Y.Z`.
+    Nothing then resolves that version, and the next run bumps PAST it — so the
+    skipped version is never tagged at all.
+    """
+    src = (Path(__file__).resolve().parents[1] / "scripts" / "publish.py").read_text(
+        encoding="utf-8"
+    )
+    push_lines = [
+        line.strip()
+        for line in src.splitlines()
+        if '"git", "push"' in line and "origin" in line
+    ]
+    assert len(push_lines) == 1, (
+        "expected exactly ONE release push; a second `git push origin ...` re-splits "
+        f"the atomic push and reintroduces the half-published state. Got: {push_lines}"
+    )
+    assert '"--atomic"' in push_lines[0], (
+        f"the release push must pass --atomic so the remote takes all refs or none; got {push_lines[0]}"
+    )
+    for ref in ('"HEAD"', 'f"v{new_version}"', "*dep_refs"):
+        assert ref in push_lines[0], f"the atomic push lost {ref}; got {push_lines[0]}"
