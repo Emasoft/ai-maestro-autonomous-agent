@@ -6,7 +6,7 @@ These tests build a real fixture tree on disk with a `.gitignore` (ignore `*.log
 `build/`, keep `src/`), instantiate the REAL GitignoreFilter, and assert its live
 is_ignored / is_dir_ignored / walk / rglob / iterdir results.
 
-Loading note: gitignore_filter.py does `from cpv_validation_common import ...`, so the
+Loading note: gitignore_filter.py does `from gitignore_rules import ...`, so the
 scripts/ dir must be importable — we prepend it to sys.path (a runtime path insert, not
 an import statement, so no E402), then load the module by file path.
 """
@@ -21,7 +21,7 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = REPO_ROOT / "scripts"
 if str(SCRIPTS) not in sys.path:
-    sys.path.insert(0, str(SCRIPTS))  # let gitignore_filter's `from cpv_validation_common import` resolve
+    sys.path.insert(0, str(SCRIPTS))  # let gitignore_filter's `from gitignore_rules import` resolve
 
 
 def _load_gitignore_filter() -> Any:
@@ -113,7 +113,7 @@ def test_iterdir_excludes_ignored_top_level_entries(tmp_path: Path) -> None:
 
 def test_is_path_gitignored_anchored_dir_matches_nested_files() -> None:
     """is_path_gitignored: anchored dir pattern '/reports_dev/' ignores the dir AND its nested files while keeping the anchor; a non-anchored dir pattern still matches nested files too."""
-    from cpv_validation_common import is_path_gitignored  # scripts/ is on sys.path (inserted at module import)
+    from gitignore_rules import is_path_gitignored  # scripts/ is on sys.path (inserted at module import)
 
     anchored = ["/reports_dev/"]
     # anchored dir pattern must ignore the dir itself AND every nested file (rglob enumerates

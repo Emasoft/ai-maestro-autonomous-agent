@@ -5,9 +5,10 @@ pre-push-hook.py) was REMOVED: CI (validate.yml/release.yml) and publish.py both
 the latest REMOTE CPV (`cpv-remote-validate`), so the local copies validated nothing and
 had drifted (validate_scoring.py even imported a non-existent validate_plugin). This plugin
 keeps only the load-bearing release chain — publish.py -> gitignore_filter ->
-cpv_validation_common -> smart_exec. These tests prove that chain still compiles and imports,
-and that the vestigial family (the bundled validators AND the per-plugin memory helpers,
-removed when the global janitor-hosted memory system was adopted) stays gone.
+gitignore_rules. These tests prove that chain still compiles and imports, and that the
+vestigial family (the bundled validators, the per-plugin memory helpers removed when the
+global janitor-hosted memory system was adopted, and the vendored cpv_validation_common /
+smart_exec pair — extracted down to gitignore_rules in TRDD-CPVXTRCT) stays gone.
 """
 
 from __future__ import annotations
@@ -25,8 +26,7 @@ SCRIPTS = REPO_ROOT / "scripts"
 KEEP_SET = {
     "publish.py",
     "gitignore_filter.py",
-    "cpv_validation_common.py",
-    "smart_exec.py",
+    "gitignore_rules.py",
 }
 
 
@@ -63,14 +63,18 @@ def test_vestigial_validators_are_gone() -> None:
     # system was adopted (TRDD-b48aa385); a reappearance is an accidental restore.
     assert not (SCRIPTS / "memory_recall.sh").exists(), "the removed memory_recall.sh reappeared"
     assert not (SCRIPTS / "memory_note_write.py").exists(), "the removed memory_note_write.py reappeared"
+    # The vendored CPV pair was extracted to gitignore_rules.py (TRDD-CPVXTRCT): publish.py
+    # imports neither, so both were dead weight (and dragged a bandit B108 false-positive).
+    assert not (SCRIPTS / "cpv_validation_common.py").exists(), "the deleted vendored cpv_validation_common.py reappeared"
+    assert not (SCRIPTS / "smart_exec.py").exists(), "the deleted vendored smart_exec.py reappeared"
 
 
 def test_publish_module_imports() -> None:
     """publish.py imports cleanly (transitively exercising the whole kept chain).
 
     Importing publish.py runs `from gitignore_filter import GitignoreFilter`, which runs
-    `from cpv_validation_common import ...`, which runs `from smart_exec import ...` — so a
-    clean import here proves the entire keep-set resolves after the prune.
+    `from gitignore_rules import ...` — so a clean import here proves the entire keep-set
+    resolves after the extract.
     """
     spec = importlib.util.spec_from_file_location("publish_smoke", SCRIPTS / "publish.py")
     assert spec is not None and spec.loader is not None

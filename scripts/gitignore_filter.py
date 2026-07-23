@@ -22,7 +22,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from cpv_validation_common import is_path_gitignored, parse_gitignore
+from gitignore_rules import is_path_gitignored, parse_gitignore
 
 
 class GitignoreFilter:
