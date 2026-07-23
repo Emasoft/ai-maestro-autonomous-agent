@@ -47,9 +47,11 @@ the back of an audit; the fixes ride the next approved release or you request
 publish approval explicitly.[^1]
 
 See also [[publish-pipeline]] (the release flow + the CPV verify recipe),
-[[architecture]], and [[fork-delegation-under-autonomous-directive]] (why a fork's
+[[architecture]], [[fork-delegation-under-autonomous-directive]] (why a fork's
 "CPV is green" self-report must be re-verified — it once reported green on a tree with a
-blocking NIT, which ties to note 3 here).
+blocking NIT, which ties to note 3 here), and [[persona-over-asking-mandate]] (a
+persona governance fix that reused this exact verify→TRDD→fix+guard-in-same-batch
+process, but triggered by a direct USER bug report rather than a fleet audit).
 
 ## Notes and lessons learned
 [^1]: [ocd:2026-06-21 lmd:2026-06-21] WHY "verify HEAD first" is load-bearing:
