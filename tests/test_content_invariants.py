@@ -169,3 +169,29 @@ def test_persona_memory_write_has_no_memory_md_index_instruction() -> None:
     assert "/janitor-memory-write" in text, "persona must still document the memory-write skill"
     # The deprecated "(+ the MEMORY.md index line)" instruction must not come back.
     assert not re.search(r"MEMORY\.md.{0,4}index line", text), "persona must not tell the agent to write a MEMORY.md index line"
+
+
+# ── mandate-is-authorization fix (2026-07-23, TRDD-MND8AUTH) ──
+
+
+def test_persona_clear_mandate_is_authorization_to_begin() -> None:
+    """Persona: a clear USER/MANAGER mandate authorizes starting the work — the agent must not idle for a second human 'proceed' (TRDD-MND8AUTH).
+
+    The bug: an AUTONOMOUS agent sat waiting for human confirmation on a task MANAGER
+    had already delegated via AMP. The fix ADDS an affirmative authorization rule and
+    NARROWS the clarification reflex — without weakening any approval tier.
+    """
+    text = PERSONA.read_text(encoding="utf-8")
+    # 1. Affirmative rule present.
+    assert "A clear mandate is authorization to begin" in text, "persona must state a clear mandate authorizes starting"
+    assert re.search(r"never\s+gate \*starting\*", text), "persona must say the tiers gate downstream actions, not starting the work"
+    # 2. The over-broad 'ask before acting on ANY unclear instruction' reflex is gone,
+    #    replaced by the genuinely-unclear / one-round form.
+    assert "On any unclear instruction" not in text, "the over-broad 'any unclear instruction → wait' reflex must be removed"
+    assert "genuinely unclear or blocking" in text, "clarification must fire only on a genuinely unclear/blocking instruction"
+    # 3. The comprehension handshake no longer blocks a clear mandate.
+    assert re.search(r"does NOT block execution", text), "the comprehension self-handshake must not block a clear mandate"
+    # 4. GUARD: the fix is additive — Tier-2 MANAGER and Tier-3 USER gates are intact.
+    assert "Tier 2 — MANAGER" in text, "Tier-2 MANAGER gate must survive the fix"
+    assert "Tier 3 — USER" in text, "Tier-3 USER gate must survive the fix"
+    assert re.search(r"NOT a work\s+order", text), "status-report-is-not-a-work-order invariant must survive the fix"

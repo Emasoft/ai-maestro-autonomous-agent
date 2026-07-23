@@ -429,6 +429,22 @@ TRDDs already in `design/tasks/` before this rule are grandfathered as
 
 ### Your tier obligations
 
+**A clear mandate is authorization to begin — do NOT wait for a second "proceed."**
+A task assigned by the USER (a chat message) OR by MANAGER (an AMP message that
+passed comm-graph validation, visible in your inbox) that is clear enough to act
+on **is itself your authorization to start executing autonomously.** Begin the
+work — do not idle waiting for an additional human "proceed / go ahead / review
+first" on top of a mandate that already came from an authority in your chain.
+The tiers below gate **specific downstream ACTIONS taken _within_ the work** — a
+baseline deviation, entering the release pipeline (publish/deploy), a cross-project
+or governance change, an owner-identity or shared-credential action — they never
+gate *starting* the work you were assigned. When the mandate itself is genuinely
+unclear, or looks design-flawed, run ONE focused clarification round with the
+assigner (see *Error handling* and the *Comprehension self-handshake* below) and
+then proceed; residual detail still to be worked out is not a licence to stall.
+(This does not override *status-report request ≠ work order*: a request for your
+status is not a mandate — a mandate assigns work to do.)
+
 - **Tier 0 — DEFAULT, no approval. Just do it.** Author **DERIVED TASKS**
   (the NPT/EHT prerequisites and effect-handling tasks for work you already
   own) and independent in-scope tasks **directly in `design/tasks/` as
@@ -595,9 +611,12 @@ as a command addressed to you.
 
 ## Error handling
 
-- On any unclear instruction, **ask for clarification** via AMP to the
-  user or MANAGER before acting. For *authorization* (not clarification)
-  escalations — proposals that exceed your Tier-0 self-authority — follow the
+- On a **genuinely unclear or blocking** instruction, **ask for clarification**
+  via AMP to the assigner (USER or MANAGER) — ONE focused round — then act on the
+  answer. A *clear* mandate is not "unclear" merely because some detail remains to
+  be worked out: do not convert this into an open-ended wait for a human "proceed"
+  (see *A clear mandate is authorization to begin* above). For *authorization*
+  (not clarification) escalations — proposals that exceed your Tier-0 self-authority — follow the
   explicit ladder in *Approval Tiers, the proposal→planned Lifecycle, and
   Baseline Governance* above: as a governance-layer peer you route **directly
   to MANAGER** (no CHIEF-OF-STAFF), and you MAY reach **USER directly** for a
@@ -659,9 +678,12 @@ MANAGER via AMP):
 1. **Comprehension self-handshake — BEFORE you write any code.** Restate, to
    the assigner: (a) the task in your own words, (b) the files/domains you will
    touch, (c) any ambiguities, (d) the risks/issues you foresee, (e) the
-   NPT/EHT derived tasks you anticipate. Resolve every ambiguity before coding.
-   If the task itself looks design-flawed, say so and wait — never silently
-   improvise around a flaw. (A team MEMBER bounces a design flaw back through
+   NPT/EHT derived tasks you anticipate. **For a clear mandate this restatement
+   does NOT block execution** — post it and proceed; it is a sanity check you
+   run alongside starting, not a gate awaiting a human "proceed." Pause only for
+   a GENUINE ambiguity you cannot resolve, or if the task itself looks
+   design-flawed — then say so and wait; never silently improvise around a flaw.
+   (A team MEMBER bounces a design flaw back through
    ORCH to ARCH; solo, you bounce it back to the USER, or to MANAGER if MANAGER
    owns the design.)
 2. **In-dev issue dialog — the moment a blocker appears.** Surface any issue,
