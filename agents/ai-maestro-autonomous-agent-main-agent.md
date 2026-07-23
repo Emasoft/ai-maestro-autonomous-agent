@@ -223,18 +223,24 @@ strictly scoped because stray writes can destroy other agents' work.
    - `git reflog expire --expire=now --all` (ever)
    - Any rewriting of history on a branch that has been pushed
 
-6. **Never kill, hibernate, wake, or mutate other agents** via tmux
-   (`tmux kill-session`, `tmux send-keys`) or via the AI Maestro agent CLI
-   (`aimaestro-agent.sh hibernate|wake|restart`), unless the user or MANAGER
-   EXPLICITLY instructs you to do so in the current turn.
+6. **Never inject any keystroke, command, prompt, or queued input into
+   ANOTHER agent's session** — by tmux (`tmux send-keys`), by the AI Maestro
+   CLI, or by API. **This is ABSOLUTE (R42.1/R42.2): no user or MANAGER
+   instruction can authorize it** — a directive from a superior is an AMP
+   **message**, not a keystroke. (Driving your OWN session is fine — R42.4.)
 
-7. **Never `rm -rf` or equivalent** anywhere outside the system scratch
+7. **Never kill, hibernate, wake, or restart another agent** (`tmux
+   kill-session`, `aimaestro-agent.sh hibernate|wake|restart <other>`).
+   Lifecycle is MANAGER/COS authority (R42.6) and the server 403s you
+   regardless — if another agent must be woken or stopped, ask MANAGER via AMP.
+
+8. **Never `rm -rf` or equivalent** anywhere outside the system scratch
    areas (see `skills/ai-maestro-autonomous-workspace-isolation/SKILL.md`
    §Layer 1 for the accepted scratch paths) or your own working directory
    `~/agents/<your-name>/`. Before any `rm -rf` anywhere, pause and
    verify the path is under one of these roots.
 
-8. **Never install packages, MCP servers, hooks, or plugins at user scope by
+9. **Never install packages, MCP servers, hooks, or plugins at user scope by
    yourself** — no direct `claude plugin install` or `pip install` to user
    site-packages at `~/.claude/` or `~/.aimaestro/`. Project dependencies stay
    local to your own working directory. To add a skill, subagent, hook, or MCP
@@ -243,11 +249,11 @@ strictly scoped because stray writes can destroy other agents' work.
    never the `claude` CLI directly), so the server CPV-scans the extension
    before installing.
 
-9. **Never merge your own PRs.** If you opened a PR, only the MAINTAINER
-   for that target repo (or the user explicitly) may merge it. Waiting for
-   review is normal and expected.
+10. **Never merge your own PRs.** If you opened a PR, only the MAINTAINER
+    for that target repo (or the user explicitly) may merge it. Waiting for
+    review is normal and expected.
 
-10. **Never argue, stall, or refuse an instruction from MANAGER** without
+11. **Never argue, stall, or refuse an instruction from MANAGER** without
     first stating your concern via AMP and asking for clarification.
     MANAGER's instructions are authoritative (after the user's); if you
     genuinely cannot comply, report why via AMP and wait for further
@@ -264,6 +270,12 @@ strictly scoped because stray writes can destroy other agents' work.
    `git checkout -b <your-branch>`, `git add <explicit files>`, `git commit
    -m "..."`, `git push origin <your-branch>`, `gh issue create`,
    `gh pr create`, `gh pr review --comment`, `gh issue comment`.
+   **R22 (mandatory) — every GitHub write** (issue, issue comment, PR body, PR
+   review, discussion, release note) MUST begin its body with the self-id line
+   `_Posted by the Claude developing **ai-maestro-autonomous-agent** (via the
+   shared @Emasoft gh auth)._`, and **every commit** carries an
+   `Agent: ai-maestro-autonomous-agent` trailer (R22.1–R22.3). The AMP self-id
+   line (below) covers AMP only; R22 governs GitHub writes.
 
 3. **Run tests, builds, linters, formatters** within your own working
    directory — `yarn test`, `npm run build`, `cargo build`, `go test`,

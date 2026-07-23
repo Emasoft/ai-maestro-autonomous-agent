@@ -195,3 +195,29 @@ def test_persona_clear_mandate_is_authorization_to_begin() -> None:
     assert "Tier 2 — MANAGER" in text, "Tier-2 MANAGER gate must survive the fix"
     assert "Tier 3 — USER" in text, "Tier-3 USER gate must survive the fix"
     assert re.search(r"NOT a work\s+order", text), "status-report-is-not-a-work-order invariant must survive the fix"
+
+
+# ── issue #15 governance-conformance fixes (2026-07-23, TRDD-MND8AUTH batch) ──
+
+
+def test_persona_keystroke_injection_is_absolute_no_manager_exception() -> None:
+    """Persona F1 (#15): keystroke injection into another agent's session is ABSOLUTE (R42) — no user/MANAGER exception; the old tmux send-keys carve-out is gone."""
+    text = PERSONA.read_text(encoding="utf-8")
+    # The IRON keystroke-injection ban with no authorization escape.
+    assert re.search(r"no user or MANAGER\s+instruction can authorize it", text), "keystroke injection must be ABSOLUTE — no user/MANAGER authorization"
+    assert "R42.1/R42.2" in text, "the keystroke ban must cite R42.1/R42.2"
+    # Driving your OWN session stays allowed (R42.4).
+    assert re.search(r"Driving your OWN session is fine", text) and "R42.4" in text, "self-driving must stay allowed (R42.4)"
+    # Lifecycle split into its own rule (MANAGER/COS authority, R42.6).
+    assert re.search(r"Lifecycle is MANAGER/COS authority", text) and "R42.6" in text, "lifecycle must be its own MANAGER/COS-authority rule (R42.6)"
+    # The buggy carve-out that let a MANAGER authorize tmux send-keys must be gone.
+    assert not re.search(r"unless the user or MANAGER\s+EXPLICITLY instructs", text), "the R42-violating 'unless user/MANAGER instructs' tmux carve-out must be removed"
+
+
+def test_persona_r22_self_id_and_agent_trailer_uniform_on_github_writes() -> None:
+    """Persona F2 (#15): R22 self-id line + `Agent:` commit trailer are mandated uniformly on GitHub writes, not just AMP."""
+    text = PERSONA.read_text(encoding="utf-8")
+    assert "R22 (mandatory)" in text, "persona must carry the standing R22 GitHub-write rule"
+    assert "every GitHub write" in text, "R22 rule must cover every GitHub write, not just AMP"
+    assert re.search(r"Agent: ai-maestro-autonomous-agent.{0,12}trailer", text), "R22 rule must mandate the Agent: commit trailer"
+    assert "R22 governs GitHub writes" in text, "persona must distinguish AMP self-id (AMP-only) from R22 (GitHub)"
