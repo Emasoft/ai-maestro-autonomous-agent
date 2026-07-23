@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [1.5.4] - 2026-07-23
 
 ### Bug Fixes
 
@@ -10,6 +10,18 @@ All notable changes to this project will be documented in this file.
 - **memory:** Clear CPV --strict SHELL_EXEC false-positive in governance note (e73b63e)
 - **changelog:** Walk full tag history and stop indenting headings (TRDD-R3JRZURT) (b326c65)
 - **pipeline:** Re-pin CPV to v2.162.0, add publish.py --gate, add CI-parity preflight (5a9e9c9)
+- **pipeline:** Adopt canon markdownlint rules, merge canon cliff.toml improvements (dd35a0e)
+- **ci:** Group GITHUB_OUTPUT appends in notify-marketplace (shellcheck SC2129) (80ef9eb)
+- **security:** Devitalize the B108 false positive blocking the publish gate (0117b4f)
+- **ci:** Re-pin both CPV gates to v3.1.0 (was v2.162.0 / v2.136.1) (01c50d5)
+- **ci:** Seed .cspell.json with the 72 project terms the SPELL gate flags (ee6871f)
+- **ci:** Add the last cspell word so the SPELL gate is actually EXIT=0 (23e05f6)
+- Make the release push atomic and stop two silent-failure paths (f6714ec)
+- **ci:** Give the release gate the cold-build budget ci.yml documents (8a158c7)
+- **release:** Resume an interrupted publish instead of skipping the version (5e96729)
+- **release:** Fetch the origin baseline before the resume guard reads it (d83761d)
+- **persona:** A clear MANAGER/USER mandate is authorization to begin (TRDD-MND8AUTH) (3c27ced)
+- **persona:** R42-absolute keystroke ban + uniform R22 GitHub self-id (issue #15, TRDD-GOV15R42) (94a65d1)
 
 ### Documentation
 
@@ -35,12 +47,26 @@ All notable changes to this project will be documented in this file.
 - Sync plugin guidance to Claude Code 2.1.181-2.1.200 (TRDD-BFDQH5A7) (b2dd4d2)
 - Add TRDD-BFDQH5A7 for CC 2.1.181-2.1.200 sync, impl-commit b2dd4d2, Agent ai-maestro-autonomous-agent (2eb404c)
 - **trdd:** Close TVM7Q4XK + R3JRZURT, add P8QK3ZTR for the CPV pipeline update (d824516)
+- Add TRDD-R7NK2VQD for the CPV pipeline-migration upgrade (9ece65c)
+- **memory:** Record that force-template protection is now declared, not remembered (5227752)
+- **memory:** Record today's two release-safety properties and the dead-hook trap (aee536a)
+- **trdd:** Flip TRDD-MND8AUTH to complete (impl 3c27ced) (de3314c)
+- **memory:** Capture the persona over-asking-on-mandate diagnostic (TRDD-MND8AUTH) (8dc209b)
+- **trdd:** Add TRDD-GOV15R42 for issue #15 R42/R22 conformance (impl 94a65d1) (80b9194)
+- **trdd:** Flip TRDD-CPVXTRCT to complete (impl 54c1a62) (3bd93e5)
 
 ### Miscellaneous Tasks
 
 - **trdd:** Finalize QJ30E8TD state — complete, impl 84b4ca8 (884392f)
 - **trdd:** Finalize NHYCSFRZ backtracking -- implementation-commits 8b4d200 (28f0896)
 - Port canon workflow hardening into release + notify-marketplace (TRDD-TVM7Q4XK) (3dd64f3)
+- **pipeline:** Declare publish.py and cliff.toml as intentional divergences (60fa49d)
+- **pipeline:** Declare git-hooks/pre-push as an intentional divergence (40a8c42)
+- **hook:** Sync committed .githooks/pre-push with publish.py's regenerated template (526f63f)
+
+### Refactor
+
+- **scripts:** Extract 2 gitignore fns to gitignore_rules.py; drop vendored cpv_validation_common + smart_exec (TRDD-CPVXTRCT) (54c1a62)
 
 ### Security
 
