@@ -27,9 +27,19 @@ find_publish_ancestor() {
         #            python3.12 scripts/publish.py
         #            /usr/bin/env python3 scripts/publish.py
         #            /abs/path/to/python scripts/publish.py
-        # Rejects:   bash -c "touch scripts/publish.py && git push"
+        # Rejects:   bash -c "touch scripts/publish.py && git push"   (no "python")
         #            git push
-        #            any shell where publish.py is not the actual interpreter target
+        #
+        # SCOPE OF THE GUARANTEE — do not overstate it. This is a SUBSTRING test
+        # over an ancestor's argv, so any command line containing "python" before
+        # "scripts/publish.py" passes, whether or not publish.py is the actual
+        # interpreter target. It stops the accidental push and the casual
+        # env-var workaround (`FOO=1 git push` cannot fake a process tree); it is
+        # NOT an adversarial control, and `git push --no-verify` skips pre-push
+        # hooks outright. Treat it as enforced discipline, not a security boundary.
+        # The matcher is deliberately loose because it must keep accepting every
+        # legitimate wrapper (`uv run python ...`, `/usr/bin/env python3 ...`);
+        # tightening it risks locking the maintainer out of publishing entirely.
         case "${cmd}" in
             *python*scripts/publish.py*|*python*/scripts/publish.py*)
                 return 0
