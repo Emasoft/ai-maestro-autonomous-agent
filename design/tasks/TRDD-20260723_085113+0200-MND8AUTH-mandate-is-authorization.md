@@ -1,14 +1,14 @@
 ---
 trdd-id: MND8AUTH
 title: A clear MANAGER or USER mandate is authorization to begin — kill the over-asking persona reflex
-column: dev
+column: complete
 created: 2026-07-23T08:51:13+0200
-updated: 2026-07-23T08:51:13+0200
+updated: 2026-07-23T08:53:00+0200
 current-owner: ai-maestro-autonomous-agent
 task-type: bugfix
 scope: project
 relevant-rules: [3, 5]
-implementation-commits: []
+implementation-commits: [3c27ced]
 ---
 
 ## ⏵ STATE — READ THIS FIRST ON RESUME (authoritative; supersedes the body) — 2026-07-23
@@ -37,11 +37,9 @@ implementation-commits: []
 - **Test:** add `test_persona_clear_mandate_is_authorization_to_begin` to
   `tests/test_content_invariants.py` asserting the affirmative language is present
   and the buggy "ask for clarification before acting" broad form is gone.
-- **NEXT ACTION:** apply the 3 edits + the test, run
-  `uv run --with pytest --with pyyaml pytest tests/ -q` (expect 113 passed) and
-  `uv run python scripts/publish.py --gate` (expect EXIT=0), commit with
-  `Agent: ai-maestro-autonomous-agent`, flip this card to `complete` with the SHA
-  in `implementation-commits:`.
+- **DONE (2026-07-23):** all 3 edits + the test landed in `3c27ced`. Suite: 113
+  passed. Card flipped to `complete`. NEXT ACTION for the board: none — this TRDD
+  is terminal; the persona change ships with the next `publish` (USER-gated).
 - **SUPERSEDED — do NOT carry forward:** none yet.
 - **Guardrail — do NOT relax:** Tier-2 MANAGER gate (baseline/release/cross-project/
   governance), Tier-3 USER gate (publish/push/owner-identity/golden/shared-credential),
