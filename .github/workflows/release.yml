@@ -86,10 +86,12 @@ jobs:
         run: |
           set +e
           # Pinned to the SAME CPV tag as ci.yml's validate job and publish.py's
-          # local gate. All three MUST agree: this workflow is the post-hoc net
-          # for a tag pushed around publish.py, so a laxer pin here would let a
-          # tag pass the safety net that the local gate would have rejected.
-          uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v3.1.0 \
+          # three local gate calls (Steps 4/5/5.5, now explicitly pinned — they
+          # previously floated to CPV's default branch). All four MUST agree:
+          # this workflow is the post-hoc net for a tag pushed around publish.py,
+          # so a laxer pin here would let a tag pass the safety net that the local
+          # gate would have rejected. Bump all four together (see TRDD-CPV320UP).
+          uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v3.2.0 \
             --with pyyaml \
             cpv-remote-validate plugin . --strict \
             > "$RUNNER_TEMP/cpv-validation-report.txt" 2>&1
