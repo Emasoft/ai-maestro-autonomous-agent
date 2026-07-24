@@ -221,3 +221,38 @@ def test_persona_r22_self_id_and_agent_trailer_uniform_on_github_writes() -> Non
     assert "every GitHub write" in text, "R22 rule must cover every GitHub write, not just AMP"
     assert re.search(r"Agent: ai-maestro-autonomous-agent.{0,12}trailer", text), "R22 rule must mandate the Agent: commit trailer"
     assert "R22 governs GitHub writes" in text, "persona must distinguish AMP self-id (AMP-only) from R22 (GitHub)"
+
+
+# ── issue #17 worker-side duties: drain inbox on wake, clone step 0, report NPT gap (2026-07-24, TRDD-WAKEDRN8) ──
+
+
+def test_persona_drains_inbox_first_and_mandate_is_a_work_order() -> None:
+    """Persona (#17): the wake sequence drains the AMP inbox FIRST and treats an inbound mandate as an actionable work order.
+
+    SCEN-031: a fresh AUTONOMOUS dev got a well-formed AMP build mandate and sat idle.
+    The startup checklist must lead with drain-first + mandate-is-a-work-order, while
+    keeping the status-report request as the SOLE exception (additive, no gate weakened).
+    """
+    text = PERSONA.read_text(encoding="utf-8")
+    assert "Drain your AMP inbox FIRST" in text, "startup checklist must lead with draining the inbox first"
+    assert re.search(r"a mandate is a build order", text), "persona must state a mandate is a build order to act on"
+    # The status-report exception is preserved but re-scoped as the ONE exception.
+    assert "The ONE exception is a\n   status-report request" in text or re.search(r"ONE exception is a\s+status-report request", text), "status-report request must remain the single exception"
+    # GUARD: the mandate-is-authorization invariant is untouched.
+    assert "A clear mandate is authorization to begin" in text, "the mandate-is-authorization rule must survive"
+
+
+def test_persona_clones_assigned_repo_as_step_0() -> None:
+    """Persona (#17): executing a build mandate clones the named repo as step 0, before building."""
+    text = PERSONA.read_text(encoding="utf-8")
+    assert "Executing an assigned build mandate" in text, "persona must document the build-mandate execution flow"
+    assert "Clone the repo as step 0" in text, "persona must make cloning the assigned repo step 0"
+    assert re.search(r"first concrete action of the build", text), "the clone must be framed as the first concrete build action"
+
+
+def test_persona_reports_the_npt_gap_never_sits_silent() -> None:
+    """Persona (#17): an unmet NPT prerequisite is held AND reported to the sender (receiver's duty), never held silently."""
+    text = PERSONA.read_text(encoding="utf-8")
+    assert re.search(r"Hold the NPT gate honestly", text), "persona must keep holding the NPT gate honest"
+    assert re.search(r"REPORT the unmet prerequisite\s+back to the sender", text), "persona must require reporting the unmet prerequisite to the sender"
+    assert re.search(r"silent hold is indistinguishable from a\s+stall", text), "persona must state a silent hold reads as a stall"
