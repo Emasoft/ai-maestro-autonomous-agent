@@ -90,8 +90,9 @@ jobs:
           # previously floated to CPV's default branch). All four MUST agree:
           # this workflow is the post-hoc net for a tag pushed around publish.py,
           # so a laxer pin here would let a tag pass the safety net that the local
-          # gate would have rejected. Bump all four together (see TRDD-CPV320UP).
-          uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v3.2.0 \
+          # gate would have rejected. Bump all four together (see TRDD-CPV320UP;
+          # v3.2.0 -> v3.5.0 bump TRDD-CPV350UP).
+          uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v3.5.0 \
             --with pyyaml \
             cpv-remote-validate plugin . --strict \
             > "$RUNNER_TEMP/cpv-validation-report.txt" 2>&1

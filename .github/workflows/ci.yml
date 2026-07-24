@@ -167,11 +167,12 @@ jobs:
         # vendor scripts/validate_plugin.py. Matches publish.py's local gate
         # so CI and local gate agree. Issue #11: do NOT call local
         # scripts/validate_plugin.py — it does not exist in scaffolded plugins.
-        # Root-cause #2: CPV is PINNED to @v3.2.0 so the cold
+        # Root-cause #2: CPV is PINNED to @v3.5.0 so the cold
         # uvx-from-git build is cached per tag and a stricter future CPV
         # release cannot break this gate with no plugin change. This pin
         # MUST match release.yml's gate and publish.py's three gate calls
-        # (Steps 4/5/5.5) — bump all four together (see TRDD-CPV320UP).
+        # (Steps 4/5/5.5) — bump all four together (see TRDD-CPV320UP;
+        # v3.2.0 -> v3.5.0 bump TRDD-CPV350UP).
         env:
           # Root-cause #4: on a fresh-checkout runner the local self-hash
           # manifest already matches the code, so CPV's GitHub-anchored
@@ -195,7 +196,7 @@ jobs:
           PLUGIN_REPO_LINT_PHASE_TIMEOUT: "600"
         run: |
           set +e
-          uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v3.2.0 \
+          uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v3.5.0 \
               --with pyyaml \
               cpv-remote-validate plugin . --strict \
               > "$RUNNER_TEMP/cpv-validation-report.txt" 2>&1
