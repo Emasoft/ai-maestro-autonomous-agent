@@ -1,14 +1,15 @@
 ---
 trdd-id: WAKEDRN8
 title: Persona worker-side duties — drain AMP inbox on wake, clone assigned repo as step 0, report the NPT gap
-column: dev
+column: complete
 created: 2026-07-24T16:07:42+0200
-updated: 2026-07-24T16:07:42+0200
+updated: 2026-07-24T16:12:30+0200
 current-owner: ai-maestro-autonomous-agent
 task-type: docs
 approval-tier: 2
 relevant-rules: [1]
 external-refs: [Emasoft/ai-maestro-autonomous-agent#17]
+implementation-commits: [2dcf7fa]
 ---
 
 ## ⏵ STATE — READ THIS FIRST ON RESUME (authoritative; supersedes the body) — 2026-07-24
@@ -75,5 +76,7 @@ governance authority's request in #17. FIX is authorized; SHIP (publish) stays U
 
 - 2026-07-24T16:07:42+0200 — Authored `dev` under the USER go-on-yourself mandate (Tier-2 change,
   USER is approver in standalone mode). Implements #17. Commit stays local; publish USER-gated.
+- 2026-07-24T16:12:30+0200 — COMPLETED. Impl `2dcf7fa` (persona + 3 guards). Full suite 100 passed,
+  ruff clean, MD004 clean. Commit local (unpushed); rides the next USER-approved publish.
 
 ## Notes and lessons learned
