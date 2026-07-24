@@ -47,6 +47,9 @@ agents) over AMP.
 - [[fork-delegation-under-autonomous-directive]] — why a forked sub-agent ignores a
   READ-ONLY mandate (it inherits the autonomous directive) and why its self-report must
   always be re-verified against live git + gates
+- [[persona-over-asking-mandate]] — the affirmative "a clear mandate authorizes starting"
+  persona rule (the over-asking bug was an ABSENCE, not a broken escalation ladder),
+  guarded by test_content_invariants.py
 - (lateral links to other functionality hubs, once they exist)
 
 ## Notes and lessons learned
