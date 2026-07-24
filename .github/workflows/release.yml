@@ -87,11 +87,12 @@ jobs:
           set +e
           # Pinned to the SAME CPV tag as ci.yml's validate job and publish.py's
           # three local gate calls (Steps 4/5/5.5, now explicitly pinned — they
-          # previously floated to CPV's default branch). All four MUST agree:
+          # previously floated to CPV's default branch). All FIVE sites MUST agree:
           # this workflow is the post-hoc net for a tag pushed around publish.py,
           # so a laxer pin here would let a tag pass the safety net that the local
-          # gate would have rejected. Bump all four together (see TRDD-CPV320UP;
-          # v3.2.0 -> v3.5.0 bump TRDD-CPV350UP).
+          # gate would have rejected. Bump all five together (see TRDD-CPV320UP;
+          # v3.2.0 -> v3.5.0 bump TRDD-CPV350UP). tests/test_cpv_pin_parity.py
+          # enforces this mechanically.
           uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v3.5.0 \
             --with pyyaml \
             cpv-remote-validate plugin . --strict \

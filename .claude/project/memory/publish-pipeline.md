@@ -179,7 +179,7 @@ corrected in [^5]).
   this one is buggy (it's prescribed in `pipeline-rules.md`, scaffolded by
   `generate_plugin_repo.py`, AND enforced by a test). Filed claude-plugins-validation#141.
   A guardrail comment now sits in both workflows so a future canon-upgrade doesn't re-add it.
-[^4]: [ocd:2026-06-20 lmd:2026-07-01] ⚠ PARTLY SUPERSEDED by [^5] (2026-07-01): this lesson's
+[^4]: [ocd:2026-06-20 lmd:2026-07-24, keywords:"fast_confirm_recipe_pinned_cpv_went_stale recipe_that_outlives_its_pin read_the_pin_from_the_live_pipeline obsolete_validator_returns_a_false_clean"] ⚠ PARTLY SUPERSEDED by [^5] (2026-07-01): this lesson's
   "ahead-of-canon exception" framing is INVERTED — the 2 workflow files are BEHIND canon (verified
   via the CPV unified diff). The `=runner` fast-confirm recipe below is STILL VALID (proves the
   tree is publish-clean), but its conclusion must read "BEHIND-and-porting", never "close as
@@ -192,7 +192,13 @@ corrected in [^5]).
   "superseded validate.yml" is this plugin's ACTIVE workflow, not a leftover); (c) the
   force-templates clobber is the USER-deferred item (TRDD-5c21e4a0). FAST-CONFIRM RECIPE — run
   this to prove the exception in one shot on any future re-ask / CPV bump:
-  `CLAUDE_PRIVATE_USERNAMES=runner uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v2.136.1 --with pyyaml cpv-remote-validate plugin . --strict`
+  `CLAUDE_PRIVATE_USERNAMES=runner uvx --from git+https://github.com/Emasoft/claude-plugins-validation@<PIN> --with pyyaml cpv-remote-validate plugin . --strict`
+  — read `<PIN>` from the live pipeline (`grep 'claude-plugins-validation@' .github/workflows/ci.yml`),
+  NEVER from this note. The recipe exists to re-prove the exception *against the CPV the
+  pipeline actually gates on*; it was written at `@v2.136.1` and the pipeline has since
+  moved (v3.1.0 → v3.2.0 → v3.5.0, TRDD-CPV320UP / TRDD-CPV350UP), so a verbatim re-run
+  would return EXIT=0 from an obsolete validator and "prove" canon-cleanliness against
+  canon nobody gates on.
   → expect EXIT=0, CRITICAL=0/MAJOR=0/MINOR=0/NIT=0, 7 non-blocking WARNINGs (the accepted
   ahead-of-canon drift). If it passes, the plugin IS canon-clean and the only "gap" is the
   deferred structural clobber: post the evidence on the tracker, recommend close-as-exception,

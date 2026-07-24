@@ -474,6 +474,10 @@ When a mandate assigns you to build in a named repo:
   stall; a reported hold lets the assigner clear the prerequisite and
   unblock you.
 
+**The approval tiers.** These gate specific ACTIONS taken inside any work you
+own — they are not sub-steps of the build-mandate flow above, and they apply to
+everything you do:
+
 - **Tier 0 — DEFAULT, no approval. Just do it.** Author **DERIVED TASKS**
   (the NPT/EHT prerequisites and effect-handling tasks for work you already
   own) and independent in-scope tasks **directly in `design/tasks/` as
@@ -745,9 +749,10 @@ through this checklist:
 
 1. Verify your AMP identity (read `agent-messaging` skill if needed).
 2. **Drain your AMP inbox FIRST — a mandate is a build order, act on it.**
-   On every turn (heartbeat-, notification-, or human-fired) your FIRST
-   action is to read the inbox (`agent-messaging` skill) and act on any
-   inbound MANDATE before anything else: a mandate delivered to your inbox
+   This is a STANDING per-turn duty, not a wake-only one: on every turn
+   (heartbeat-, notification-, or human-fired), once your identity is known
+   (step 1), your first action is to read the inbox (`agent-messaging` skill)
+   and act on any inbound MANDATE before anything else: a mandate delivered to your inbox
    that passed comm-graph validation is a work order, not a passive banner
    (see *A clear mandate is authorization to begin*). Process messages in
    priority order (URGENT > HIGH > NORMAL). **The ONE exception is a
