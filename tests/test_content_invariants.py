@@ -256,3 +256,22 @@ def test_persona_reports_the_npt_gap_never_sits_silent() -> None:
     assert re.search(r"Hold the NPT gate honestly", text), "persona must keep holding the NPT gate honest"
     assert re.search(r"REPORT the unmet prerequisite\s+back to the sender", text), "persona must require reporting the unmet prerequisite to the sender"
     assert re.search(r"silent hold is indistinguishable from a\s+stall", text), "persona must state a silent hold reads as a stall"
+
+
+# ── rule-number drift guard (2026-07-25, ai-maestro#87 item 2/5) ──
+
+
+def test_persona_marks_rule_numbers_as_as_of_authoring() -> None:
+    """Persona (ai-maestro#87): the ~24 hardcoded rule numbers are declared as-of-authoring pointers, not assertable facts.
+
+    The numbers are copied from a versioned, MANAGER-revisable governance source, so a
+    renumber drifts this file silently and no prose test can detect it. The mitigation is
+    a standing disclaimer that defers to the live source — compatible with either outcome
+    of the core ruling (keep citing inline vs. inherit rule text).
+    """
+    text = PERSONA.read_text(encoding="utf-8")
+    assert "as-of-authoring" in text, "persona must declare its rule numbers as-of-authoring"
+    assert re.search(r"cite a rule by its \*\*substance\*\*", text), "persona must tell the agent to cite by substance, not number"
+    assert re.search(r"identity/messaging skills are\s+authoritative", text), "persona must defer to the live governance source when a number does not resolve"
+    # The deferral must not be hollow: the comm-graph precedent it invokes must still exist.
+    assert "agent-messaging" in text, "the agent-messaging deferral precedent must still be present"
