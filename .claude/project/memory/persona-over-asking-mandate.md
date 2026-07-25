@@ -33,6 +33,9 @@ blocks a clear mandate. Plus a `tests/test_content_invariants.py` guard
 Tier-2/Tier-3 and status-report-≠-work-order survived — proving the fix is additive.
 Local `publish.py --gate` PARITY-CLEAN; 113 tests pass.
 
+The generalizable lesson — look for the ABSENT affirmative rule before auditing the
+escalation ladder — is [^1].
+
 See also [[governance-audit-handling]] (the same fix-in-`test_content_invariants.py`
 guard-in-the-same-batch methodology, and why a persona fix stays local until the
 USER-gated publish), [[architecture]].
