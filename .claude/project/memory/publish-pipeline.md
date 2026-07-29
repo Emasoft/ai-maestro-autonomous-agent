@@ -112,7 +112,7 @@ corrected in [^5]).
 
 ## Notes and lessons learned
 
-[^1]: [ocd:2026-06-18 lmd:2026-06-20] CPV `--strict` false-positives hit while
+[^1]: [id:ATOM-1V7C-4RBQ, status:valid, keywords:"CPV_strict_MAJOR_reference_to_non-existent_skill slash-separated_word_list_read_as_a_skill_path privilege_escalation_NIT_from_elevation_keyword_beside_password only_SKILL.md_is_skillaudit-scanned_references_are_not documenting_the_false_positive_re-trips_it_next_publish", ocd:2026-06-18, lmd:2026-06-20] CPV `--strict` false-positives hit while
   publishing v1.5.0 (R26–R40 governance propagation): (1) a slash-separated word
   list like `skills/subagents/hooks/MCP` (or `skill/subagent/hook`) in an **agent**
   file is read by CPV's skill-reference checker as a path `skills/<name>` →
@@ -136,7 +136,7 @@ corrected in [^5]).
   when a git-tracked, CPV-scanned file must mention the offending shape, describe it
   with a placeholder — never reproduce the literal label/identifier — or you re-block
   your own NEXT publish.
-[^2]: [ocd:2026-06-20 lmd:2026-07-01] ⚠ PARTLY SUPERSEDED by [^5] (2026-07-01): the
+[^2]: [id:ATOM-5N2G-9FTZ, status:valid, keywords:"fleet_directive_to_bring_the_pipeline_to_canonical do_NOT_force-templates_an_ahead-of-canon_file check_the_validator_PER-FILE_direction_first force-overwrite_would_regress_hardened_SHA_pins correct_response_is_no-op_plus_report partly_superseded_by_lesson_5", ocd:2026-06-20, lmd:2026-07-01] ⚠ PARTLY SUPERSEDED by [^5] (2026-07-01): the
   sub-claims below that `release.yml`/`notify-marketplace.yml` are "AHEAD of canon" carrying
   SBOM/build-provenance/SHA256SUMS canon lacks, and that canon pins OLDER SHAs, are VERIFIED
   FALSE — inverted; the plugin is BEHIND canon. The publish.py-custom-logic + USER-deferral
@@ -161,7 +161,7 @@ corrected in [^5]).
   validate step) — proposal TRDD-270ef961, gated on Tier-2 approval. A future `publish.py`
   canon alignment, if ever wanted, must be a reviewed 3-way merge + `--dry-run` +
   test-release, never a force-overwrite.
-[^3]: [ocd:2026-06-20 lmd:2026-06-20] When USER directed the CPV-canon additive
+[^3]: [id:ATOM-7Q3D-8KWM, status:valid, keywords:"CRITICAL_private_path_leaked_username_after_a_canon_upgrade CLAUDE_PRIVATE_USERNAMES_is_the_flag_list_NOT_an_allowlist never_set_it_to_github_repository_owner use_whoami_or_runner_never_the_owner_handle passed_locally_then_went_red_in_CI canon_example_contradicts_itself", ocd:2026-06-20, lmd:2026-06-20] When USER directed the CPV-canon additive
   upgrade (TRDD-270ef961), I implemented canon `pipeline-rules.md`'s CI "validate-step
   hardening" VERBATIM, including `env: CLAUDE_PRIVATE_USERNAMES: ${{ github.repository_owner }}`.
   v1.5.2 then went RED: 12 × `[CRITICAL] Private path leaked: username 'emasoft' …
@@ -179,7 +179,7 @@ corrected in [^5]).
   this one is buggy (it's prescribed in `pipeline-rules.md`, scaffolded by
   `generate_plugin_repo.py`, AND enforced by a test). Filed claude-plugins-validation#141.
   A guardrail comment now sits in both workflows so a future canon-upgrade doesn't re-add it.
-[^4]: [ocd:2026-06-20 lmd:2026-07-24, keywords:"fast_confirm_recipe_pinned_cpv_went_stale recipe_that_outlives_its_pin read_the_pin_from_the_live_pipeline obsolete_validator_returns_a_false_clean"] ⚠ PARTLY SUPERSEDED by [^5] (2026-07-01): this lesson's
+[^4]: [id:ATOM-6C1X-4VJT, status:valid, keywords:"fast_confirm_recipe_pinned_cpv_went_stale recipe_that_outlives_its_pin read_the_pin_from_the_live_pipeline obsolete_validator_returns_a_false_clean partly_superseded_by_lesson_5_ahead-of-canon_inverted", ocd:2026-06-20, lmd:2026-07-24] ⚠ PARTLY SUPERSEDED by [^5] (2026-07-01): this lesson's
   "ahead-of-canon exception" framing is INVERTED — the 2 workflow files are BEHIND canon (verified
   via the CPV unified diff). The `=runner` fast-confirm recipe below is STILL VALID (proves the
   tree is publish-clean), but its conclusion must read "BEHIND-and-porting", never "close as
@@ -206,7 +206,7 @@ corrected in [^5]).
   `=runner` is the canonical-safe value of `CLAUDE_PRIVATE_USERNAMES` in CI (= `$(whoami)` on a
   GitHub runner); this plugin OMITS it (equivalent — CI green proves it), explicit `=runner` is
   the canon form if ever wanted.
-[^5]: [ocd:2026-07-01 lmd:2026-07-01] The claim that `release.yml` + `notify-marketplace.yml`
+[^5]: [id:ATOM-2H6F-9LPW, status:valid, keywords:"CPV_says_the_workflow_is_AHEAD_of_canon_do_not_force-templates the_ahead-of-canon_sentence_is_a_hedged_heuristic_and_can_be_WRONG read_the_unified_diff_CPV_prints_beneath_the_warning a_prior_self-report_mine_or_a_fork's_is_not_evidence git_pickaxe_showed_the_feature_list_was_fabricated direction_inverted_the_plugin_is_BEHIND_canon", ocd:2026-07-01, lmd:2026-07-01] The claim that `release.yml` + `notify-marketplace.yml`
   are **AHEAD of canon**, carrying "SBOM + build-provenance + per-asset SHA256SUMS + a
   MARKETPLACE_PAT no-op guard canon lacks", that `--force-templates` "would DOWNGRADE" them, and
   that "canon pins OLDER SHAs" — recorded in [^2], the public **#11 v1.5.3 comment**, and the

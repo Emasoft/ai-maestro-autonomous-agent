@@ -54,7 +54,7 @@ persona governance fix that reused this exact verify→TRDD→fix+guard-in-same-
 process, but triggered by a direct USER bug report rather than a fleet audit).
 
 ## Notes and lessons learned
-[^1]: [ocd:2026-06-21 lmd:2026-06-21] WHY "verify HEAD first" is load-bearing:
+[^1]: [id:ATOM-6P4L-2QXR, status:valid, keywords:"audit_finding_prescribes_a_change_HEAD_already_has cited_line_numbers_are_stale_regrep_at_HEAD authorization_to_FIX_does_not_extend_to_SHIP complete_to_publish_is_a_non-exempt_tier-2_transition tempted_to_publish_the_fixes_to_close_the_loop", ocd:2026-06-21, lmd:2026-06-21] WHY "verify HEAD first" is load-bearing:
   finding D (#12) prescribed routing a raw `/api/agents/<id>/hibernate` through
   the CLI wrapper — but HEAD already did exactly that (the wrapper migration
   landed between the cached v1.3.3 and v1.5.3). Blind-applying it would have been
@@ -67,7 +67,7 @@ process, but triggered by a direct USER bug report rather than a fleet audit).
   the audit's authorization to FIX does not extend to SHIP. Keep the commit local
   (it rides the next approved publish) and report, rather than cutting an
   unapproved release.
-[^2]: [ocd:2026-07-01 lmd:2026-07-01] The #12 fixes (C/E/F4, commit `cd063ea`)
+[^2]: [id:ATOM-8W5T-7HJN, status:valid, keywords:"governance_fix_shipped_without_a_content-invariant_guard governance_prose_is_uncompiled_and_regresses_silently add_the_test_guard_in_the_SAME_commit_as_the_fix avoidable_rework_reopening_a_closed_fix_batch sweep_the_whole_cited_section_not_just_the_flagged_line", ocd:2026-07-01, lmd:2026-07-01] The #12 fixes (C/E/F4, commit `cd063ea`)
   shipped WITHOUT a `test_content_invariants.py` guard, even though that file's own
   docstring says it exists to guard "the governance fixes shipped per issue #6". A
   later go-on-yourself evaluation (2026-07-01) had to reopen the batch and add the guards
@@ -78,7 +78,7 @@ process, but triggered by a direct USER bug report rather than a fleet audit).
   defects the #12 pass missed (`status:`→`column:`, a deprecated MEMORY.md-index
   instruction) — TRDD-81RC6IXC — reinforcing that a governance edit should sweep the
   whole cited section for consistency, not just the flagged line.
-[^3]: [ocd:2026-07-01 lmd:2026-07-01] CPV `--strict` skillaudit fires SHELL_EXEC on
+[^3]: [id:ATOM-3Y9K-5MDV, status:valid, keywords:"CPV_strict_skillaudit_fires_SHELL_EXEC_on_plain_prose abbreviation_abutting_a_paren_matches_an_interpreter_call NIT_equals_1_blocks_the_publish_gate reword_the_prose_never_suppress_the_rule read_the_detector_patterns_before_neutralizing_on_a_guess", ocd:2026-07-01, lmd:2026-07-01] CPV `--strict` skillaudit fires SHELL_EXEC on
   PROSE that matches one of its code-execution regexes. Here an earlier draft wrote the
   short form of "evaluation" directly before a parenthesised date, matching the
   interpreter-call pattern → NIT=1, which BLOCKS the gate. Fix: spell the word out in full
