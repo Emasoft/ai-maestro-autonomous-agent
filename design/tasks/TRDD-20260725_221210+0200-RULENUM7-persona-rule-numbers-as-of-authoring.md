@@ -58,7 +58,7 @@ no dependency, so neither ruling invalidates it. The alternative — stripping t
 would have destroyed working navigational aids on a guess about a decision that is not mine.
 
 Persona trim was NOT attempted: this is a safety document whose prohibitions are the payload, and
-#87 itself flags that redundancy partly AIDS compliance. Trimming 30-40% of it on my own judgement,
+issue #87 itself flags that redundancy partly AIDS compliance. Trimming 30-40% of it on my own judgement,
 with only prose tests to catch a mistake, is exactly the class of change that should wait for the
 behavioral harness #87 asks core to build.
 
