@@ -1,8 +1,8 @@
 ---
 name: publish-pipeline
-description: "git push REFUSED by pre-push hook / 'every push MUST go through scripts/publish.py' — how do release + standalone doc commits actually reach origin; how to cut a release; is --force-templates / CPV canonical-migration safe on this plugin (publish.py + cliff.toml are now DECLARED intentional divergences so a force-template SKIPS them — the protection is machine-enforced, not a memory note; the canon workflow hardening was manually ported 2026-07-22; SBOM/provenance/SHA256SUMS are NOT APPLICABLE here — publish.py uploads no release assets) / which pre-push hook does git actually run, .githooks or git-hooks / the divergence declaration names a file git never executes / an interrupted publish skipped a version and nothing resolves it / why did the release commit reach origin with no tag / is the bump baseline really origin if nothing fetches"
+description: "git push REFUSED by pre-push hook / 'every push MUST go through scripts/publish.py' — how do release + standalone doc commits actually reach origin; how to cut a release; is --force-templates / CPV canonical-migration safe on this plugin (publish.py + cliff.toml are now DECLARED intentional divergences so a force-template SKIPS them — the protection is machine-enforced, not a memory note; the canon workflow hardening was manually ported 2026-07-22; SBOM/provenance/SHA256SUMS are NOT APPLICABLE here — publish.py uploads no release assets) / which pre-push hook does git actually run, .githooks or git-hooks / the divergence declaration names a file git never executes / an interrupted publish skipped a version and nothing resolves it / why did the release commit reach origin with no tag / is the bump baseline really origin if nothing fetches / is the publish gate ACTUALLY green right now, or am I quoting an inherited EXIT=0 / the gate fails with exit 4 on a single NIT / markdownlint MD018 on a line starting with an issue reference / --gate exit 1 means a dirty tree, not a validation verdict"
 ocd: 2026-06-16
-lmd: 2026-07-22
+lmd: 2026-08-01
 metadata:
   node_type: memory
   type: project
@@ -72,6 +72,10 @@ unpushed `docs(trdd)` commit to origin. Do **not** bypass the hook with
 The publish gate runs **CPV `--strict`** (Step 5) and BLOCKS on any
 CRITICAL/MAJOR/MINOR/NIT. Two phrasing FALSE-POSITIVES recur when editing the
 persona/skills — reword the *shape* to clear them, never suppress the rule.[^1]
+A THIRD lives in ordinary prose, not just persona/skills: markdownlint **MD018** on any
+line beginning `#<non-space>` (a GitHub issue reference at column 1). A lone NIT is
+enough to hold the whole release, so **re-run the gate — never quote an inherited
+`EXIT=0`**, which is a snapshot a later commit can invalidate in silence.[^9]
 
 **`--force-templates` protection is now DECLARED, not remembered.** `publish.py` and
 `cliff.toml` are listed in `plugin.json` → `cpv.pipeline.intentional_divergence`, so a
@@ -275,3 +279,15 @@ corrected in [^5]).
   DO fetch before reading, read-only and non-fatal so offline falls back to prior behavior.
   Third instance in one day of one defect class: a guarantee stated more broadly than the
   mechanism delivers (see also [^7] and the hook's "rejects any shell" claim).
+[^9]: [id:ATOM-GATE-CLAIM-IS-A-SNAPSHOT, status:valid, keywords:"handoff_said_gate_EXIT=0_and_it_was_red is_the_publish_gate_actually_green_right_now inherited_a_verification_result_and_repeated_it_for_hours a_single_NIT_blocks_cpv_strict markdownlint_MD018_on_a_line_starting_with_an_issue_reference re-run_the_gate_before_asserting_publish-ready", ocd:2026-08-01, lmd:2026-08-01]
+  DO NOT repeat a handoff's `--gate EXIT=0` (or any verification result) as a CURRENT fact — RE-RUN
+  it before telling anyone the release is ready, BECAUSE a verify block is a SNAPSHOT that later
+  commits invalidate silently: the gate had been RED (exit 4) since `adcd6bd` added a TRDD whose
+  line 61 began `#87 itself flags …`, which markdownlint MD018 reads as a malformed ATX heading —
+  and under `cpv-remote-validate --strict` a lone **NIT blocks** (CRITICAL/MAJOR/MINOR were all 0).
+  The handoff listed `adcd6bd` as completed work AND claimed EXIT=0 in the same file, so it
+  contradicted itself and was carried across a compaction and hours of status lines unchallenged.
+  DO run `uv run python scripts/publish.py --gate` yourself (needs a CLEAN tree — an uncommitted fix
+  makes Step 1 fail with exit 1, which is not a validation verdict). Fix by REWORDING the prose, never
+  by an MD018 exception — see [^1]/[^3] for the same "fix the shape, keep the detector honest" rule.
+  Sweep the corpus for siblings first: `git ls-files '*.md' | xargs grep -nE '^#[^ #]'`.
