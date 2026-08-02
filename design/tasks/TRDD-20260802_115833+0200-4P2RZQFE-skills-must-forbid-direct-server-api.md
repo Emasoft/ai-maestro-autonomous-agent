@@ -1,15 +1,15 @@
 ---
 trdd-id: 4P2RZQFE
 title: Skills must instruct the CLI wrappers and forbid direct ai-maestro server API calls
-column: dev
+column: complete
 created: 2026-08-02T11:58:33+0200
-updated: 2026-08-02T11:58:33+0200
+updated: 2026-08-02T12:14:07+0200
 current-owner: ai-maestro-autonomous-agent
 task-type: security
 approval-tier: 2
 relevant-rules: [1]
 external-refs: []
-implementation-commits: []
+implementation-commits: [2f3df20]
 ---
 
 ## ⏵ STATE — READ THIS FIRST ON RESUME (authoritative; supersedes the body) — 2026-08-02
@@ -27,7 +27,8 @@ implementation-commits: []
   question for it. A rule that is not a checklist question is a rule the audit cannot catch.
 - D: Add **Q13 — Direct-server-API check** to the governance self-audit (12 → 13 questions),
   state the rule in all three `SKILL.md` files, and guard it with a content-invariant test.
-- NEXT ACTION: none — implemented; see Verify.
+- P: suite **103 passed** (101 + 2 new guards, both falsified); `publish.py --gate` **exit 0**.
+- NEXT ACTION: none — implemented in 2f3df20 and shipping in the next release.
 
 ## Why the persona alone was not enough
 
