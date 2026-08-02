@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.5] - 2026-08-02
+
+### Bug Fixes
+
+- **persona:** Drain AMP inbox on wake, clone assigned repo step 0, report the NPT gap (issue #17, TRDD-WAKEDRN8) (2dcf7fa)
+- **review:** Harden the CPV pin-parity guard, correct the gate count, unmerge the persona tier list (TRDD-CRFIX6MD) (86d0adb)
+- **persona:** Mark rule numbers as as-of-authoring pointers, not assertable facts (ai-maestro#87, TRDD-RULENUM7) (adcd6bd)
+- **lint:** Unblock the CPV strict gate — MD018 on a line starting with #87 (TRDD-RULENUM7) (1a46f38)
+
+### Documentation
+
+- **trdd:** Flip TRDD-CPV320UP to complete (impl 52cac30) (6f9b699)
+- **memory:** Hooksfix is a NON-bug — correct [^7], the divergence hook decl is right (TRDD-HOOKDIVG) (5033576)
+- **trdd:** Flip TRDD-CPV350UP to complete (impl 90f684e) (186a283)
+- **trdd:** Flip TRDD-WAKEDRN8 to complete (impl 2dcf7fa) (444f16f)
+- **memory:** Wire reciprocal [[persona-over-asking-mandate]] back-link in architecture hub (LINK LAW) (b56f6f2)
+- **memory:** Reference the orphaned [^1] lesson from the body (librarian page-shape) (9df3d8c)
+- **memory:** Backfill stable ids + symptom keywords on 8 pre-ATOM lessons (4698bbd)
+- **memory:** Record that an inherited `--gate EXIT=0` is a snapshot, not a fact (ATOM-GATE-CLAIM-IS-A-SNAPSHOT) (49b5ade)
+- **trdd:** Flip TRDD-4P2RZQFE to complete (impl 2f3df20) (0a979b6)
+
+### Features
+
+- **skills:** Forbid direct ai-maestro server API calls in every skill (TRDD-4P2RZQFE) (2f3df20)
+
+### Miscellaneous Tasks
+
+- **cpv:** Adopt v3.2.0 and make the three-way gate pin parity real (TRDD-CPV320UP) (52cac30)
+- **cpv:** Adopt v3.5.0 across the pipeline in lockstep (TRDD-CPV350UP) (90f684e)
+
+### Testing
+
+- **cpv:** Guard CPV gate-pin parity against drift/re-float (TRDD-CPVPINGD) (79b5d2f)
 ## [1.5.4] - 2026-07-23
 
 ### Bug Fixes
