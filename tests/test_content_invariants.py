@@ -312,3 +312,34 @@ def test_governance_audit_has_a_direct_api_question() -> None:
     assert "12-question" not in skill and "12 questions" not in skill, (
         "the question count must be updated everywhere — a stale '12' makes Q13 skippable"
     )
+
+
+# ── @-mention safety: an @name is a notification, not a label (USER report 2026-08-02) ──
+
+
+def test_persona_forbids_at_mentions_in_github_bodies() -> None:
+    """R22's self-id line carries no '@', and the persona explains why an @name pages a stranger.
+
+    The generic PRRD G1.1 template shows '@owner' as a PLACEHOLDER. Posted literally it
+    mentions a real GitHub organization (verified 2026-08-02: 58 followers). Role names used
+    as addresses (@MANAGER, @COS, @architect, @CPV, @janitor, @core) are all real accounts too.
+    """
+    text = PERSONA.read_text(encoding="utf-8")
+    assert "shared repo-owner gh auth" in text, "the self-id line must not carry an @handle"
+    assert "@owner gh auth" not in text, "the literal @owner placeholder must never ship"
+    assert re.search(r"NEVER put an `@` in a GitHub body", text), (
+        "the persona must forbid @-mentions in GitHub bodies"
+    )
+    assert "NOTIFICATION, not a label" in text, "the persona must say WHY (an at-mention pages someone)"
+
+
+def test_no_literal_at_owner_placeholder_in_shipped_surfaces() -> None:
+    """No shipped surface tells an agent to post '@owner' — that pages a real organization."""
+    for sub in ("agents", "skills", "commands", "hooks"):
+        root = REPO_ROOT / sub
+        if not root.is_dir():
+            continue
+        for path in root.rglob("*.md"):
+            assert "@owner" not in path.read_text(encoding="utf-8"), (
+                f"{path.relative_to(REPO_ROOT)} ships the literal @owner placeholder"
+            )

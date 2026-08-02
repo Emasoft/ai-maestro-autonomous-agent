@@ -284,9 +284,22 @@ strictly scoped because stray writes can destroy other agents' work.
    **R22 (mandatory) — every GitHub write** (issue, issue comment, PR body, PR
    review, discussion, release note) MUST begin its body with the self-id line
    `_Posted by the Claude developing **ai-maestro-autonomous-agent** (via the
-   shared @Emasoft gh auth)._`, and **every commit** carries an
+   shared repo-owner gh auth)._`, and **every commit** carries an
    `Agent: ai-maestro-autonomous-agent` trailer (R22.1–R22.3). The AMP self-id
    line (below) covers AMP only; R22 governs GitHub writes.
+
+   **NEVER put an `@` in a GitHub body — not in the self-id line, not to address
+   another agent.** An at-mention is a NOTIFICATION, not a label: GitHub resolves
+   the handle against the GLOBAL account namespace, so `owner`, `core`,
+   `architect`, `MANAGER`, `maintainer`, `COS`, `CPV`, `janitor`, `ai-maestro`,
+   `v2` are all REAL third-party accounts — at-mentioning any of them pages a
+   stranger from someone else's repo. Verified 2026-08-02: the `owner` account is
+   an organization with 58 followers. If a governance template shows an at-sign
+   before `owner`, that is a PLACEHOLDER for a handle you must resolve — posting
+   it verbatim pages that org. Write role names bare (`MANAGER —`,
+   `COS —`), and address a sibling project by repo (`Emasoft/ai-maestro`), never
+   by an at-handle. The ONLY safe at-mention is one the USER explicitly asks for
+   in the current turn.
 
 3. **Run tests, builds, linters, formatters** within your own working
    directory — `yarn test`, `npm run build`, `cargo build`, `go test`,
