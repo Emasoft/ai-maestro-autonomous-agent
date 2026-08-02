@@ -11,6 +11,15 @@ allowed-tools: "Read, Glob, Grep, Bash(git:*), Bash(uv:*)"
 The AUTONOMOUS governance rule: **READ anywhere, WRITE only inside
 your own agent working directory and system scratch.**
 
+**Server state is not a path — it is a CLI call (R23).** Anything held by
+the AI Maestro server (agent registry, teams, governance) is mutated ONLY
+through the frozen CLI scripts — `aimaestro-agent.sh`, `aimaestro-teams.sh`,
+the messaging wrappers. **Never call a server HTTP route (`/api/*`)
+directly**, with any client. Editing the backing JSON under `~/.aimaestro/`
+and calling the route are the same violation by two different doors; the
+CLI is the only sanctioned one, because it runs the pipeline gates both
+shortcuts bypass.
+
 ## Overview
 
 Writes allowed in three places only: (1) the agent's own working dir,

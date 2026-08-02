@@ -17,6 +17,13 @@ is HUMAN: USER substitutes for MANAGER on every non-exempt approval.
 For universal mechanics, see the `prrd-trdd-kanban` skill in
 `ai-maestro-plugin`.
 
+**Every board/PRRD operation that reaches the AI Maestro server goes
+through the frozen CLI (R23)** — the `*.py` helpers named in
+`allowed-tools` above, plus `aimaestro-agent.sh` / `aimaestro-teams.sh`.
+**Never call a server HTTP route (`/api/*`) directly**, with any client:
+the CLI runs the approval and audit gates a raw route bypasses, so a
+direct call can land a column change that no approval log records.
+
 ## Prerequisites
 
 The universal `prrd-trdd-kanban` skill (in `ai-maestro-plugin`) must be

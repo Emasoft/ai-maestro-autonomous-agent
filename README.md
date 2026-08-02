@@ -48,6 +48,10 @@ With `ai-maestro-autonomous-agent` installed, an AUTONOMOUS agent has:
 - A comprehensive forbidden-actions list (no cross-agent mutation, no
   destructive git on shared branches, no unauthorized PR merges, no
   secret access, no user-scope plugin installation)
+- The CLI/API separation (R23): every interaction with the AI Maestro
+  server goes through the frozen CLI scripts — never a raw `/api/*`
+  HTTP route. Stated in the persona **and in every skill**, and checked
+  by the self-audit as Q13, because skills load in isolation
 - A strict AMP messaging discipline per the communication graph
 - Collaboration rules for PR review with MAINTAINERs (never merges its
   own PRs; always waits for the repo's MAINTAINER)

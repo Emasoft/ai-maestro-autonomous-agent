@@ -2,10 +2,10 @@
 
 ## Table of Contents
 
-- [The 12 questions](#the-12-questions)
+- [The 13 questions](#the-13-questions)
 - [Edge cases](#edge-cases)
 
-## The 12 questions
+## The 13 questions
 
 Each question returns ALLOWED or FORBIDDEN. Stop at the first FORBIDDEN.
 
@@ -32,6 +32,8 @@ Each question returns ALLOWED or FORBIDDEN. Stop at the first FORBIDDEN.
 **Q11 Identity self-change check** — Does my action change my OWN governance `TITLE`, role-plugin (`ROLE`), `NAME`, or `AID` token (by ANY means — editing local config, running `aimaestro-agent.sh update <my-id>` on myself, etc.)? If YES → **FORBIDDEN**. My identity is immutable to me (R26); only the USER (MAESTRO) or MANAGER may change it — surface the request to them.
 
 **Q12 Credential-passthrough check** — Does my action supply, request, or pass through a sudo / governance **password** (an `X-Sudo-Token`, a `--password` value, etc.)? If YES → **FORBIDDEN**. Agents never sudo (R32); I authenticate by AID + portfolio token (R28). A deployed CLI that demands `--password` is a USER/UI residual — surface the operation to the MAESTRO (who supplies it via the UI); never supply it myself.
+
+**Q13 Direct-server-API check** — Does my action reach the AI Maestro server by any transport OTHER than the frozen CLI scripts (`aimaestro-agent.sh`, `aimaestro-teams.sh`, the messaging wrappers)? That includes `curl`, `wget`, `requests`/`httpx`, `fetch`, an MCP HTTP tool, or any hand-built request to an `/api/*` route — whether it reads or writes. If YES → **FORBIDDEN**. Re-express the operation as a CLI invocation; if no CLI verb covers it, that is a gap to surface to MANAGER, not a licence to call the route. Two independent reasons, both load-bearing: (1) the CLI runs the pipeline gates — validation, governance checks, audit logging — that a raw route bypasses entirely, so a direct call is unaudited even when it "works"; (2) server routes are renameable while the CLI is the frozen interface (R23), so route-coupled code breaks silently on a server release. This mirrors the persona's FORBIDDEN ACTION #2; it is repeated here because a skill is loaded in isolation and the checklist is what gets consulted at decision time.
 
 ## Edge cases
 

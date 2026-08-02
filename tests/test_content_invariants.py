@@ -275,3 +275,40 @@ def test_persona_marks_rule_numbers_as_as_of_authoring() -> None:
     assert re.search(r"identity/messaging skills are\s+authoritative", text), "persona must defer to the live governance source when a number does not resolve"
     # The deferral must not be hollow: the comm-graph precedent it invokes must still exist.
     assert "agent-messaging" in text, "the agent-messaging deferral precedent must still be present"
+
+
+# ── issue: direct ai-maestro server API calls (USER directive 2026-08-02, TRDD-4P2RZQFE) ──
+
+GOVERNANCE_SKILL = REPO_ROOT / "skills" / "ai-maestro-autonomous-governance" / "SKILL.md"
+ISOLATION_SKILL = REPO_ROOT / "skills" / "ai-maestro-autonomous-workspace-isolation" / "SKILL.md"
+
+
+def test_every_skill_forbids_direct_server_api() -> None:
+    """Every SKILL.md instructs the frozen CLI and forbids a raw /api/* server call (R23).
+
+    The persona already carried this as FORBIDDEN ACTION #2, but skills load on demand and
+    IN ISOLATION — an agent consulting only a skill would never see it. The USER declared
+    the CLI/API separation an iron rule and required it be instructed in the SKILLS.
+    """
+    for skill in (GOVERNANCE_SKILL, KANBAN, ISOLATION_SKILL):
+        text = skill.read_text(encoding="utf-8")
+        assert "/api/" in text, f"{skill.name} must name the forbidden raw route shape"
+        assert re.search(r"[Nn]ever call a server\s+HTTP route", text), (
+            f"{skill.name} must forbid calling a server HTTP route directly"
+        )
+        assert "R23" in text, f"{skill.name} must cite the frozen-interface rule R23"
+        assert re.search(r"aimaestro-(agent|teams)\.sh|\*\.py. helpers|frozen CLI", text), (
+            f"{skill.name} must name the CLI that replaces the direct call"
+        )
+
+
+def test_governance_audit_has_a_direct_api_question() -> None:
+    """The self-audit carries Q13; a rule with no checklist question is one the audit can't catch."""
+    questions = QUESTIONS.read_text(encoding="utf-8")
+    assert "**Q13 Direct-server-API check**" in questions, "questions.md must define Q13"
+    assert "aimaestro-agent.sh" in questions, "Q13 must name the CLI that replaces the raw call"
+    skill = GOVERNANCE_SKILL.read_text(encoding="utf-8")
+    assert "Q13 Direct-server-API check" in skill, "the SKILL.md checklist must list Q13"
+    assert "12-question" not in skill and "12 questions" not in skill, (
+        "the question count must be updated everywhere — a stale '12' makes Q13 skippable"
+    )
