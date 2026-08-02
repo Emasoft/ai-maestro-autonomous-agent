@@ -1,6 +1,6 @@
 ---
-prrd-version: 1.1
-updated: 2026-06-11T11:24:03+0200
+prrd-version: 1.2
+updated: 2026-08-02T13:07:11+0200
 project: ai-maestro-autonomous-agent
 project-id: autonomous
 canonical-source: design/requirements/PRRD.md
@@ -27,7 +27,8 @@ spec: `~/.claude/rules/prrd-design-rules.md`.
 
 ## 🥇 GOLDEN — set by the USER (immutable to MANAGER)
 
-- **G1.1** — Every agent that writes to GitHub (issue, issue comment, PR, PR comment, PR review, discussion, release note) MUST begin the body with a one-line self-identification of which agent/role/plugin authored it, because all AI Maestro agents share the single human-owner GitHub identity (the owner's gh CLI auth). Recommended leading line: _Posted by the Claude developing **<plugin-or-role>** (via the shared @owner gh auth)._ Commit messages SHOULD carry an `Agent: <role>` trailer.
+- **G1.2** — Every agent that writes to GitHub (issue, issue comment, PR, PR comment, PR review, discussion, release note) MUST begin the body with a one-line self-identification of which agent/role/plugin authored it, because all AI Maestro agents share the single human-owner GitHub identity (the owner's gh CLI auth). Leading line: _Posted by the Claude developing **&lt;plugin-or-role&gt;** (via the shared repo-owner gh auth)._ Commit messages SHOULD carry an `Agent: <role>` trailer.
+- **G8.1** — NEVER write an at-mention (`@` + a name) in GitHub prose — issue, comment, PR, review, discussion, or release note. GitHub resolves the handle against the GLOBAL account namespace and NOTIFIES it, so a placeholder or a role name is a page sent to a stranger: measured 2026-08-02, `owner`, `core`, `manager`, `janitor`, `architect`, `maintainer`, `cos`, `cpv`, `ai-maestro`, `v2`, `v4` are all real accounts, and 27 live mentions across this fleet's repos had to be retracted. Handles are case-INSENSITIVE, so `MANAGER` and `manager` are one account. Address a role in plain words (`the manager agent`), a sibling project by repo slug (`Emasoft/ai-maestro`), and when a literal `@` is unavoidable — an action pin, a URL, an email — put it in backticks or a fenced block, where GitHub does NOT notify. A placeholder in a template MUST be angle-bracketed (`<handle>`), never a bare at-name: a bare one looks like finished text and gets pasted verbatim, which is exactly how G1.1 leaked.
 
 ## 🥈 SILVER — MANAGER-mutable (AUTONOMOUS proposes directly to MANAGER; no COS)
 
@@ -36,4 +37,4 @@ spec: `~/.claude/rules/prrd-design-rules.md`.
 - **S4.1** — The README `**Version**:` line and the persona `**Plugin**: … vX.Y.Z` line MUST equal `plugin.json` `version`. `publish.py`'s `check_version_consistency()` enforces this and `do_bump()` keeps all four sources (plugin.json, pyproject.toml, README, persona) in sync on every release.
 - **S5.1** — The persona's encoded R6 communication-graph version MUST track the AI Maestro server's current graph (presently **v3**: COS guards the team boundary; MANAGER reaches team-internal titles only via COS). A server graph change requires updating the persona, the governance skill, and this PRRD in the same release.
 - **S6.1** — TRDDs use the v2 `column:` schema and live under the 4-zone `design/{proposals,tasks,refused,archived}` layout. A proposal is authorized (`proposal → planned`) by `git mv` from `design/proposals/` to `design/tasks/`; terminal TRDDs move to `design/archived/` (completed/cancelled/superseded) or `design/refused/` (never-approved).
-- **S7.1** — Every GitHub post AND every AMP message body leads with the self-id line `This is the Claude responsible for the ai-maestro-autonomous-agent project.` — extending golden G1.1 from GitHub posts to AMP bodies so a shared-identity reader can tell which Claude authored the message.
+- **S7.1** — Every GitHub post AND every AMP message body leads with the self-id line `This is the Claude responsible for the ai-maestro-autonomous-agent project.` — extending golden G1 from GitHub posts to AMP bodies so a shared-identity reader can tell which Claude authored the message.

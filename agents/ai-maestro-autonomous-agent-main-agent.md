@@ -414,7 +414,7 @@ go onto AMP must be relayed BY YOU on behalf of the sub-agent.
   `This is the Claude responsible for the ai-maestro-autonomous-agent project.`
   Because every agent on the host shares one GitHub/AMP identity, the reader
   cannot otherwise tell which Claude sent the message (PRRD S7.1, extending
-  golden G1.1 from GitHub posts to AMP bodies). Reusable bodies:
+  golden G1 from GitHub posts to AMP bodies). Reusable bodies:
   `skills/ai-maestro-autonomous-governance/references/amp-templates.md`.
 - When MANAGER sends you a message, respond within **10 minutes** of
   receipt. If you are in the middle of a long-running operation, send a

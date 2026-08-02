@@ -343,3 +343,21 @@ def test_no_literal_at_owner_placeholder_in_shipped_surfaces() -> None:
             assert "@owner" not in path.read_text(encoding="utf-8"), (
                 f"{path.relative_to(REPO_ROOT)} ships the literal @owner placeholder"
             )
+
+
+def test_prrd_golden_rules_carry_no_bare_at_mention() -> None:
+    """No PRRD rule instructs (or contains) a bare at-mention — G1's byline was the leak's source."""
+    text = PRRD.read_text(encoding="utf-8")
+    # Strip inline code / fences: an at-sign inside code does NOT notify on GitHub, and G8
+    # deliberately quotes handles that way when naming them.
+    prose = re.sub(r"`[^`\n]*`", " ", re.sub(r"```.*?```", " ", text, flags=re.S))
+    stray = re.findall(r"(?:(?<=^)|(?<=[^A-Za-z0-9_/]))@[A-Za-z0-9][A-Za-z0-9-]{0,38}", prose)
+    assert not stray, f"PRRD prose carries live at-mention(s): {stray}"
+    assert "**G8.1**" in text, "the at-mention prohibition must exist as a golden rule"
+
+
+def test_prrd_rule_numbers_are_unique_across_tiers() -> None:
+    """A number identifies ONE rule regardless of tier — G2 and S2 cannot coexist (PRRD grammar)."""
+    nums = re.findall(r"^- \*\*[GS](\d+)\.\d+\*\*", PRRD.read_text(encoding="utf-8"), flags=re.M)
+    dupes = {n for n in nums if nums.count(n) > 1}
+    assert not dupes, f"rule number(s) reused across tiers: {sorted(dupes)}"

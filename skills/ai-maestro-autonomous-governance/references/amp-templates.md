@@ -1,6 +1,6 @@
 # AMP message templates (AUTONOMOUS)
 
-Every AMP message body **leads with the self-id line** (PRRD S7.1 / golden G1.1
+Every AMP message body **leads with the self-id line** (PRRD S7.1 / golden G1
 extended): `This is the Claude responsible for the ai-maestro-autonomous-agent
 project.` Because all agents on the host share one GitHub/AMP identity, this
 line is how the reader knows which Claude sent the message. Fill the

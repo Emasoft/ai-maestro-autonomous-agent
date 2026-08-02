@@ -38,7 +38,7 @@ in the SAME batch — that file IS the project's home for governance-fix guards,
 shipping a fix without its guard leaves the exact gap a later evaluation must reopen [^2];
 (4) verify CPV `--strict` green; (5) commit to `main` locally (rides the next
 `publish.py` push — see [[publish-pipeline]]); (6) comment on the issue + report to
-MANAGER with the per-finding table, self-id per G1.1; recommend close.
+MANAGER with the per-finding table, self-id per G1; recommend close.
 
 **The split that matters:** the MANAGER audit authorizes MAKING the doc/governance
 fixes (Tier-2, the issue IS the approval). **PUBLISHING** the release that ships
