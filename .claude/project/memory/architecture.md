@@ -1,8 +1,8 @@
 ---
 name: architecture
-description: "how does ai-maestro-autonomous-agent work — overview, the main parts (persona, skills, publish pipeline), where the key pieces live"
+description: "how does ai-maestro-autonomous-agent work — overview, the main parts (persona, skills, publish pipeline), where the key pieces live / where must a behavioral rule be stated to actually bind the agent — is the persona enough / why is the same rule repeated in every skill"
 ocd: 2026-06-16
-lmd: 2026-06-16
+lmd: 2026-08-02
 metadata:
   node_type: memory
   type: project
@@ -37,6 +37,23 @@ agents) over AMP.
 - **Design** — `design/`: `requirements/PRRD.md` (project rules) +
   `tasks/`/`proposals/`/`archived/`/`refused/` (TRDD lifecycle).
 
+## Where a rule must live to actually bind (persona vs skills)
+
+The persona is the always-loaded contract, but **skills load on demand and in
+ISOLATION** — an agent may consult one skill and never see the persona's rule. So a
+behavioral rule that an agent could plausibly check *while deciding* must be stated in
+BOTH, and, if the governance self-audit is the place the decision gets made, must exist
+as a **checklist question** there. Deliberate redundancy, not duplication-by-accident:
+each of the three skills repeats the CLI/API rule because any one can be loaded without
+the other two.
+
+Worked example (v1.5.5, TRDD-4P2RZQFE): R23 — every server interaction goes through the
+frozen CLI (`aimaestro-agent.sh`, `aimaestro-teams.sh`), never a raw `/api/*` route — was
+in the persona as FORBIDDEN ACTION #2 and in no `SKILL.md`. The self-audit's 12 questions
+never asked about transport, so it would have answered ALLOWED for the exact HTTP mutation
+the persona forbids. Fixed by adding **Q13 Direct-server-API check** + the rule in all
+three skills, guarded by `test_every_skill_forbids_direct_server_api`.[^1]
+
 ## Applies to
 - [[governance-audit-handling]] — how a fleet / MANAGER governance audit is
   verified-against-live-HEAD then fixed, and the fix-vs-publish Tier-2 split.
@@ -53,3 +70,11 @@ agents) over AMP.
 - (lateral links to other functionality hubs, once they exist)
 
 ## Notes and lessons learned
+[^1]: [id:ATOM-ARCH01-RULEPLACEMENT, status:valid, keywords:"the_persona_already_forbids_it_so_we_are_compliant rule_in_persona_but_not_in_any_SKILL.md self_audit_returns_ALLOWED_for_a_forbidden_action skills_load_on_demand_and_in_isolation where_must_a_rule_live_to_bind_the_agent repeating_a_rule_in_every_skill_is_deliberate", ocd:2026-08-02, lmd:2026-08-02]
+  DO NOT accept "the persona already forbids it" as evidence this plugin INSTRUCTS a rule,
+  BECAUSE skills load on demand and in ISOLATION: R23 (frozen CLI, never a raw `/api/*`)
+  sat in the persona while the governance self-audit's 12 questions never asked about
+  transport — so the checklist an agent consults AT DECISION TIME would have returned
+  ALLOWED for the very mutation FORBIDDEN ACTION #2 prohibits. DO state such a rule in
+  every `SKILL.md` AND as a checklist question, then guard it with a content test; the
+  repetition across skills is deliberate, since any one can load without the others.
