@@ -22,7 +22,7 @@ through the frozen CLI (R23)** — the `*.py` helpers named in
 `allowed-tools` above, plus `aimaestro-agent.sh` / `aimaestro-teams.sh`.
 **Never call a server HTTP route (`/api/*`) directly**, with any client:
 the CLI runs the approval and audit gates a raw route bypasses, so a
-direct call can land a column change that no approval log records.
+direct call can land a column change that no approval log records. Binds hooks and scripts too, and routes that only look read-only.
 
 ## Prerequisites
 

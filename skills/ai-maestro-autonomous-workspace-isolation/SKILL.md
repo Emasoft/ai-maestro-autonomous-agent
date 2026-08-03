@@ -18,7 +18,7 @@ the messaging wrappers. **Never call a server HTTP route (`/api/*`)
 directly**, with any client. Editing the backing JSON under `~/.aimaestro/`
 and calling the route are the same violation by two different doors; the
 CLI is the only sanctioned one, because it runs the pipeline gates both
-shortcuts bypass.
+shortcuts bypass. Binds hooks and scripts too, and routes that only look read-only.
 
 ## Overview
 

@@ -19,6 +19,9 @@ Maestro server goes through the frozen CLI scripts — `aimaestro-agent.sh`,
 HTTP route (`/api/*`) directly**, with any client (`curl`, `requests`,
 `fetch`, an MCP HTTP tool). The CLI runs the pipeline gates a raw route
 bypasses, and server routes are renameable while the CLI is frozen.
+It holds for routes that merely LOOK read-only, and it binds **hooks and
+scripts**, not just skills — a hook runs with no skill loaded, so "no skill
+instructed it" is structurally true there rather than an oversight.
 
 ## Overview
 
