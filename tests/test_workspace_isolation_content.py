@@ -51,3 +51,41 @@ def test_layers_forbid_cross_agent_write_and_destructive_push() -> None:
     assert "--force" in text and "--mirror" in text
     # legitimate push is only onto an agent-created branch of a host-user repo
     assert "agent-created branch" in text
+
+
+def test_path_check_canonicalizes_before_comparing() -> None:
+    """Both shipped path checks resolve symlinks first — a glob on the typed string is not a scope check.
+
+    Regression guard for TRDD-9ZH31KC8: the original check was
+    `case "$TARGET" in $HOME/agents/$MY_AGENT_NAME/*)`, which approves a write through a
+    symlink inside the agent's own workdir that points at another agent's directory.
+    """
+    for path in (LAYERS, SKILL):
+        text = path.read_text(encoding="utf-8")
+        assert "os.path.realpath" in text, f"{path.name} must resolve symlinks before comparing"
+        assert 'case "$TARGET_REAL" in' in text, f"{path.name} must switch on the RESOLVED path"
+        assert 'case "$TARGET" in' not in text, (
+            f"{path.name} still compares the un-resolved path — that approves a symlink escape"
+        )
+
+
+def test_layers_refuses_writes_through_a_hard_link() -> None:
+    """realpath cannot see a hard link (no second path to resolve), so the check refuses link count > 1.
+
+    The probe must read st_nlink via python3, never `stat`: `-f` is "format" on BSD and
+    "--file-system" on GNU, so the usual `stat -f %l || stat -c %h` fallback fails OPEN
+    wherever GNU coreutils is on PATH (measured 2026-08-04 — the BSD form succeeds and
+    prints a filesystem report, so the numeric test errors instead of firing).
+    """
+    text = LAYERS.read_text(encoding="utf-8")
+    assert "link count > 1" in text
+    assert "st_nlink" in text, "read the link count with python3, which behaves identically everywhere"
+    # Assert on the CODE, not the prose: the snippet's comment names `stat -f %l` on
+    # purpose, to say why it must not be used. Strip comment lines before checking.
+    code = "\n".join(
+        line
+        for block in re.findall(r"```bash\n(.*?)```", text, flags=re.S)
+        for line in block.splitlines()
+        if not line.lstrip().startswith("#")
+    )
+    assert "stat " not in code, "the BSD/GNU `stat` link-count fallback fails open — do not re-introduce it"

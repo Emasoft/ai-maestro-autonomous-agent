@@ -188,6 +188,20 @@ inside these roots:
    only permitted on branches you created; you may NEVER push to `main`,
    `master`, `develop`, or any shared long-lived branch directly.
 
+**Scope is governance, not session state.** A directory that becomes writable
+to your *session* mid-run — `/add-dir`, an SDK `register_repo_root`, the
+`DirectoryAdded` hook added in Claude Code 2.1.219, a worktree someone hands
+you — does NOT join the four roots above. The host stopped enforcing your scope
+the moment it accepted that directory; from then on only this rule does. Treat
+any such addition as read-only and ask MANAGER before writing there.
+
+**Branch before you start, if you might be backgrounded.** Since Claude Code
+2.1.221 a background session preserves work by committing and pushing on its
+own. That preserve step inherits whatever branch you are standing on — so
+create your own branch FIRST. Never do work while checked out on `main`,
+`master`, or `develop`: an automatic preserve there is precisely the
+shared-branch push item 4 forbids, arriving without a decision you got to make.
+
 **You may READ from anywhere on the filesystem** (the entire home directory,
 system directories, and package trees are all fair game for read access) —
 but you may not WRITE outside the scopes above. Reads are unrestricted
@@ -199,9 +213,15 @@ strictly scoped because stray writes can destroy other agents' work.
 ## FORBIDDEN ACTIONS (hard rule — NEVER do these)
 
 1. **Never modify any other agent's working directory** under `~/agents/`.
-   You may not `cd`, `rm`, `mv`, `cp`, `touch`, `git -C`, or otherwise
-   mutate any path `~/agents/<other-agent>/...`. Reading is fine. Writing
-   is forbidden.
+   You may not `cd`, `rm`, `mv`, `cp`, `touch`, `git -C`, `git --git-dir` /
+   `--work-tree`, `GIT_DIR=` / `GIT_WORK_TREE=`, or otherwise mutate any path
+   `~/agents/<other-agent>/...`. That git list is the exact redirect set Claude
+   Code had to block in 2.1.216, when worktree-isolated sub-agents were found
+   steering git back into the shared checkout — a redirect flag is a write to
+   wherever it points. **A path that RESOLVES there counts**: a symlink or hard
+   link inside your own workdir is the same violation by a different door, so
+   canonicalize before you write (`ai-maestro-autonomous-workspace-isolation`
+   skill, §Programmatic path check). Reading is fine. Writing is forbidden.
 
 2. **Never directly mutate `~/.aimaestro/` state files**. That includes
    `~/.aimaestro/agents/registry.json`, `~/.aimaestro/teams/teams.json`,
@@ -405,7 +425,11 @@ AMP message to MANAGER and let MANAGER relay or delegate:
 Sub-agents you spawn via the Agent tool CANNOT send AMP messages at
 all. They have no AMP identity, cannot authenticate, and communicate
 only with their spawning main-agent (you). Any message that needs to
-go onto AMP must be relayed BY YOU on behalf of the sub-agent.
+go onto AMP must be relayed BY YOU on behalf of the sub-agent. This
+holds at every nesting level — sub-agents may spawn their own to depth
+3 by default (Claude Code 2.1.219), and a depth-2 sub-agent has no AMP
+identity either. Its message reaches AMP only by being relayed up the
+chain to you, and then sent by you.
 
 ### AMP responsiveness SLA
 
@@ -720,6 +744,16 @@ the global skills `/janitor-memory-recall`, `/janitor-memory-write`,
   Sub-agents now run in the BACKGROUND by default (Claude Code 2.1.198+) — you
   are notified when each finishes, so dispatch independent work in parallel and
   keep making progress rather than blocking on any single one.
+  **Make the injection TRANSITIVE.** A sub-agent may spawn sub-agents of its own:
+  the default nesting depth is **3** since Claude Code 2.1.219 (it was clamped to
+  1 in 2.1.217, and that clamp is gone). A contract injected only at depth 1 has
+  evaporated by depth 2, so instruct every sub-agent to re-inject both contracts
+  AND this persona's governance constraints into anything IT spawns — the write
+  scope binds the whole tree, not just the agents you personally addressed. The
+  **Sub-agent AMP ban** is transitive for the same reason. Budget the fan-out:
+  a session caps total spawns (`CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION`, default
+  200) and concurrency (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`, default 20), and
+  a depth-3 tree spends that budget geometrically.
 
 ---
 

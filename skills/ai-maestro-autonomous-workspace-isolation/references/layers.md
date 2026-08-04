@@ -21,6 +21,11 @@ Three layers: writable locally, writable via `git push`, read-only.
 | `~/.dev-browser/tmp/` (if dev-browser running) | YES — screenshots |
 | `~/.agent-messaging/agents/<my-name>/` | YES — inbox only |
 
+**The target decides, not the spelling.** A path is in Layer 1 only if it still
+lands in Layer 1 *after every symlink is resolved*. A link inside your own
+workdir pointing at `~/agents/<other-agent>/` is a Layer 3 write wearing a
+Layer 1 name.
+
 ### Layer 2 — Writable via git push
 
 | Target | OK? | How |
@@ -41,16 +46,47 @@ Three layers: writable locally, writable via `git push`, read-only.
 | `~/.ssh/`, `~/.gnupg/`, `~/.config/gh/` | NO (no read either) |
 | system paths (`/etc`, `/usr`, `/opt`, etc.) | NO |
 | `~/Documents`, `~/Desktop`, `~/Downloads` | NO |
+| anything else a path RESOLVES to after symlinks | NO — Layer 1 is the resolved target, not the typed string |
 
 ## Programmatic path check
 
 ```bash
 TARGET="/path/to/proposed/write/target"
 MY_AGENT_NAME="<your-agent-name>"
-case "$TARGET" in
-    $HOME/agents/$MY_AGENT_NAME/*|/tmp/*|/private/tmp/*) echo ALLOWED ;;
-    *) echo "FORBIDDEN — use the AI Maestro CLI or a different path" ;;
+
+# Canonicalize BOTH sides before comparing. A `case` match on the string the
+# caller typed is NOT a scope check — a symlink inside your own workdir can
+# point at another agent's directory and the glob approves the write. Claude
+# Code hit this same class three times in one month and fixed each by
+# canonicalizing: 2.1.212 (.claude/worktrees), 2.1.216 (.claude), 2.1.217 (a
+# background session's own cwd, "which could let sessions escape their
+# workspace folder"). Do not re-introduce the string comparison.
+resolve() { python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$1"; }
+
+TARGET_REAL="$(resolve "$TARGET")"          # resolves even if the leaf does not exist yet
+HOME_REAL="$(resolve "$HOME")"
+SCRATCH_REAL="$(resolve "${TMPDIR:-/tmp}")" # macOS per-user scratch is under /private/var
+
+case "$TARGET_REAL" in
+    "$HOME_REAL/agents/$MY_AGENT_NAME"/*|"$SCRATCH_REAL"/*|/tmp/*|/private/tmp/*) ;;
+    *) echo "FORBIDDEN — resolves to $TARGET_REAL, outside my scope"; exit 1 ;;
 esac
+
+# Hard links have no second path for realpath to resolve, so the check above is
+# blind to them. Refuse to write through one — this is exactly what /rewind
+# started doing in 2.1.220 — and ask MANAGER instead.
+#
+# Read the link count with python3, NOT `stat`. `stat -f` means "format" on BSD
+# and "--file-system" on GNU coreutils, so the usual
+# `stat -f %l … 2>/dev/null || stat -c %h …` fallback FAILS OPEN on any machine
+# with GNU stat on PATH: the BSD form succeeds, prints a filesystem report, and
+# the numeric test silently errors instead of firing. Measured, not theorized.
+if [ -f "$TARGET_REAL" ] &&
+   [ "$(python3 -c 'import os,sys; print(os.stat(sys.argv[1]).st_nlink)' "$TARGET_REAL")" -gt 1 ]; then
+    echo "FORBIDDEN — $TARGET_REAL is hard-linked (link count > 1)"; exit 1
+fi
+
+echo ALLOWED
 ```
 
 ## Common situations

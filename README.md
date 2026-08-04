@@ -173,6 +173,24 @@ transient API errors:
 - Pair it with the `ai-maestro-janitor` heartbeat, which is the real wake
   trigger after a **usage-limit** pause: the watchdog absorbs transient
   errors, the heartbeat fires a fresh turn once the usage-limit window resets.
+- Know the **session-wide caps** a long run will actually reach:
+  `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` (200 spawns, Claude Code 2.1.212),
+  `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` (20, 2.1.217), and
+  `CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION` (200, 2.1.212). These are
+  runaway-loop guards, not error paths: hitting one denies the spawn or the
+  search, so an agent that delegates everything quietly stops making progress
+  with no failure to retry. `/clear` resets the spawn budget, and since 2.1.217
+  a `--max-budget-usd` cap also halts background sub-agents that are already
+  running. Nesting multiplies all of this — the default spawn depth went back
+  to 3 in 2.1.219.
+- Treat a **permission prompt as a full stop** when nobody is watching, and
+  expect more of them: Claude Code deliberately fails closed in more places
+  since 2.1.218. A Bash command over 10,000 characters always prompts; so do
+  zsh `[[ ]]` conditionals using variable subscripts, modifiers, or regex
+  (2.1.218, tightened again in 2.1.221), and file-descriptor redirect forms the
+  permission analyzer parses differently from bash. Keep commands short — put
+  long input in a file and pass the path — or the turn waits on a human who
+  is not there.
 
 ## The persona at a glance
 

@@ -41,10 +41,15 @@ Follow these steps before executing any write operation.
 1. **Identify the write target path** in the proposed command. If
    multiple paths are written (e.g. `tar` outputs, `cp` destinations,
    redirections), list all of them.
-2. **Normalize each path** to absolute form (resolve `~`, `.`, `..`,
-   environment variables) so the check is deterministic.
+2. **Canonicalize each path** — absolute form (`~`, `.`, `..`, environment
+   variables) **and every symlink resolved** (`realpath`), so the check is
+   deterministic. Resolving the symlinks is not optional: a link inside your
+   own workdir can point at another agent's directory, and a glob match on the
+   un-resolved string happily approves that write. Claude Code fixed this same
+   class in its own isolation three times (2.1.212, 2.1.216, 2.1.217) — a scope
+   check that compares literal strings is not a scope check.
 3. **Open the [layers](references/layers.md) reference** and check
-   each normalized path against Layer 1 (writable locally). If all
+   each canonicalized path against Layer 1 (writable locally). If all
    paths match Layer 1 patterns, the write is ALLOWED.
 4. **For any path not in Layer 1**, check Layer 2 (writable via
    `git push`). If the operation is `git push` to a branch you
@@ -59,7 +64,7 @@ Follow these steps before executing any write operation.
 Copy this checklist and track your progress:
 
 - [ ] Identify the write target path(s)
-- [ ] Normalize path(s) to absolute form
+- [ ] Canonicalize path(s) — absolute AND symlink-resolved
 - [ ] Check Layer 1 (local writable)
 - [ ] If not Layer 1, check Layer 2 (git push)
 - [ ] If neither, treat as FORBIDDEN and ask via AMP
@@ -100,15 +105,20 @@ echo "$data" > /tmp/aimaa-scratch-$$.txt
 echo "$data" > ~/agents/other-agent/scratch.txt
 ```
 
-**Check a path programmatically**:
+**Check a path programmatically** — resolve first, compare second (the
+un-resolved form approves a symlink out of your scope):
 ```bash
 TARGET="/path/to/check"
 MY_AGENT_NAME="my-agent-name"
-case "$TARGET" in
-    $HOME/agents/$MY_AGENT_NAME/*|/tmp/*|/private/tmp/*) echo ALLOWED ;;
+TARGET_REAL="$(python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$TARGET")"
+HOME_REAL="$(python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$HOME")"
+case "$TARGET_REAL" in
+    "$HOME_REAL/agents/$MY_AGENT_NAME"/*|/tmp/*|/private/tmp/*) echo ALLOWED ;;
     *) echo FORBIDDEN ;;
 esac
 ```
+The full check — per-user scratch and the hard-link refusal — is in
+[layers](references/layers.md#programmatic-path-check).
 
 ## Resources
 

@@ -361,3 +361,42 @@ def test_prrd_rule_numbers_are_unique_across_tiers() -> None:
     nums = re.findall(r"^- \*\*[GS](\d+)\.\d+\*\*", PRRD.read_text(encoding="utf-8"), flags=re.M)
     dupes = {n for n in nums if nums.count(n) > 1}
     assert not dupes, f"rule number(s) reused across tiers: {sorted(dupes)}"
+
+
+def test_persona_forbids_the_full_git_redirect_set() -> None:
+    """FORBIDDEN #1 bans every way to aim git at another agent's tree, not just `git -C` (TRDD-9ZH31KC8)."""
+    text = PERSONA.read_text(encoding="utf-8")
+    for flag in ("git -C", "--git-dir", "--work-tree", "GIT_DIR=", "GIT_WORK_TREE="):
+        assert flag in text, f"persona must name {flag} as a cross-agent write vector"
+    # a link is the same violation by a different door — the string form of the path is not the check
+    assert "RESOLVES there counts" in text
+
+
+def test_persona_denies_scope_widening_by_mid_session_directory_add() -> None:
+    """A dir the SESSION gains mid-run (/add-dir, DirectoryAdded) does not widen the governed write scope."""
+    text = PERSONA.read_text(encoding="utf-8")
+    assert "Scope is governance, not session state" in text
+    assert "/add-dir" in text and "DirectoryAdded" in text
+    # and a background session's auto-preserve must not land on a shared branch
+    assert "Branch before you start" in text
+
+
+def test_persona_subagent_propagation_is_transitive() -> None:
+    """Contracts injected at depth 1 die by depth 2 — nesting default is 3, so propagation must recurse."""
+    text = PERSONA.read_text(encoding="utf-8")
+    assert "Make the injection TRANSITIVE" in text
+    assert "CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION" in text
+    assert "CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS" in text
+
+
+def test_readme_documents_the_unattended_session_caps() -> None:
+    """`Running unattended` names the caps that silently stall a long run instead of erroring."""
+    text = README.read_text(encoding="utf-8")
+    for var in (
+        "CLAUDE_CODE_RETRY_WATCHDOG",
+        "CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION",
+        "CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS",
+        "CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION",
+    ):
+        assert var in text, f"README must document {var} for unattended runs"
+    assert "permission prompt as a full stop" in text
