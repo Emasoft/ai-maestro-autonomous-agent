@@ -112,7 +112,8 @@ See [[architecture]], [[governance-audit-handling]] (the latter reuses this
 note's CPV-verify recipe + the local-commit-rides-next-publish flow when fixing a
 governance audit), and [[fork-delegation-under-autonomous-directive]] (re-verifying a
 fork's publish/CPV self-report — the discipline that caught the inverted #11 premise
-corrected in [^5]).
+corrected in [^5]). See also [[claude-code-version-sync]] — a host-changelog sweep is a
+common source of the local commits that then wait here for a release.
 
 ## Notes and lessons learned
 

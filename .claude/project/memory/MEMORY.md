@@ -7,3 +7,4 @@ title to its file. Seed it with the architecture hub entry:
 
 - [architecture](architecture.md) — how ai-maestro-autonomous-agent works: overview + the parts map.
 - [publish-pipeline](publish-pipeline.md) — git push refused by the pre-push hook → everything ships via scripts/publish.py.
+- [claude-code-version-sync](claude-code-version-sync.md) — a new Claude Code shipped: what goes stale, which windows are already swept, and how to read the changelog when the docs URL 404s.

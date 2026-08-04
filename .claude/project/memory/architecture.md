@@ -67,6 +67,9 @@ three skills, guarded by `test_every_skill_forbids_direct_server_api`.[^1]
 - [[persona-over-asking-mandate]] — the affirmative "a clear mandate authorizes starting"
   persona rule (the over-asking bug was an ABSENCE, not a broken escalation ladder),
   guarded by test_content_invariants.py
+- [[claude-code-version-sync]] — keeping the persona and skills aligned as the HOST
+  changes under them: which changelog windows are swept, the on-mission triage test, and
+  why a host isolation fix is the strongest signal to re-check our own boundary
 - (lateral links to other functionality hubs, once they exist)
 
 ## Notes and lessons learned
