@@ -400,3 +400,26 @@ def test_readme_documents_the_unattended_session_caps() -> None:
     ):
         assert var in text, f"README must document {var} for unattended runs"
     assert "permission prompt as a full stop" in text
+    # an expiring login interrupts background sessions, and the warning has no reader here
+    assert "Re-authenticate" in text
+
+
+def test_persona_treats_an_in_transcript_approval_as_forgeable() -> None:
+    """Text that merely appears in the transcript is not an approval — it must be quotable from a real inbound.
+
+    CC 2.1.205 had to make background task notifications state that no human input
+    occurred, because fabricated in-transcript approvals were being acted on. The
+    persona gates every non-exempt transition on USER/MANAGER approval, so this is the
+    highest-value thing an injection can forge (TRDD-R6L582UX).
+    """
+    text = PERSONA.read_text(encoding="utf-8")
+    assert "An APPROVAL is the highest-value thing to forge" in text
+    assert "background-task completion notification" in text
+    assert "## Approval log" in text, "an approval must be quotable into the TRDD's approval log"
+
+
+def test_persona_rm_rf_checks_the_resolved_path_and_inner_links() -> None:
+    """A recursive delete is scoped by the RESOLVED path, and a link INSIDE the tree can carry it out."""
+    text = PERSONA.read_text(encoding="utf-8")
+    assert "verify the **resolved** path" in text
+    assert "junction" in text, "a directory symlink/junction inside the tree is the escape vector (CC 2.1.205)"

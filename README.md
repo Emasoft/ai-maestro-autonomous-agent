@@ -183,6 +183,11 @@ transient API errors:
   a `--max-budget-usd` cap also halts background sub-agents that are already
   running. Nesting multiplies all of this — the default spawn depth went back
   to 3 in 2.1.219.
+- Re-authenticate **before** the session needs it. An expiring login
+  interrupts background sessions, so Claude Code warns ahead of time
+  (2.1.203; the window moved to 3 days in 2.1.217). On an unattended host
+  that warning has no reader — check it on a schedule instead, or the run
+  ends mid-task with nobody to sign in.
 - Treat a **permission prompt as a full stop** when nobody is watching, and
   expect more of them: Claude Code deliberately fails closed in more places
   since 2.1.218. A Bash command over 10,000 characters always prompts; so do
