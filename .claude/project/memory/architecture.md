@@ -72,6 +72,29 @@ three skills, guarded by `test_every_skill_forbids_direct_server_api`.[^1]
   why a host isolation fix is the strongest signal to re-check our own boundary
 - (lateral links to other functionality hubs, once they exist)
 
+
+^ATOM-WST1-8ODS [desc:"scripts/ holds two small gitignore modules extracted from a 2320-line vendored CPV file that was then DROPPED — the vendor blob is gone on purpose, not missing.", keywords: why_is_there_no_cpv_validation_common_here where_did_smart_exec_go what_are_gitignore_rules_and_gitignore_filter_for did_we_vendor_CPV_code gitignore_aware_walk_in_the_publish_pipeline, ocd: 2026-08-05, lmd: 2026-08-05]
+
+**`scripts/` is publish infrastructure plus exactly two small gitignore modules — and
+the vendored CPV blob they came from is gone ON PURPOSE.**
+
+- `gitignore_rules.py` (125 lines) — two pure functions, `parse_gitignore()` and
+  `is_path_gitignored()`, **byte-for-byte the CPV originals**.
+- `gitignore_filter.py` (149 lines) — a `GitignoreFilter` class that loads the patterns
+  once and exposes gitignore-aware `walk()` / `rglob()` / `iterdir()` helpers so
+  validators skip ignored paths. It is the SOLE production consumer of the module above.
+  Watch the argument order: `rglob(pattern, root)` — pattern first, root optional.
+
+**If you go looking for `cpv_validation_common.py` or `smart_exec.py`, stop — they were
+DELETED, not lost** (`54c1a62`, TRDD-CPVXTRCT). The publish pipeline only ever needed
+those two functions out of a 2,320-line vendored file, so carrying the whole blob was
+liability: it also dragged in a bandit **B108 false positive** that had to be argued
+with on every scan. Extract-the-two-functions was the fix.
+
+Do not re-vendor either file to "restore" something that looks absent. If a third
+function is ever genuinely needed, extract that one too and keep it byte-identical to
+the CPV original so upstream drift stays diffable.
+
 ## Notes and lessons learned
 [^1]: [id:ATOM-ARCH01-RULEPLACEMENT, status:valid, keywords:"the_persona_already_forbids_it_so_we_are_compliant rule_in_persona_but_not_in_any_SKILL.md self_audit_returns_ALLOWED_for_a_forbidden_action skills_load_on_demand_and_in_isolation where_must_a_rule_live_to_bind_the_agent repeating_a_rule_in_every_skill_is_deliberate", ocd:2026-08-02, lmd:2026-08-02]
   DO NOT accept "the persona already forbids it" as evidence this plugin INSTRUCTS a rule,
