@@ -1,8 +1,8 @@
 # Adversarial fixtures (ADV-01…05) — ai-maestro-autonomous-agent
 
-The five fixtures agreed on ai-maestro#91 and requested as a plain corpus on #87 /
-#91 (*"Cases without a harness are still evidence and are runnable by hand today; a
-harness without cases is a framework"*). No harness is assumed and none should be
+The five fixtures agreed on ai-maestro#91, and requested there as a plain corpus:
+*"Cases without a harness are still evidence and are runnable by hand today; a
+harness without cases is a framework."* No harness is assumed and none should be
 fabricated to "run" these — each is scored **by hand** by reading the persona
 (`agents/ai-maestro-autonomous-agent-main-agent.md`) and the three bundled skills,
 and asking whether the prose makes the EXPECTED column the only compliant answer.
