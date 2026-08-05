@@ -14,8 +14,16 @@ model. AUTONOMOUS works solo — no team, no CHIEF-OF-STAFF. It owns ALL
 columns for its own TRDDs, playing MANAGER, ORCHESTRATOR, ARCHITECT,
 INTEGRATOR, and MEMBER for its own work. The only role it cannot play
 is HUMAN: USER substitutes for MANAGER on every non-exempt approval.
-For universal mechanics, see the `prrd-trdd-kanban` skill in
-`ai-maestro-plugin`.
+
+For the universal mechanics, `ai-maestro-plugin` no longer ships one
+`prrd-trdd-kanban` skill — it was decomposed into task-scoped skills, so
+load the one that matches the operation: `ama-trdd-write` (author),
+`ama-trdd-update` (edit), `ama-trdd-transition` (move a column — it owns
+the transition matrix), `ama-trdd-find` / `ama-prrd-find` / `ama-prrd-get`
+(look up), `ama-prrd-edit` / `ama-prrd-propose` (rules),
+`ama-kanban-render` / `team-kanban` (render the board), and
+`ama-proposal-approvals` (the approval queue). Verified against
+`ai-maestro-plugin--v3.0.3`.
 
 **Every board/PRRD operation that reaches the AI Maestro server goes
 through the frozen CLI (R23)** — the `*.py` helpers named in
@@ -26,11 +34,15 @@ direct call can land a column change that no approval log records. Binds hooks a
 
 ## Prerequisites
 
-The universal `prrd-trdd-kanban` skill (in `ai-maestro-plugin`) must be
-loaded — it carries the shared mechanics. The PRRD/TRDD scripts
-(`get-prrd.py`, `prrd-edit.py`, `findprrd.py`, `findtrdd.py`, `kanban.py`)
-ship in `ai-maestro-plugin` — this plugin declares that dependency in its
-`plugin.json`. The project needs a PRRD and a `design/tasks/` tree of TRDDs.
+Load the task-scoped `ama-*` skill for the operation you are performing
+(listed in the Overview) — there is no single umbrella skill to load. The
+PRRD/TRDD scripts (`get-prrd.py`, `prrd-edit.py`, `findprrd.py`,
+`findtrdd.py`, `kanban.py`) still ship in `ai-maestro-plugin`, but under
+`scripts/prrd-trdd/`; resolve their absolute paths with that directory's
+`resolve_pillar_scripts.sh` rather than hard-coding a location, because the
+layout moved once already and a hard-coded path fails silently. This plugin
+declares the `ai-maestro-plugin` dependency in its `plugin.json`. The
+project needs a PRRD and a `design/tasks/` tree of TRDDs.
 For solo PRRD edits and direct approval, the session authorizes itself with
 `$AID_AUTH` (resolved against the AI Maestro server) or the `--user` flag
 rather than a `--manager` check.
@@ -154,14 +166,20 @@ the checklist alone as the gate.
 
 ## Resources
 
-For the shared mechanics, column transitions, and the authoritative
-exempt-operations list, consult the universal `prrd-trdd-kanban` skill
-and its `exempt-operations.md` reference, both bundled in
-`ai-maestro-plugin`. For the per-column checklists that AUTONOMOUS reuses,
-consult the other role layers: `amama-prrd-trdd-kanban` for authoring and
-promotion, `amaa-prrd-trdd-kanban` for design and split / group,
-`amoa-prrd-trdd-kanban` for dispatch and the red column,
-`ampa-prrd-trdd-kanban` for implementation and testing, and
-`amia-prrd-trdd-kanban` for ai_review and ship. Each role's checklist
-applies, simplified because AUTONOMOUS runs as a single session with no
-inter-agent AMP coordination.
+The column-transition matrix and the authoritative exempt-operations list
+both live in `ai-maestro-plugin`'s **`ama-trdd-transition`** skill — the
+list is its
+`skills/ama-trdd-transition/references/exempt-operations.md` reference.
+(It used to hang off a `prrd-trdd-kanban` skill; that skill no longer
+exists at any released tag, so do not look for it.)
+
+For the per-column checklists that AUTONOMOUS reuses, consult the other
+role layers: `amaa-prrd-trdd-kanban` (architect) for design and split /
+group, `amoa-prrd-trdd-kanban` (orchestrator) for dispatch and the red
+column, `ampa-prrd-trdd-kanban` (programmer) for implementation and
+testing, and `amia-prrd-trdd-kanban` (integrator) for ai_review and ship.
+Each role's checklist applies, simplified because AUTONOMOUS runs as a
+single session with no inter-agent AMP coordination. There is no
+MANAGER-side layer to cite: `ai-maestro-assistant-manager-agent` ships no
+kanban skill, so authoring and promotion have no sibling checklist —
+use the `ama-trdd-write` / `ama-prrd-propose` core skills instead.

@@ -363,6 +363,27 @@ def test_prrd_rule_numbers_are_unique_across_tiers() -> None:
     assert not dupes, f"rule number(s) reused across tiers: {sorted(dupes)}"
 
 
+def test_kanban_skill_cites_no_upstream_skill_that_was_deleted() -> None:
+    """The kanban skill must not depend on `prrd-trdd-kanban` — it exists at no released upstream tag.
+
+    Verified 2026-08-05 against ai-maestro-plugin--v3.0.3 AND --v2.11.0: the umbrella skill is
+    gone (decomposed into the task-scoped ama-* skills); the only upstream references left are in
+    two ARCHIVED TRDDs. `exempt-operations.md` survived but moved under ama-trdd-transition, and
+    `ai-maestro-assistant-manager-agent` ships no kanban layer at all, so `amama-prrd-trdd-kanban`
+    is dangling too (TRDD-9NYI3J0X).
+    """
+    text = KANBAN.read_text(encoding="utf-8")
+    # a bare citation is a dangling dependency; naming it inside the tombstone sentence is fine
+    assert "the `prrd-trdd-kanban` skill in" not in text
+    assert "universal `prrd-trdd-kanban` skill" not in text
+    assert "amama-prrd-trdd-kanban" not in text, "the MANAGER-side kanban layer does not exist"
+    # and the successors it must point at instead
+    for successor in ("ama-trdd-transition", "ama-trdd-write", "ama-prrd-propose"):
+        assert successor in text, f"kanban skill must route to {successor}"
+    assert "skills/ama-trdd-transition/references/exempt-operations.md" in text
+    assert "resolve_pillar_scripts.sh" in text, "script paths moved; resolve them, do not hard-code"
+
+
 def test_persona_forbids_the_full_git_redirect_set() -> None:
     """FORBIDDEN #1 bans every way to aim git at another agent's tree, not just `git -C` (TRDD-9ZH31KC8)."""
     text = PERSONA.read_text(encoding="utf-8")
