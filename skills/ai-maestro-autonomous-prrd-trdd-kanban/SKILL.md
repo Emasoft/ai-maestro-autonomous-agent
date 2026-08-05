@@ -15,9 +15,17 @@ columns for its own TRDDs, playing MANAGER, ORCHESTRATOR, ARCHITECT,
 INTEGRATOR, and MEMBER for its own work. The only role it cannot play
 is HUMAN: USER substitutes for MANAGER on every non-exempt approval.
 
-For the universal mechanics, `ai-maestro-plugin` no longer ships one
-`prrd-trdd-kanban` skill — it was decomposed into task-scoped skills, so
-load the one that matches the operation: `ama-trdd-write` (author),
+**This skill is self-contained: it carries AUTONOMOUS POLICY, and it does
+not defer its mechanics to another skill.** That is deliberate — skills
+load on demand and in isolation, so a layer whose content is "the real
+rules live over there" resolves to nothing when it is the only thing
+loaded, and the agent improvises exactly the governance it was supposed to
+follow. Everything binding on you is below; the skills named next are
+tools you invoke, not a prerequisite you must read first.
+
+`ai-maestro-plugin` no longer ships one `prrd-trdd-kanban` skill — it was
+decomposed into task-scoped skills, so invoke the one that matches the
+operation: `ama-trdd-write` (author),
 `ama-trdd-update` (edit), `ama-trdd-transition` (move a column — it owns
 the transition matrix), `ama-trdd-find` / `ama-prrd-find` / `ama-prrd-get`
 (look up), `ama-prrd-edit` / `ama-prrd-propose` (rules),
@@ -34,8 +42,10 @@ direct call can land a column change that no approval log records. Binds hooks a
 
 ## Prerequisites
 
-Load the task-scoped `ama-*` skill for the operation you are performing
-(listed in the Overview) — there is no single umbrella skill to load. The
+**Nothing here is gated on loading another skill.** Invoke the task-scoped
+`ama-*` skill for the operation you are performing (listed in the
+Overview) when you need to perform it — that is a tool call, not a
+precondition for understanding the policy below. The
 PRRD/TRDD scripts (`get-prrd.py`, `prrd-edit.py`, `findprrd.py`,
 `findtrdd.py`, `kanban.py`) still ship in `ai-maestro-plugin`, but under
 `scripts/prrd-trdd/`; resolve their absolute paths with that directory's
