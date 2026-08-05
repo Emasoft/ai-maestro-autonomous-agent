@@ -1,9 +1,9 @@
 ---
 trdd-id: 9NYI3J0X
 title: Repair the kanban skill's dangling upstream references after ai-maestro-plugin v3
-column: dev
+column: complete
 created: 2026-08-05T15:35:52+0200
-updated: 2026-08-05T15:35:52+0200
+updated: 2026-08-05T15:42:00+0200
 current-owner: ai-maestro-autonomous-agent
 assignee: ai-maestro-autonomous-agent
 priority: 2
@@ -19,7 +19,7 @@ review-requirements: []
 impacts: [skills/ai-maestro-autonomous-prrd-trdd-kanban/SKILL.md]
 attempts: 1
 last-test-result: pass
-implementation-commits: []
+implementation-commits: [121ddc1]
 external-refs: [https://github.com/Emasoft/ai-maestro/issues/61]
 ---
 
