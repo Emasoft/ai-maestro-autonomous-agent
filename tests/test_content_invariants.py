@@ -388,6 +388,20 @@ def test_kanban_skill_cites_no_upstream_skill_that_was_deleted() -> None:
     assert "skills/ama-" not in text, "cite another plugin's skill by NAME, never by path"
 
 
+def test_no_shipped_surface_writes_a_foreign_repo_path_in_backticks() -> None:
+    """A backtick path is resolved against THIS plugin, so a foreign-repo path reddens the gate.
+
+    Cost me two gate failures in one session: first `skills/ama-trdd-transition/...`
+    (MAJOR non-existent-skill + MINOR broken-path), then `rules/aimaestro/...` in the
+    persona (MINOR). Both facts were correct; only the FORM was wrong. Name a foreign
+    file in backticks and put its directory in prose (TRDD-9NYI3J0X).
+    """
+    for path in (PERSONA, KANBAN, QUESTIONS, README):
+        text = path.read_text(encoding="utf-8")
+        for foreign in ("`rules/aimaestro/", "`skills/ama-", "`scripts/prrd-trdd/"):
+            assert foreign not in text, f"{path.name} writes a foreign-repo path as a backtick path: {foreign}"
+
+
 def test_persona_forbids_the_full_git_redirect_set() -> None:
     """FORBIDDEN #1 bans every way to aim git at another agent's tree, not just `git -C` (TRDD-9ZH31KC8)."""
     text = PERSONA.read_text(encoding="utf-8")

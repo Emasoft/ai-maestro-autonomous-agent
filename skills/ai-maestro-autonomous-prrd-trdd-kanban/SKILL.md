@@ -48,7 +48,8 @@ Overview) when you need to perform it — that is a tool call, not a
 precondition for understanding the policy below. The
 PRRD/TRDD scripts (`get-prrd.py`, `prrd-edit.py`, `findprrd.py`,
 `findtrdd.py`, `kanban.py`) still ship in `ai-maestro-plugin`, but under
-`scripts/prrd-trdd/`; resolve their absolute paths with that directory's
+its scripts/prrd-trdd directory; resolve their absolute paths with that
+directory's
 `resolve_pillar_scripts.sh` rather than hard-coding a location, because the
 layout moved once already and a hard-coded path fails silently. This plugin
 declares the `ai-maestro-plugin` dependency in its `plugin.json`. The

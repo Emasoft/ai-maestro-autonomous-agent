@@ -471,8 +471,11 @@ governs.
 **References — two files, and neither is the one this persona used to name.**
 `~/.claude/rules/trdd-design-tasks.md` is the universal base (format,
 `column:`, NPT/EHT, the STATE block); the DEP overlay carrying tiers,
-mandates and transition authority is `rules/aimaestro/aimaestro-trdd-approval.md`
-in the `ai-maestro` repo. The old pointer here, `trdd-approval-tiers.md`, is a
+mandates and transition authority is `aimaestro-trdd-approval.md`, tracked in
+the `ai-maestro` repo under its rules/aimaestro directory (written as prose,
+not as a backtick path, because it is another repo's tree — a local-looking
+path both fails to resolve from here and trips the validator). The old
+pointer here, `trdd-approval-tiers.md`, is a
 **ghost**: it was a superseded predecessor, it exists on no machine, and a
 dangling pointer reads exactly like a live authority — which is worse than no
 pointer at all. Verify a rule file resolves before citing it as one.
