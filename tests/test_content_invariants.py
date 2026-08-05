@@ -380,8 +380,12 @@ def test_kanban_skill_cites_no_upstream_skill_that_was_deleted() -> None:
     # and the successors it must point at instead
     for successor in ("ama-trdd-transition", "ama-trdd-write", "ama-prrd-propose"):
         assert successor in text, f"kanban skill must route to {successor}"
-    assert "skills/ama-trdd-transition/references/exempt-operations.md" in text
+    assert "exempt-operations.md" in text, "the exempt list must still be findable by name"
     assert "resolve_pillar_scripts.sh" in text, "script paths moved; resolve them, do not hard-code"
+    # Cross-plugin references must NOT be written as `skills/...` paths: CPV resolves a
+    # local-looking path against THIS plugin, so an upstream path yields a MAJOR
+    # "non-existent skill" plus a MINOR broken-path finding and reddens the publish gate.
+    assert "skills/ama-" not in text, "cite another plugin's skill by NAME, never by path"
 
 
 def test_persona_forbids_the_full_git_redirect_set() -> None:

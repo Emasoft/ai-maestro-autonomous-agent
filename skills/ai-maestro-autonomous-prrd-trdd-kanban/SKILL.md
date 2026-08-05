@@ -167,11 +167,13 @@ the checklist alone as the gate.
 ## Resources
 
 The column-transition matrix and the authoritative exempt-operations list
-both live in `ai-maestro-plugin`'s **`ama-trdd-transition`** skill — the
-list is its
-`skills/ama-trdd-transition/references/exempt-operations.md` reference.
-(It used to hang off a `prrd-trdd-kanban` skill; that skill no longer
-exists at any released tag, so do not look for it.)
+both live in the **ama-trdd-transition** skill bundled in
+`ai-maestro-plugin` — the list is that skill's own `exempt-operations.md`
+reference file. Paths are deliberately not written here: it is another
+plugin's tree, so a path would be both unresolvable from this repo and
+stale the next time upstream moves it. (The list used to hang off a
+`prrd-trdd-kanban` skill; that skill no longer exists at any released
+tag, so do not look for it.)
 
 For the per-column checklists that AUTONOMOUS reuses, consult the other
 role layers: `amaa-prrd-trdd-kanban` (architect) for design and split /
