@@ -115,6 +115,32 @@ fork's publish/CPV self-report — the discipline that caught the inverted #11 p
 corrected in [^5]). See also [[claude-code-version-sync]] — a host-changelog sweep is a
 common source of the local commits that then wait here for a release.
 
+
+^ATOM-P2BL-FNBS [desc:"Cite a FOREIGN file by name with its directory in prose — a backtick path is resolved against THIS plugin, so it always yields a CPV finding even when the fact is right.", keywords: CPV_reference_to_non-existent_skill broken_backtick_path_file_not_found_in_plugin gate_went_red_after_citing_another_plugin exit_2_versus_exit_4_gate_codes how_do_I_cite_a_file_that_lives_in_another_repo, ocd: 2026-08-05, lmd: 2026-08-05]
+
+**A backtick path is a claim about THIS plugin's tree.** CPV resolves it locally, so
+naming another repo's file that way is always a finding — the fact can be perfectly
+correct and the gate still reddens. Measured 2026-08-05, twice in one session:
+
+- `` `skills/ama-trdd-transition/references/exempt-operations.md` `` →
+  **[MAJOR] Reference to non-existent skill 'ama-trdd-transition'** *plus* **[MINOR]
+  Broken backtick path**. One string produced two findings, because the `skills/`
+  prefix also made the validator infer a local skill directory.
+- `` `rules/aimaestro/aimaestro-trdd-approval.md` `` in the persona → **[MINOR]**.
+
+**The convention that works:** put the FILE in backticks, the DIRECTORY in prose —
+"`aimaestro-trdd-approval.md`, tracked in the `ai-maestro` repo under its
+rules/aimaestro directory". Guarded by
+`test_no_shipped_surface_writes_a_foreign_repo_path_in_backticks`, which caught a
+third instance the moment it was added — the sign the fix belonged in the suite
+rather than in attention.
+
+**Gate exit codes are not severities.** Same run, different numbers: **2** = a
+MAJOR/MINOR present · **4** = a single NIT (one markdownlint hit is enough) · **1** =
+a DIRTY TREE and NOT a verdict — commit first, then re-gate · **0** = clean. Reading
+a non-zero exit as "validation failed" without opening the summary block will send
+you chasing the wrong thing.
+
 ## Notes and lessons learned
 
 [^1]: [id:ATOM-1V7C-4RBQ, status:valid, keywords:"CPV_strict_MAJOR_reference_to_non-existent_skill slash-separated_word_list_read_as_a_skill_path privilege_escalation_NIT_from_elevation_keyword_beside_password only_SKILL.md_is_skillaudit-scanned_references_are_not documenting_the_false_positive_re-trips_it_next_publish", ocd:2026-06-18, lmd:2026-06-20] CPV `--strict` false-positives hit while
