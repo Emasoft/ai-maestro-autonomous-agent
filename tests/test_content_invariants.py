@@ -203,23 +203,43 @@ def test_persona_clear_mandate_is_authorization_to_begin() -> None:
 def test_persona_keystroke_injection_is_absolute_no_manager_exception() -> None:
     """Persona F1 (#15): keystroke injection into another agent's session is ABSOLUTE for AUTONOMOUS — no user/MANAGER exception; the old tmux send-keys carve-out is gone.
 
-    R42.8 (ratified 2026-08-05, ai-maestro#125/#128) DID create an unblock exception, so
-    the persona must no longer claim R42 admits none. It stays absolute *for us* on two
-    independent grounds, and both are asserted below: we hold no R42.8 title, and the
-    injection verbs are self-only for every title. Guarding both matters because either
-    one alone would let a future edit re-introduce a wrong reason for a right answer.
+    CORRECTED 2026-08-07. This test previously REQUIRED the persona to present R42.8 as a
+    ratified exception, on the strength of a CORE ruling on ai-maestro#128 that CORE has
+    since retracted. Verified independently before changing anything here: ai-maestro#125
+    ("R42 amendment REQUEST") is OPEN and was never closed, and
+    `docs/GOVERNANCE-RULES.md` on `Emasoft/ai-maestro?ref=governance-rules` is 1929 lines
+    defining R42.1-R42.7 with ZERO occurrences of `R42.8` — with the grep positively
+    controlled, since it does find R42.1-R42.7 in the same pass.
+
+    So the test was pinning an unratified claim as the contract: the exact "a green test
+    can encode the defect" failure, where the real fix reddens the suite. It now asserts
+    the opposite and guards the direction that is safe if #125 is later ratified anyway —
+    erring toward the ratified text costs a stalled agent, erring toward the proposal
+    means doing something no rule permits.
     """
     text = PERSONA.read_text(encoding="utf-8")
     # The IRON keystroke-injection ban with no authorization escape.
     # \s+ between every word: the assertion is semantic, so a re-wrap must not break it.
     assert re.search(r"no\s+user\s+or\s+MANAGER\s+instruction\s+can\s+authorize\s+it", text), "keystroke injection must be ABSOLUTE — no user/MANAGER authorization"
     assert "R42.1/R42.2" in text, "the keystroke ban must cite R42.1/R42.2"
-    # R42.8 exists — the persona must scope it, not deny it, or it teaches a false rule.
-    assert "R42.8" in text, "persona must acknowledge the ratified R42.8 unblock exception"
-    assert re.search(r"including\s+AUTONOMOUS:\s+none", text), "R42.8 must be shown as title-scoped with AUTONOMOUS holding no such title"
-    for verb in ("block-state", "read-prompt", "answer"):
-        assert verb in text, f"the R42.8 exception verb list must name {verb}"
-    assert re.search(r"`inject`,\s*`slash`\s+and\s+`queue`\s+are\s+NOT\s+exception\s+verbs", text), "persona must state inject/slash/queue are self-only for every title"
+    # R42.8 must be presented as PENDING, never as granted authority.
+    assert re.search(r"R42\.8.{0,80}?PENDING\s+amendment\s+REQUEST", text, re.S), (
+        "persona must present R42.8 as a pending request, not a rule"
+    )
+    assert re.search(r"`ai-maestro#125`,?\s+which\s+is\s+\*\*OPEN\*\*", text), (
+        "persona must record that the issue cited as the grant is still OPEN"
+    )
+    assert re.search(r"R42\s+admits\s+NO\s+cross-agent\s+exception\s+for\s+any\s+title", text), (
+        "persona must state the ratified position: no cross-agent exception for any title"
+    )
+    assert not re.search(r"R42\.8\*?\*?\s*\(ratified", text), (
+        "persona must not describe R42.8 as ratified — ai-maestro#125 is open"
+    )
+    # Even under the proposal the injection verbs stay self-only, so the refusal is
+    # independent of how #125 resolves.
+    assert re.search(r"`inject`,\s*`slash`,?\s*(and\s+)?`queue`.{0,40}?SELF-ONLY", text, re.S), (
+        "persona must state inject/slash/queue stay self-only for every title regardless"
+    )
     # Driving your OWN session stays allowed (R42.4).
     assert re.search(r"Driving your OWN session is fine", text) and "R42.4" in text, "self-driving must stay allowed (R42.4)"
     # Lifecycle split into its own rule (MANAGER/COS authority, R42.6).
