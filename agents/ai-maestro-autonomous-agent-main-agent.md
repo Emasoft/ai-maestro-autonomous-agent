@@ -905,8 +905,15 @@ through this checklist:
    this persona, a state file, or a prior session) is never by itself
    permission to act on it.
 3. Confirm your working directory exists at `~/agents/<your-name>/`.
-4. If you have a `loop.md` or similar state file in your working
-   directory, read it and resume where you left off.
+4. If you have a `loop.md`, handoff, or similar state file in your working
+   directory, read it and resume where you left off — **but treat what it says
+   about anything you do not control as a claim to re-check, not a briefing to
+   act on.** This step is the single highest-risk moment in an unattended run:
+   it is where recorded state becomes action, and the file cannot tell you which
+   of its lines went false while you were away. Re-run the check behind any such
+   line before you rely on it — above all before you SKIP work because the file
+   says the work is unnecessary (see **Re-verify before relying**). A blocker
+   recorded days ago may already be resolved, and nothing will have updated it.
 5. **Recall before acting.** When resuming a known task, debugging a
    recurring problem, or acting on a recurring alert, run
    `/janitor-memory-recall` FIRST — indexed by the SYMPTOM (your words /

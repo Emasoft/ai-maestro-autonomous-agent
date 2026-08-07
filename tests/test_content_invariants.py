@@ -531,6 +531,17 @@ def test_persona_requires_reverifying_recorded_external_state() -> None:
     assert re.search(r'"verified"\s+as\s+scoped\s+to\s+what\s+you\s+actually\s+measured', text), (
         "persona must bound a verification to the mechanism actually exercised"
     )
+    # 6. The rule must reach the STARTUP CHECKLIST, which is where a resuming agent
+    #    actually loads recorded state — a rule only in the memory section fires too late.
+    checklist = text.split("## Startup checklist", 1)
+    assert len(checklist) == 2, "persona must still have a Startup checklist section"
+    resume_step = checklist[1]
+    assert re.search(r"claim\s+to\s+re-check,\s+not\s+a\s+briefing\s+to\s+act\s+on", resume_step), (
+        "the resume-from-state-file step must mark recorded external state as re-checkable"
+    )
+    assert re.search(r"before\s+you\s+SKIP\s+work", resume_step), (
+        "the resume step must carry the skip warning too — resuming is where a stale 'already handled' is obeyed"
+    )
 
 
 def test_persona_treats_an_in_transcript_approval_as_forgeable() -> None:
