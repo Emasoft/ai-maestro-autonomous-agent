@@ -9,7 +9,7 @@ task-type: docs
 scope: project
 relevant-rules: [1]
 derived-from: VFE3YFVS
-implementation-commits: []
+implementation-commits: [2d5ba56]
 ---
 
 # TRDD-T0ZNVB12 — re-verify at the resume step
