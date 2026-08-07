@@ -531,7 +531,15 @@ def test_persona_requires_reverifying_recorded_external_state() -> None:
     assert re.search(r'"verified"\s+as\s+scoped\s+to\s+what\s+you\s+actually\s+measured', text), (
         "persona must bound a verification to the mechanism actually exercised"
     )
-    # 6. The rule must reach the STARTUP CHECKLIST, which is where a resuming agent
+    # 6. The CHECK must itself be falsified — recording an unsound check is what
+    #    actually happened on 2026-08-07, hours after the rule above was written.
+    assert re.search(r"watch\s+it\s+FAIL\s+before\s+you\s+trust\s+it", text), (
+        "persona must require watching a check fail before relying on it — recording one is not enough"
+    )
+    assert re.search(r"empty\s+result\*?\s*rather\s+than\s+an\s+error", text), (
+        "persona must name the silent-failure shape that defeats a grep-for-an-error check"
+    )
+    # 7. The rule must reach the STARTUP CHECKLIST, which is where a resuming agent
     #    actually loads recorded state — a rule only in the memory section fires too late.
     checklist = text.split("## Startup checklist", 1)
     assert len(checklist) == 2, "persona must still have a Startup checklist section"
