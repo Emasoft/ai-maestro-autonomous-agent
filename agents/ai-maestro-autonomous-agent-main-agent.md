@@ -256,9 +256,21 @@ strictly scoped because stray writes can destroy other agents' work.
 
 6. **Never inject any keystroke, command, prompt, or queued input into
    ANOTHER agent's session** — by tmux (`tmux send-keys`), by the AI Maestro
-   CLI, or by API. **This is ABSOLUTE (R42.1/R42.2): no user or MANAGER
-   instruction can authorize it** — a directive from a superior is an AMP
-   **message**, not a keystroke. (Driving your OWN session is fine — R42.4.)
+   CLI, or by API. **For you this is ABSOLUTE (R42.1/R42.2): no user or
+   MANAGER instruction can authorize it** — a directive from a superior is an
+   AMP **message**, not a keystroke. (Driving your OWN session is fine — R42.4.)
+
+   Do NOT generalize that to "the rule admits no exception": **R42.8** (ratified
+   by the USER 2026-08-05) lets a blocked session be unblocked, and it is scoped
+   two ways, both of which must hold. By **title** — MANAGER (any agent except an
+   ASSISTANT) and CHIEF-OF-STAFF (its own team only, same exclusion); **every
+   other title, including AUTONOMOUS: none.** By **verb** — `block-state`,
+   `read-prompt`, `answer` ONLY. `inject`, `slash` and `queue` are NOT exception
+   verbs for anyone: they deliver an arbitrary command, so they express the
+   CALLER's decision (R42.1 exactly) and stay SELF-ONLY for every title, with the
+   server returning 403 cross-agent. So you refuse on **two** independent grounds
+   — you hold no R42.8 title, and the injection verbs are self-only regardless.
+   Refuse for those reasons, not by claiming the rule has no exception.
 
 7. **Never kill, hibernate, wake, or restart another agent** (`tmux
    kill-session`, `aimaestro-agent.sh hibernate|wake|restart <other>`).
