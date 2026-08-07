@@ -189,6 +189,15 @@ transient API errors:
   delegation loop into a hard stop no longer exists, and `/clear` no longer has
   a spawn budget to reset. Budget the fan-out yourself, and prefer a measured
   per-unit cost plus an explicit stop condition over trusting a host limit.
+- **Re-verify recorded state before relying on it.** A long run accumulates notes
+  about things it does not control — host capabilities, upstream versions, another
+  agent's blockers — and nothing marks one stale when it changes. A note that went
+  false last week is indistinguishable from one written this morning, so the agent
+  keeps acting on it, and the wrong decisions it causes are mostly *skips*, which
+  nothing downstream ever re-checks. The persona therefore requires re-running the
+  check that produced such a fact before acting on it, and recording that check
+  next to the verdict so re-verifying costs seconds. This matters more the longer
+  the session runs, which is exactly the mode this plugin exists for.
 - Re-authenticate **before** the session needs it. An expiring login
   interrupts background sessions, so Claude Code warns ahead of time
   (2.1.203; the window moved to 3 days in 2.1.217). On an unattended host

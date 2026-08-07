@@ -494,6 +494,45 @@ def test_persona_governs_the_host_cross_session_send_message_channel() -> None:
     )
 
 
+def test_persona_requires_reverifying_recorded_external_state() -> None:
+    """An unattended agent's own notes decay silently — the persona must require re-checking, not just recalling.
+
+    AUTONOMOUS is defined by running for days with nobody correcting its state, which makes
+    it the role most exposed to acting on a fact that stopped being true. Measured on
+    2026-08-07: three facts this agent had recorded went false with no signal (a removed
+    Claude Code spawn cap, a memory-chore predicate, a macOS Automation grant), and two of
+    them had already been reasoned from. A stale note reads exactly like a fresh one, so
+    the only defense is re-running the check.
+
+    Asserted as CLAIMS rather than keywords, deliberately: the previous README guard here
+    pinned a token, and it stayed green when the fact around that token was reversed.
+    """
+    text = PERSONA.read_text(encoding="utf-8")
+    # 1. A recorded external fact is timestamped evidence, not a standing truth.
+    assert re.search(r"MEASUREMENT\s+WITH\s+A\s+TIMESTAMP,\s+not\s+a\s+standing\s+truth", text), (
+        "persona must frame a recorded fact about uncontrolled state as timestamped, not permanent"
+    )
+    # 2. The skip is the dangerous direction — nothing downstream re-checks work not done.
+    assert re.search(r"before\s+you\s+SKIP\s+work", text), (
+        "persona must extend re-verification to decisions NOT to act, not only to actions"
+    )
+    assert re.search(r"a\s+wrong\s+skip\s+is\s+silent\s+forever", text), (
+        "persona must say why skips are the asymmetric risk, or the rule reads as optional diligence"
+    )
+    # 3. Record the re-check, so re-verifying is cheap enough to actually happen.
+    assert re.search(r"record\s+the\s+CHECK,\s+not\s+just\s+the\s+verdict", text), (
+        "persona must require storing a runnable re-check beside a recorded verdict"
+    )
+    # 4. Absence of errors is not proof — a path that never ran also logs none.
+    assert re.search(r"absence\s+of\s+errors\s+is\s+not\s+evidence\s+of\s+success", text), (
+        "persona must reject a single negative signal as proof"
+    )
+    # 5. A verification is scoped to what was measured; it does not generalize across mechanisms.
+    assert re.search(r'"verified"\s+as\s+scoped\s+to\s+what\s+you\s+actually\s+measured', text), (
+        "persona must bound a verification to the mechanism actually exercised"
+    )
+
+
 def test_persona_treats_an_in_transcript_approval_as_forgeable() -> None:
     """Text that merely appears in the transcript is not an approval — it must be quotable from a real inbound.
 
