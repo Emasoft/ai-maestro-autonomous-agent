@@ -443,7 +443,13 @@ def test_persona_subagent_propagation_is_transitive() -> None:
 
 
 def test_readme_documents_the_unattended_session_caps() -> None:
-    """`Running unattended` names the caps that silently stall a long run instead of erroring."""
+    """`Running unattended` names the caps that silently stall a long run instead of erroring.
+
+    The per-session spawn cap was REMOVED in Claude Code 2.1.224, so naming the var is
+    no longer enough — the README has to say it is gone. Mentioning it is what the old
+    assertion checked, and that assertion kept passing after the fact flipped, which is
+    exactly how a doc goes stale under a green suite.
+    """
     text = README.read_text(encoding="utf-8")
     for var in (
         "CLAUDE_CODE_RETRY_WATCHDOG",
@@ -452,9 +458,40 @@ def test_readme_documents_the_unattended_session_caps() -> None:
         "CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION",
     ):
         assert var in text, f"README must document {var} for unattended runs"
+    # ...and must describe the spawn cap as REMOVED, not as a live ceiling.
+    assert re.search(r"per-session spawn cap is GONE as of 2\.1\.224", text), (
+        "README must state the per-session spawn cap was removed in 2.1.224, not present it as live"
+    )
+    assert not re.search(r"`CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION`\s*\(200 spawns", text), (
+        "README must not present the removed 200-spawn per-session cap as a current limit"
+    )
     assert "permission prompt as a full stop" in text
     # an expiring login interrupts background sessions, and the warning has no reader here
     assert "Re-authenticate" in text
+
+
+def test_persona_governs_the_host_cross_session_send_message_channel() -> None:
+    """Claude Code 2.1.224 added cross-session `SendMessage`/`ListAgents` — a second transport R6 must still bind.
+
+    The host cannot see the R6 graph, so it will deliver a message the AI Maestro server
+    would have 403'd. The persona must therefore say the graph constrains the RECIPIENT
+    rather than the transport, and must forbid using the channel to launder a permission
+    denied in this session. Without this an agent can route around R6 without ever
+    touching R42, because the new channel is a message, not a keystroke.
+    """
+    text = PERSONA.read_text(encoding="utf-8")
+    assert "SendMessage" in text and "ListAgents" in text, "persona must name the 2.1.224 cross-session channel"
+    assert "2.1.224" in text, "persona must date the cross-session channel to its release"
+    assert re.search(r"R6\s+constrains\s+the\s+RECIPIENT,\s+not\s+the\s+transport", text), (
+        "persona must bind R6 to the recipient regardless of which transport carries the message"
+    )
+    assert re.search(r"[Nn]ever\s+use\s+it\s+for\s+permission\s+laundering", text), (
+        "persona must forbid cross-session permission laundering"
+    )
+    # It is a message, not keystroke injection — saying otherwise would wrongly ban a legitimate channel.
+    assert re.search(r"NOT\s+R42\s+keystroke\s+injection", text), (
+        "persona must distinguish the cross-session channel from R42 injection, or it teaches a false ban"
+    )
 
 
 def test_persona_treats_an_in_transcript_approval_as_forgeable() -> None:

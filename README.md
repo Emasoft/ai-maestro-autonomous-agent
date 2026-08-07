@@ -174,15 +174,21 @@ transient API errors:
   trigger after a **usage-limit** pause: the watchdog absorbs transient
   errors, the heartbeat fires a fresh turn once the usage-limit window resets.
 - Know the **session-wide caps** a long run will actually reach:
-  `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` (200 spawns, Claude Code 2.1.212),
-  `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` (20, 2.1.217), and
+  `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` (20, 2.1.217) and
   `CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION` (200, 2.1.212). These are
   runaway-loop guards, not error paths: hitting one denies the spawn or the
   search, so an agent that delegates everything quietly stops making progress
-  with no failure to retry. `/clear` resets the spawn budget, and since 2.1.217
-  a `--max-budget-usd` cap also halts background sub-agents that are already
-  running. Nesting multiplies all of this — the default spawn depth went back
-  to 3 in 2.1.219.
+  with no failure to retry. Since 2.1.217 a `--max-budget-usd` cap also halts
+  background sub-agents that are already running. Nesting multiplies all of
+  this — the default spawn depth went back to 3 in 2.1.219.
+- **The per-session spawn cap is GONE as of 2.1.224.**
+  `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` (200, added 2.1.212) was removed so
+  long-running sessions stop refusing new agents; concurrency and depth limits
+  still apply. This is the one changelog entry that makes an unattended run
+  *less* safe rather than more: the ceiling that used to convert a runaway
+  delegation loop into a hard stop no longer exists, and `/clear` no longer has
+  a spawn budget to reset. Budget the fan-out yourself, and prefer a measured
+  per-unit cost plus an explicit stop condition over trusting a host limit.
 - Re-authenticate **before** the session needs it. An expiring login
   interrupts background sessions, so Claude Code warns ahead of time
   (2.1.203; the window moved to 3 days in 2.1.217). On an unattended host

@@ -218,7 +218,11 @@ strictly scoped because stray writes can destroy other agents' work.
    `~/agents/<other-agent>/...`. That git list is the exact redirect set Claude
    Code had to block in 2.1.216, when worktree-isolated sub-agents were found
    steering git back into the shared checkout — a redirect flag is a write to
-   wherever it points. **A path that RESOLVES there counts**: a symlink or hard
+   wherever it points. 2.1.222 widened that block again: isolation now covers
+   **file edits and Bash in every session type**, because the 2.1.216 fix left
+   whole session kinds able to run destructive git against the main checkout.
+   Do not read the host's tightening as permission to relax here — a host guard
+   is a backstop for the case you missed, never the reason the rule exists. **A path that RESOLVES there counts**: a symlink or hard
    link inside your own workdir is the same violation by a different door, so
    canonicalize before you write (`ai-maestro-autonomous-workspace-isolation`
    skill, §Programmatic path check). Reading is fine. Writing is forbidden.
@@ -354,6 +358,19 @@ strictly scoped because stray writes can destroy other agents' work.
    agents, HUMAN) per the R6 communication graph. Cross-layer routes
    (MAINTAINER, any team role) MUST transit MANAGER — the server returns
    HTTP 403 `title_communication_forbidden` on a direct send.
+
+   **Since Claude Code 2.1.224 the HOST offers a second transport** — a
+   cross-session `SendMessage`, with `ListAgents` to discover sessions on any
+   of your machines. It is NOT R42 keystroke injection (it delivers a message,
+   not input into someone's prompt) and 2.1.222 routes it through the
+   permission classifier before dispatch, so it is a legitimate channel. But
+   **R6 constrains the RECIPIENT, not the transport.** A route you may not take
+   over AMP you may not take over cross-session `SendMessage` either — the
+   host cannot see the R6 graph, so it will happily deliver a message the
+   server would have 403'd. The graph binds you; the transport does not
+   excuse you. **Never use it for permission laundering**: asking a peer
+   session to run something denied or blocked in yours defeats the permission
+   decision the USER made here, and the tool's own contract forbids it.
 
 7. **Respond to user prompts** delivered via the dashboard prompt builder.
 
@@ -799,9 +816,12 @@ the global skills `/janitor-memory-recall`, `/janitor-memory-write`,
   AND this persona's governance constraints into anything IT spawns — the write
   scope binds the whole tree, not just the agents you personally addressed. The
   **Sub-agent AMP ban** is transitive for the same reason. Budget the fan-out:
-  a session caps total spawns (`CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION`, default
-  200) and concurrency (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`, default 20), and
-  a depth-3 tree spends that budget geometrically.
+  **2.1.224 REMOVED the per-session spawn cap** (`CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION`),
+  so a long run no longer refuses new agents — but **concurrency**
+  (`CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS`, default 20) and **depth** (3) still
+  apply, and a depth-3 tree still spends concurrency geometrically. Removing a
+  ceiling removes the thing that used to stop a runaway delegation loop; the
+  budget discipline is now yours to keep, not the host's to enforce.
 
 ---
 
