@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.10] - 2026-08-08
+
+### Bug Fixes
+
+- **governance:** Required_linear_history is NOT baseline — adding it is drift (2762cd1)
+
+### Documentation
+
+- Add TRDD-HYJYIUHJ — persona teaches a baseline the guardian strips (c618788)
+- Close TRDD-HYJYIUHJ — baseline corrected, negative guard falsified 3 ways (64dee6a)
 ## [1.6.9] - 2026-08-08
 
 ### Documentation
