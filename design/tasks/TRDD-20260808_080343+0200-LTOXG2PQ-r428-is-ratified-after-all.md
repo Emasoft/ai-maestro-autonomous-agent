@@ -9,7 +9,7 @@ task-type: security
 scope: project
 relevant-rules: [1]
 supersedes-commit: db3a892
-implementation-commits: []
+implementation-commits: [8127880]
 external-refs: [ai-maestro#125, ai-maestro#128, ai-maestro#129]
 ---
 
