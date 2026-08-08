@@ -1,9 +1,10 @@
 ---
 trdd-id: 62AO9JXY
 title: The persona carried a governance claim upstream corrected 3 weeks earlier - pin was stale and unstamped
-column: dev
+column: complete
 created: 2026-08-08T10:11:14+0200
-updated: 2026-08-08T10:11:14+0200
+updated: 2026-08-08T10:15:25+0200
+implementation-commits: [79af9f4]
 current-owner: ai-maestro-autonomous-agent
 task-type: security
 scope: project
@@ -15,10 +16,10 @@ external-refs: [ai-maestro#125]
 
 ## ⏵ STATE — READ THIS FIRST ON RESUME (authoritative) — 2026-08-08
 
-**IN PROGRESS.** Two in-repo surfaces carry a governance claim that upstream corrected
-on **2026-07-14**. Memory is clean (checked). Fix = correct both surfaces + stamp the
-pin + guard. If this file disagrees with the live rule, **the live rule wins** —
-re-fetch `docs/GOVERNANCE-RULES.md?ref=governance-rules`.
+**DONE** — `79af9f4`. Both surfaces corrected, the pin stamped, the guard falsified
+4 ways. 120 tests pass; gate exit 0 PARITY-CLEAN. Memory was checked and is clean.
+If this file disagrees with the live rule, **the live rule wins** — re-fetch
+`docs/GOVERNANCE-RULES.md?ref=governance-rules`.
 
 ## The defect, verified here before anything was changed
 
@@ -103,5 +104,30 @@ tip it was read at and sends the reader to the live row.
 
 ## Verification
 
-- [ ] `uv run pytest -q`
-- [ ] `uv run python scripts/publish.py --gate`
+- [x] `uv run pytest -q` → **120 passed**.
+- [x] `uv run python scripts/publish.py --gate` → **exit 0**, `VERDICT: PARITY-CLEAN
+      (FAIL=0 WARNING=3 PASS=8)`, CRITICAL=0 MAJOR=0 MINOR=0 NIT=0 — WARNING count
+      unchanged from baseline, so this change added none.
+- [x] **Guard falsified 4 ways**, each reddening independently, control green after
+      restore (tree verified clean):
+
+      | broken | result |
+      |---|---|
+      | corrected fact removed (`ONLY the CHIEF-OF-STAFF` → the old text) | FAIL |
+      | miscount reintroduced as a **CLAIM** (no warning cue nearby) | FAIL |
+      | stamp left undated (`✓ read <date>` → "recently read") | FAIL |
+      | tip dropped from the stamp | FAIL |
+
+      The second row is the load-bearing one: the miscount reddens **as a claim** while
+      the quoted prohibition in the same file passes. The guard distinguishes quotation
+      from assertion, so it cannot redden on correct writing — the failure mode that
+      gets a guard deleted rather than obeyed.
+
+## What this does NOT prove
+
+The guard pins the CORRECTED text and the PRESENCE of a stamp. It cannot tell that the
+stamp is *current* — nothing local can, and a network test would fail offline and train
+its readers to ignore it. Freshness stays a procedure, with one mechanical assist: the
+stamp is dated, so its **age** is checkable offline against the clock, and the next
+reader can decide whether to re-fetch. That is the whole design — assert the pointer,
+never the value.
