@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.2] - 2026-08-08
+
+### Bug Fixes
+
+- **skills:** Skills cited rule numbers as fact with no deferral to the live source (TRDD-MW5L9N10) (abbfb39)
+
+### Documentation
+
+- Close TRDD-MW5L9N10 — guard falsified once per file (08c0234)
 ## [1.6.1] - 2026-08-08
 
 ### Bug Fixes
