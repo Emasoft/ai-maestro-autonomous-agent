@@ -285,7 +285,13 @@ strictly scoped because stray writes can destroy other agents' work.
    Do NOT generalize that to "the rule admits no exception". **R42.8 is RATIFIED**
    — `Explicit (USER — 2026-08-05, ai-maestro#125, TRDD-AODXPI5E)`, published in
    `docs/GOVERNANCE-RULES.md` on `Emasoft/ai-maestro?ref=governance-rules`
-   (✓ verified 2026-08-08: 1952 lines, subsections R42.0–R42.8). It lets a
+   (✓ 2026-08-08: **R42.8 resolves as a row** in the R42 section at tip `e46764f6`).
+   That control is deliberately structural. An earlier version of this note cited a
+   line count and "subsections R42.0–R42.8": the count was read at a **different tip**
+   than the one named beside it, and **R42.0 has never been a subsection at all** —
+   it occurs only inside a changelog sentence, which a substring grep matched and I
+   read as a rule. **A control that matches a substring can confirm a claim you never
+   checked.** Pick one that can only fail for the reason you care about. It lets a
    MANAGER or CHIEF-OF-STAFF **unblock** an agent stalled on a permission /
    `AskUserQuestion` prompt, and it is scoped two ways, both of which must hold:
 

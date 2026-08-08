@@ -215,8 +215,14 @@ def test_persona_keystroke_injection_is_absolute_no_manager_exception() -> None:
     opposite direction, and made more durable by the falsification work that proved it had
     teeth. Proving a guard CAN fail says nothing about whether the fact it encodes is true.
 
-    Verified 2026-08-08 before this rewrite: 1952 lines, subsections R42.0-R42.8, row 1542
+    Verified 2026-08-08 before this rewrite: R42.8 resolves as a row in the R42 section,
     attributed `Explicit (USER - 2026-08-05, ai-maestro#125, TRDD-AODXPI5E)`.
+    This line previously read "1952 lines, subsections R42.0-R42.8" (TRDD-1504BH3Q): the
+    count came from a DIFFERENT tip than the one named beside it, and R42.0 was never a
+    subsection at either tip - it appears only inside a changelog sentence that a
+    substring grep matched. A control that matches a substring can confirm a claim you
+    never checked; a line count also rots on any unrelated edit. Structural presence is
+    the control that can only fail for the reason we care about.
 
     THE VERB LIST IS VOLATILE AND THIS TEST DELIBERATELY DOES NOT PIN ITS MEMBERSHIP.
     Measured at `governance-rules` on 2026-08-08: tip cdee1dd (05:56Z) read
