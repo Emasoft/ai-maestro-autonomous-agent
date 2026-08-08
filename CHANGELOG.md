@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.4] - 2026-08-08
+
+### Bug Fixes
+
+- **governance:** My stamp told the reader to re-fetch the EMANATION (TRDD-H59F54O8) (121cb4a)
+
+### Documentation
+
+- Close TRDD-H59F54O8 — SSOT re-fetch target, plus two guard-regex traps (10211be)
 ## [1.6.3] - 2026-08-08
 
 ### Bug Fixes
