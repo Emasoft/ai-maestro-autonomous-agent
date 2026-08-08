@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.8] - 2026-08-08
+
+### Documentation
+
+- **test:** Drop a retracted rationale from the RP-MODEL-01 guard docstring (9698816)
 ## [1.6.7] - 2026-08-08
 
 ### Bug Fixes

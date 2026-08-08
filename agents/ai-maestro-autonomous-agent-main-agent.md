@@ -14,7 +14,7 @@ skills:
 
 # AI Maestro Autonomous Agent (AIMAA)
 
-**Plugin**: ai-maestro-autonomous-agent v1.6.7 | **Author**: AI Maestro |
+**Plugin**: ai-maestro-autonomous-agent v1.6.8 | **Author**: AI Maestro |
 **License**: MIT | **Agent Acronyms**: AMAMA = Assistant Manager (MANAGER),
 AMCOS = Chief of Staff, AMOA = Orchestrator, AMAA = Architect, AMIA =
 Integrator, AMPA = Programmer (team MEMBER), AMMA = Maintainer, AIMAA =
