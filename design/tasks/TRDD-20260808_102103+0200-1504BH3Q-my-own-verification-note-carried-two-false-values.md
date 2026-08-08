@@ -1,9 +1,10 @@
 ---
 trdd-id: 1504BH3Q
 title: My own R42.8 verification note carried two false values - one stale one never true
-column: dev
+column: complete
 created: 2026-08-08T10:21:03+0200
-updated: 2026-08-08T10:21:03+0200
+updated: 2026-08-08T10:24:00+0200
+implementation-commits: [bf45d25]
 current-owner: ai-maestro-autonomous-agent
 task-type: security
 scope: project
@@ -16,9 +17,9 @@ external-refs: [ai-maestro#125]
 
 ## ⏵ STATE — READ THIS FIRST ON RESUME (authoritative) — 2026-08-08
 
-**IN PROGRESS.** Three surfaces carry `1952 lines, subsections R42.0–R42.8` as
-*current verification evidence*. Both values are false. Fix = replace with a
-pointer-only stamp whose positive control cannot rot.
+**DONE** — `bf45d25`. All three surfaces now carry a structural control
+("R42.8 resolves as a row … at tip `e46764f6`"). 120 tests pass; gate exit 0
+PARITY-CLEAN.
 
 ## The defect
 
@@ -82,5 +83,10 @@ that is not a gap.** Adding an assertion on a line count would re-introduce the 
 
 ## Verification
 
-- [ ] `uv run pytest -q`
-- [ ] `uv run python scripts/publish.py --gate`
+- [x] `uv run pytest -q` → **120 passed**.
+- [x] `uv run python scripts/publish.py --gate` → **exit 0**, `VERDICT: PARITY-CLEAN
+      (FAIL=0 WARNING=3 PASS=8)`, CRITICAL=0 MAJOR=0 MINOR=0 NIT=0 — unchanged baseline.
+- [x] Both tips fetched and counted before asserting staleness (the table above), because
+      "stale value" and "counted differently" demand opposite fixes.
+- [x] `grep -rn "R42\.0|1952 lines" agents/ tests/ README.md` → every remaining hit is
+      inside a corrective explanation that quotes the error, none asserts it.
