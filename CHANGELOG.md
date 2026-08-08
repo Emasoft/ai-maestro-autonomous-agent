@@ -2,6 +2,54 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.0] - 2026-08-08
+
+### Bug Fixes
+
+- **persona:** Never put an at-sign in a GitHub body — it pages a real account (64cb104)
+- **prrd:** Drop the at-handle from golden G1 and add G8 forbidding at-mentions (a897e6b)
+- **skills:** The CLI/API rule binds hooks and scripts, and read-only-looking routes (cd9a13e)
+- **isolation:** The writable-scope check must resolve symlinks (TRDD-9ZH31KC8) (18a6db6)
+- **persona:** A forged approval and an inner junction are both scope escapes (TRDD-R6L582UX) (b670c54)
+- **skills:** The kanban skill required an upstream skill that no longer exists (TRDD-9NYI3J0X) (121ddc1)
+- **skills:** Cite an upstream skill by NAME, never by path — the path reddened CPV (TRDD-9NYI3J0X) (d5c6149)
+- **governance:** Drop a ghost rule citation and stop deferring the kanban mechanics (7ff269f)
+- **docs:** Never write a foreign repo's path in backticks — third instance, now guarded (1d3143f)
+- **lint:** MD018 — a line beginning with an issue ref parses as a heading (540a77a)
+- **deps:** Declare a range on ai-maestro-plugin and pin ^3.0.3 (d56b95c)
+- **governance:** R42.8 is ratified — refuse on scope, not on a false absolute (3cc4bff)
+- **persona:** Carry the re-verify duty into the resume step (TRDD-T0ZNVB12) (2d5ba56)
+- **persona:** A recorded check must itself be falsified (TRDD-8VJ8YYAE) (411679d)
+- [**breaking**] **governance:** R42.8 is NOT ratified — revert to the ratified R42.1-R42.7 (db3a892)
+- [**breaking**] **governance:** R42.8 IS ratified — reverts db3a892; publication lagged the grant (8127880)
+- **governance:** R42.8 verbs are THREE — and stop pinning a volatile fact (e4e9beb)
+- **governance:** The persona asserted an R29.1 text USER deleted 25 days ago (TRDD-62AO9JXY) (79af9f4)
+- **governance:** My own verification note carried two false values (TRDD-1504BH3Q) (bf45d25)
+
+### Documentation
+
+- **memory:** Record where a rule must live to bind the agent (ATOM-ARCH01-RULEPLACEMENT) (36ad171)
+- **trdd:** Close TRDD-9ZH31KC8 — CC 2.1.206->2.1.221 sync landed in 18a6db6 (c9e74d7)
+- **trdd:** Correct TRDD-R6L582UX's implementation-commit to the real sha b670c54 (ff76680)
+- **memory:** Capture the Claude-Code-version-sync procedure (PROJECT scope) (c13eff3)
+- **trdd:** Close TRDD-9NYI3J0X — upstream skill-drift repair landed in 121ddc1 (2d98ffe)
+- **scenarios:** Publish the five adversarial fixtures as a plain corpus (ai-maestro#91) (61c1eff)
+- **memory:** Record the CPV citation-form rule and the gate exit-code map (ATOM-P2BL-FNBS) (b7c7044)
+- **memory:** Cover scripts/ in the architecture hub (ATOM-WST1-8ODS) (7bd5233)
+- **cc-sync:** Align to Claude Code 2.1.222-2.1.224 (TRDD-M50MBTSB) (9296632)
+- **trdd:** Record the landed sha in TRDD-M50MBTSB implementation-commits (d75bf28)
+- **trdd:** Record the landed sha in TRDD-VFE3YFVS implementation-commits (d04a447)
+- **trdd:** Record the landed sha in TRDD-T0ZNVB12 implementation-commits (6c65b78)
+- **trdd:** Record the landed sha in TRDD-8VJ8YYAE implementation-commits (a9c91ba)
+- Add TRDD-93KUP3R6 — R42.8 is not ratified (governs db3a892) (e300003)
+- Add TRDD-LTOXG2PQ — R42.8 is ratified after all (governs 8127880) (02d3805)
+- **trdd:** Record the landed sha in TRDD-LTOXG2PQ implementation-commits (0205b0c)
+- Close TRDD-62AO9JXY — guard falsified 4 ways, gate clean (1fd1678)
+- Close TRDD-1504BH3Q — structural control replaces two false values (4afe7e7)
+
+### Features
+
+- **persona:** Require re-verifying recorded external state (TRDD-VFE3YFVS) (fdf57cf)
 ## [1.5.5] - 2026-08-02
 
 ### Bug Fixes
