@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.6] - 2026-08-08
+
+### Bug Fixes
+
+- **security:** The persona governed OUTBOUND cross-session sends only — INBOUND is unauthenticated (TRDD-M3QS578Z) (b614c55)
+
+### Documentation
+
+- Close TRDD-M3QS578Z — and the fourth wrong-shaped-grep near-miss today (71bf3f5)
 ## [1.6.5] - 2026-08-08
 
 ### Bug Fixes
