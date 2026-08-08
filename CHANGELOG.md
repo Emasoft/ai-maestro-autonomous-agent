@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.5] - 2026-08-08
+
+### Bug Fixes
+
+- **kanban:** The skill carried 16 of the 17 mandated columns — `published` was absent (TRDD-F2SUT8D4) (859ed3e)
+
+### Documentation
+
+- Close TRDD-F2SUT8D4 — and record that I reverted my own uncommitted fix (5c94b8c)
 ## [1.6.4] - 2026-08-08
 
 ### Bug Fixes
