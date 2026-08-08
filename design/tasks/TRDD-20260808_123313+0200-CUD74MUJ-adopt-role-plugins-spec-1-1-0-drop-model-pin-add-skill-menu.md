@@ -1,9 +1,10 @@
 ---
 trdd-id: CUD74MUJ
 title: Adopt role-plugins-spec 1.1.0 - drop the model pin (RULED) and add the skill menu
-column: dev
+column: complete
 created: 2026-08-08T12:33:13+0200
-updated: 2026-08-08T12:33:13+0200
+updated: 2026-08-08T12:40:00+0200
+implementation-commits: [6030951]
 current-owner: ai-maestro-autonomous-agent
 task-type: infra
 scope: project
@@ -15,9 +16,8 @@ external-refs: [ai-maestro#136, TRDD-TYB3Q1NJ, TRDD-0FCR6KOW]
 
 ## ⏵ STATE — READ THIS FIRST ON RESUME (authoritative) — 2026-08-08
 
-**IN PROGRESS.** `role-plugins-spec` moved 1.0.1 → **1.1.0** (blob `7757c76f75fc` →
-`9fb6aa69efc7`). Two clauses bind on next publish. Fix = drop `model:` from the persona
-frontmatter, add a body skill menu, guard both.
+**DONE** — `6030951`. `model:` dropped, skill menu added, guard scoped and falsified.
+125 tests pass; gate exit 0 PARITY-CLEAN.
 
 ## Provenance — a peer told me; I verified before touching anything
 
@@ -87,5 +87,20 @@ asserted too, so a menu of the right size but wrong content also fails.
 
 ## Verification
 
-- [ ] `uv run pytest -q`
-- [ ] `uv run python scripts/publish.py --gate`
+- [x] `uv run pytest -q` → **125 passed**.
+- [x] `uv run python scripts/publish.py --gate` → **exit 0**, `PARITY-CLEAN (FAIL=0 WARNING=3 PASS=8)`.
+- [x] Falsified: model pin reintroduced → red · **a 4th skill shipped with the menu unchanged
+      → red** (the clause's own stated hazard) · a skill dropped from the menu → red *after
+      the fix below* · control green, tree clean.
+
+## The guard was loose, and only falsification found it
+
+The "skill dropped from the menu" falsification **passed** on the first attempt. Cause: the
+name check searched the WHOLE persona, and several skills are also named in passing outside
+the menu — so a mention counted as a menu entry, and a menu that had silently lost a skill
+still satisfied the assertion. Scoped to the `## Your skills` section; re-falsified → red.
+
+Worth stating because the guard's *primary* case (a 4th skill shipped, menu stale) reddened
+correctly from the start. **A guard can be right about the hazard it was designed for and
+loose about the neighbouring one**, and the only thing that distinguished them was trying
+both. A single successful falsification would have certified this guard.
