@@ -1,9 +1,10 @@
 ---
 trdd-id: F2SUT8D4
 title: The kanban skill carries 16 of the 17 mandated columns - published is absent
-column: dev
+column: complete
 created: 2026-08-08T12:14:41+0200
-updated: 2026-08-08T12:14:41+0200
+updated: 2026-08-08T12:22:00+0200
+implementation-commits: [859ed3e]
 current-owner: ai-maestro-autonomous-agent
 task-type: bugfix
 scope: project
@@ -15,8 +16,8 @@ external-refs: [ai-maestro#14]
 
 ## ⏵ STATE — READ THIS FIRST ON RESUME (authoritative) — 2026-08-08
 
-**IN PROGRESS.** `published` is absent from the kanban skill. Fix = embed the spec's
-authoritative 17-column block verbatim + a guard that compares against all 17.
+**DONE** — `859ed3e`. Enum embedded verbatim from the spec block; guard falsified 3 ways.
+123 tests pass; gate exit 0 PARITY-CLEAN. Answered + closed `ai-maestro-autonomous-agent#14`.
 
 ## The rule
 
@@ -74,5 +75,26 @@ answered twice contained a question whose answer had never been checked.**
 
 ## Verification
 
-- [ ] `uv run pytest -q`
-- [ ] `uv run python scripts/publish.py --gate`
+- [x] `uv run pytest -q` → **123 passed**.
+- [x] `uv run python scripts/publish.py --gate` → **exit 0**, `PARITY-CLEAN (FAIL=0 WARNING=3 PASS=8)`.
+- [x] Falsified 3 ways: every `published` removed → red; `live_auditing` removed → red;
+      `3P-KAN-01` citation removed → red; control green, tree clean.
+
+## I destroyed my own work mid-verification — recorded because the rule exists for this
+
+The first falsification ran `git checkout` on the skill while the fix was **uncommitted**,
+which reverted it. The result read as *"break → passes, restore → fails"*, i.e. exactly
+inverted, and the tempting reading was that the guard was broken. **The guard was fine; I
+had deleted the thing it asserts.**
+
+Two failures, not one:
+1. **I skipped commit-before-falsify.** Every earlier round today committed first precisely
+   so `git checkout` restores the FIX rather than discarding it. I broke my own sequence on
+   the one round where the target was a file I had only just edited.
+2. **The first break was also incomplete** — it removed the enum line but left the word
+   `published` in prose, so the assertion legitimately still passed. Re-run removing every
+   occurrence → correctly red.
+
+Nothing was lost (I could restore it verbatim), but that was luck about scope, not process.
+**`git checkout <path>` is a destructive command against uncommitted work**, and it does not
+feel like one because it is spelled like navigation.
