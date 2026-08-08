@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.11] - 2026-08-08
+
+### Bug Fixes
+
+- **governance:** Scope the 403 claim everywhere it appears, not just the persona (8813a5c)
+
+### Documentation
+
+- Add TRDD-KT4MVFHA — the 403 claim survived in a decision-time checklist (c647b1f)
+- Close TRDD-KT4MVFHA — a guard's scope is part of its claim (af7ed3f)
+
+### Styling
+
+- **md:** MD012 — drop the trailing double blank in TRDD-KT4MVFHA (8a1610e)
 ## [1.6.10] - 2026-08-08
 
 ### Bug Fixes
