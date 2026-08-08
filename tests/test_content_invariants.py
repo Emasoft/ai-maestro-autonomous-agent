@@ -203,42 +203,50 @@ def test_persona_clear_mandate_is_authorization_to_begin() -> None:
 def test_persona_keystroke_injection_is_absolute_no_manager_exception() -> None:
     """Persona F1 (#15): keystroke injection into another agent's session is ABSOLUTE for AUTONOMOUS — no user/MANAGER exception; the old tmux send-keys carve-out is gone.
 
-    CORRECTED 2026-08-07. This test previously REQUIRED the persona to present R42.8 as a
-    ratified exception, on the strength of a CORE ruling on ai-maestro#128 that CORE has
-    since retracted. Verified independently before changing anything here: ai-maestro#125
-    ("R42 amendment REQUEST") is OPEN and was never closed, and
-    `docs/GOVERNANCE-RULES.md` on `Emasoft/ai-maestro?ref=governance-rules` is 1929 lines
-    defining R42.1-R42.7 with ZERO occurrences of `R42.8` — with the grep positively
-    controlled, since it does find R42.1-R42.7 in the same pass.
+    CORRECTED TWICE, and the second correction is the instructive one.
 
-    So the test was pinning an unratified claim as the contract: the exact "a green test
-    can encode the defect" failure, where the real fix reddens the suite. It now asserts
-    the opposite and guards the direction that is safe if #125 is later ratified anyway —
-    erring toward the ratified text costs a stalled agent, erring toward the proposal
-    means doing something no rule permits.
+    On 2026-08-07 this test was rewritten to REQUIRE the persona to call R42.8 *pending*,
+    because the published governance file then read 1929 lines / R42.1-R42.7 / zero
+    `R42.8`. That measurement was accurate and positively controlled. It was taken inside
+    a 3-day lag between the USER's grant (2026-08-05) and publication (2026-08-08 05:56Z).
+
+    So this test spent a day ENFORCING a false statement about ratified governance -- the
+    same "a green test pins the defect" failure it was rewritten to fix, recreated in the
+    opposite direction, and made more durable by the falsification work that proved it had
+    teeth. Proving a guard CAN fail says nothing about whether the fact it encodes is true.
+
+    Verified 2026-08-08 before this rewrite: 1952 lines, subsections R42.0-R42.8, row 1542
+    attributed `Explicit (USER - 2026-08-05, ai-maestro#125, TRDD-AODXPI5E)`.
+
+    NOTE the ratified verb list is NARROWER than the pre-retraction persona claimed:
+    `read-prompt` and `answer` ONLY -- `block-state` is NOT an R42.8 exception verb.
     """
     text = PERSONA.read_text(encoding="utf-8")
     # The IRON keystroke-injection ban with no authorization escape.
     # \s+ between every word: the assertion is semantic, so a re-wrap must not break it.
     assert re.search(r"no\s+user\s+or\s+MANAGER\s+instruction\s+can\s+authorize\s+it", text), "keystroke injection must be ABSOLUTE — no user/MANAGER authorization"
     assert "R42.1/R42.2" in text, "the keystroke ban must cite R42.1/R42.2"
-    # R42.8 must be presented as PENDING, never as granted authority.
-    assert re.search(r"R42\.8.{0,80}?PENDING\s+amendment\s+REQUEST", text, re.S), (
-        "persona must present R42.8 as a pending request, not a rule"
+    # R42.8 exists and is RATIFIED — the persona must scope it, not deny it.
+    assert re.search(r"R42\.8\s+is\s+RATIFIED", text), (
+        "persona must state R42.8 is ratified — denying it teaches a false rule"
     )
-    assert re.search(r"`ai-maestro#125`,?\s+which\s+is\s+\*\*OPEN\*\*", text), (
-        "persona must record that the issue cited as the grant is still OPEN"
+    assert re.search(r"USER\s+—\s+2026-08-05", text), "persona must carry R42.8's attribution"
+    assert re.search(r"including\s+AUTONOMOUS:\s+none", text), (
+        "R42.8 must be shown title-scoped, with AUTONOMOUS holding no such title"
     )
-    assert re.search(r"R42\s+admits\s+NO\s+cross-agent\s+exception\s+for\s+any\s+title", text), (
-        "persona must state the ratified position: no cross-agent exception for any title"
+    # The verb list is exactly two. `block-state` must NOT be presented as an exception verb.
+    assert re.search(r"`read-prompt`\s+and\s+`answer`\s+ONLY", text), (
+        "the R42.8 exception verbs are read-prompt and answer ONLY"
     )
-    assert not re.search(r"R42\.8\*?\*?\s*\(ratified", text), (
-        "persona must not describe R42.8 as ratified — ai-maestro#125 is open"
+    assert not re.search(r"`block-state`[^.]{0,60}exception\s+verb", text), (
+        "block-state is NOT an R42.8 exception verb — do not widen the ratified list"
     )
-    # Even under the proposal the injection verbs stay self-only, so the refusal is
-    # independent of how #125 resolves.
-    assert re.search(r"`inject`,\s*`slash`,?\s*(and\s+)?`queue`.{0,40}?SELF-ONLY", text, re.S), (
-        "persona must state inject/slash/queue stay self-only for every title regardless"
+    assert re.search(r"`inject`,\s*`slash`\s+and\s+`queue`\s+are\s+explicitly\s+NOT\s+exception\s+verbs", text), (
+        "persona must state inject/slash/queue are self-only for every title"
+    )
+    # The lag lesson must survive, or the next measurement repeats the same inference.
+    assert re.search(r"evidence\s+about\s+PUBLICATION,\s+never\s+about\s+ratification", text), (
+        "persona must record that absence from a published artifact is not absence of the rule"
     )
     # Driving your OWN session stays allowed (R42.4).
     assert re.search(r"Driving your OWN session is fine", text) and "R42.4" in text, "self-driving must stay allowed (R42.4)"
