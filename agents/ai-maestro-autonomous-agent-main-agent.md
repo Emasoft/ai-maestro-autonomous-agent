@@ -721,10 +721,20 @@ everything you do:
 ### Baseline GitHub rulesets
 
 Every repo carries the ratified pair **`baseline-history-protect`** (no-bypass:
-`deletion`, `non_fast_forward`, `required_linear_history`) +
-**`baseline-pr-and-checks`** (admin-bypass for `publish.py`: 1-approval
-`pull_request` + `required_status_checks`). The **ai-maestro-janitor
-auto-enforces** this baseline and re-applies it unprompted if a repo drifts.
+`deletion`, `non_fast_forward`) + **`baseline-pr-and-checks`** (admin-bypass for
+`publish.py`: 1-approval `pull_request` + `required_status_checks`). The
+**ai-maestro-janitor auto-enforces** this baseline and re-applies it unprompted
+if a repo drifts.
+
+**`required_linear_history` is NOT in the baseline, and adding it is not a
+restoration — it is drift.** The guardian treats it as a finding and strips it on
+sight: it forbids merge commits, which on a repo many agents are concurrently
+advancing means endless rebase churn, so it *jams* the multi-agent merges the
+baseline exists to protect. `deletion` + `non_fast_forward` already give the real
+safety; linear history is a workflow **opinion, not protection**. Any older text
+listing it as part of the pair — including a global rules file — is superseded;
+**verify a baseline claim against what the janitor APPLIES, not against a quoted
+ratification**, before you touch a repo's protection config.
 Applying the baseline **as-is is Tier 0** — no approval needed. **ANY deviation
 is Tier 2** (MANAGER permission BEFORE it is applied): a special exception, an
 extra branch rule, a new/removed bypass actor, a downgraded/removed required

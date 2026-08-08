@@ -919,3 +919,34 @@ def test_persona_rm_rf_checks_the_resolved_path_and_inner_links() -> None:
     text = PERSONA.read_text(encoding="utf-8")
     assert "verify the **resolved** path" in text
     assert "junction" in text, "a directory symlink/junction inside the tree is the escape vector (CC 2.1.205)"
+
+
+def test_persona_never_claims_linear_history_is_part_of_the_baseline() -> None:
+    """`required_linear_history` is NOT baseline — the guardian strips it, so claiming it causes real drift.
+
+    Measured against janitor 2.8.2: the APPLIED baseline is `deletion` + `non_fast_forward`
+    (branch_protection_lib.py:160), `required_linear_history` raises a LINEAR_HISTORY finding
+    (github_config_audit.py:57) and `strip_linear_history_payload()` removes it. Acting on the
+    older ratified-pair text made me add the rule to my own repo; the guardian stripped it 14
+    minutes later (TRDD-HYJYIUHJ).
+
+    The guard is scoped to the baseline section and asserts the NEGATIVE, because the persona
+    legitimately names the rule while warning against it — a whole-file "not present" check
+    would forbid the correction itself, and a positive-only check would pass on the stale text.
+    """
+    text = PERSONA.read_text(encoding="utf-8")
+    start = text.index("### Baseline GitHub rulesets")
+    section = text[start : text.index("\n---", start)]
+
+    stale = "`deletion`, `non_fast_forward`, `required_linear_history`"
+    assert stale not in section, (
+        "the persona lists required_linear_history as part of baseline-history-protect; "
+        "the janitor strips that rule, so a session acting on this will churn a compliant repo"
+    )
+    assert "`deletion`, `non_fast_forward`)" in section, "the real applied pair must still be stated"
+    assert "is NOT in the baseline, and adding it is not a\nrestoration" in section, (
+        "state the trap explicitly — the failure mode is a session 'restoring' the rule"
+    )
+    assert "what the janitor APPLIES" in section, (
+        "the durable lesson is to verify against the applier, not against a quoted ratification"
+    )
