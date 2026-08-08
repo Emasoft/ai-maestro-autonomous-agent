@@ -469,6 +469,48 @@ def test_a_non_maestro_user_instruction_is_anomalous_not_merely_weighable() -> N
     )
 
 
+def test_main_agent_omits_model_key_and_menus_every_shipped_skill() -> None:
+    """role-plugins-spec 1.1.0: main agents OMIT `model:`, and menu every shipped skill (TRDD-CUD74MUJ).
+
+    RP-MODEL-01 was RULED 2026-08-08 (ai-maestro#136, closing TRDD-TYB3Q1NJ): role-plugin MAIN
+    agents omit `model:`, same as subagents -- model choice is a cost/capability decision
+    belonging to whoever launches the session. At spec 1.0.1 this was an OPEN question and our
+    `model: sonnet` was explicitly NOT a violation (we were the ruling's decisive
+    counterexample); "carrying a key past that publish is a conformance failure, before it is
+    not". So this assertion is correct only from v1.6.7 onward -- it is not retroactive.
+
+    RP-SKILL-MENU-01 (new): every main agent whose plugin ships skills MUST carry a compact
+    body menu, one line per skill, name + when to reach for it. Measured rationale: an agent
+    that cannot SEE its inventory does not reach for it.
+
+    The menu is checked against the SKILL.md files ON DISK rather than against three hardcoded
+    names, because the clause's own stated hazard is a STALE menu ("worse than none") -- and a
+    name-only assertion would sail straight past the actual failure mode, which is adding a
+    fourth skill and forgetting the menu. Diverging in EITHER direction fails.
+    """
+    text = PERSONA.read_text(encoding="utf-8")
+
+    # RP-MODEL-01 -- no model pin in the frontmatter.
+    frontmatter = text.split("---", 2)[1] if text.startswith("---") else text[:800]
+    assert not re.search(r"^model:", frontmatter, re.M), (
+        "RP-MODEL-01 (RULED): the main agent must OMIT `model:` — model choice belongs to "
+        "whoever launches the session"
+    )
+
+    # RP-SKILL-MENU-01 -- the menu exists and matches the shipped skills exactly.
+    shipped = sorted(p.parent.name for p in (REPO_ROOT / "skills").glob("*/SKILL.md"))
+    assert shipped, "expected at least one shipped skill"
+    menued = sorted({s for s in shipped if re.search(r"`" + re.escape(s) + r"`", text)})
+    assert menued == shipped, (
+        f"skill menu is STALE — shipped={shipped} menued={menued}. RP-SKILL-MENU-01: the menu "
+        "MUST be updated in the same change that adds, renames, or removes a skill"
+    )
+    assert re.search(r"RP-SKILL-MENU-01", text), "the menu must cite the clause that mandates it"
+    assert re.search(r"reach for it when|reach for these", text), (
+        "the menu must say WHEN to reach for each skill, not merely list names"
+    )
+
+
 def test_inbound_cross_session_messages_are_unauthenticated_data() -> None:
     """Persona governs the INBOUND half of cross-session messaging, not only outbound (TRDD-M3QS578Z).
 
