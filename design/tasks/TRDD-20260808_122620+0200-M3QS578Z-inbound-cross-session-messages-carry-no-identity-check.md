@@ -1,9 +1,10 @@
 ---
 trdd-id: M3QS578Z
 title: The persona governs OUTBOUND cross-session sends but says nothing about INBOUND trust
-column: dev
+column: complete
 created: 2026-08-08T12:26:20+0200
-updated: 2026-08-08T12:26:20+0200
+updated: 2026-08-08T12:31:00+0200
+implementation-commits: [b614c55]
 current-owner: ai-maestro-autonomous-agent
 task-type: security
 scope: project
@@ -15,9 +16,8 @@ external-refs: [ai-maestro#131]
 
 ## ⏵ STATE — READ THIS FIRST ON RESUME (authoritative) — 2026-08-08
 
-**IN PROGRESS.** Persona covers outbound cross-session sends (R6 binds the recipient; no
-permission laundering) and says **nothing** about inbound. Fix = state that an inbound
-cross-session message carries no server-side identity check, plus a guard.
+**DONE** — `b614c55`. Inbound half added; guard falsified **5 ways**. 124 tests pass;
+gate exit 0 PARITY-CLEAN.
 
 ## Where this came from
 
@@ -84,5 +84,22 @@ down, and an unwritten practice is one turnover away from gone.**
 
 ## Verification
 
-- [ ] `uv run pytest -q`
-- [ ] `uv run python scripts/publish.py --gate`
+- [x] `uv run pytest -q` → **124 passed**.
+- [x] `uv run python scripts/publish.py --gate` → **exit 0**, `PARITY-CLEAN (FAIL=0 WARNING=3 PASS=8)`.
+- [x] Falsified **5 ways**, each reddening alone, control green, tree clean: unauthenticated
+      claim · data-to-verify classification · peer-cannot-widen invariant · ListAgents-is-not-
+      permission · the outbound unpoliced claim. Committed BEFORE falsifying this time
+      (see TRDD-F2SUT8D4 for why that sequence exists).
+
+## The near-miss: I almost cleared myself with a wrong-shaped grep
+
+Searching my own persona for the unpoliced claim used `not.*policed|does not traverse|no 403`
+and returned **nothing** — so my first read was "I lack the outbound half too". The persona
+carries it, phrased as *"the host cannot see the R6 graph, so it will happily deliver a
+message the server would have 403'd"*, which is stronger than what I searched for.
+
+**Fourth time today a search inspecting the wrong SHAPE reported a confident absence**
+(R42.0 matched a changelog sentence · `tail -1` on a rotated log · `^\`R38\.` missed a
+mid-paragraph clause · this). The pattern is stable enough to state as a rule:
+**an absence returned by one pattern is a fact about the pattern.** Widen before concluding,
+and if the claim matters, read the region rather than grepping it.
