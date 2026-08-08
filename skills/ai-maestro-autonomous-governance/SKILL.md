@@ -13,6 +13,13 @@ allowed-tools: "Read, Grep, Glob"
 Before executing any non-trivial action, walk through the 13-question
 checklist below. If ANY answer triggers FORBIDDEN, stop immediately.
 
+**Rule numbers here are as-of-authoring POINTERS, not facts you may assert.**
+The governance source is versioned and revisable, so a renumber or a revision
+drifts this file silently — and a number resolving is not the same as the rule
+supporting the sentence. Cite a rule by its **substance**; if a number fails to
+resolve or contradicts this text, **the live governance source governs** — re-read
+it. Never tell another agent "rule RNN says X" on this file's authority alone.
+
 **Standing rule, no audit needed (R23):** every interaction with the AI
 Maestro server goes through the frozen CLI scripts — `aimaestro-agent.sh`,
 `aimaestro-teams.sh`, and the messaging wrappers. **Never call a server

@@ -11,6 +11,13 @@ allowed-tools: "Read, Glob, Grep, Bash(git:*), Bash(uv:*)"
 The AUTONOMOUS governance rule: **READ anywhere, WRITE only inside
 your own agent working directory and system scratch.**
 
+**Rule numbers here are as-of-authoring POINTERS, not facts you may assert.**
+The governance source is versioned and revisable, so a renumber or a revision
+drifts this file silently — and a number resolving is not the same as the rule
+supporting the sentence. Cite a rule by its **substance**; if a number fails to
+resolve or contradicts this text, **the live governance source governs** — re-read
+it. Never tell another agent "rule RNN says X" on this file's authority alone.
+
 **Server state is not a path — it is a CLI call (R23).** Anything held by
 the AI Maestro server (agent registry, teams, governance) is mutated ONLY
 through the frozen CLI scripts — `aimaestro-agent.sh`, `aimaestro-teams.sh`,

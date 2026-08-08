@@ -460,6 +460,34 @@ def test_every_skill_forbids_direct_server_api() -> None:
             f"{skill.name} must forbid calling a server HTTP route directly"
         )
         assert "R23" in text, f"{skill.name} must cite the frozen-interface rule R23"
+
+
+def test_every_skill_defers_rule_numbers_to_the_live_governance_source() -> None:
+    """Every SKILL.md that cites rule numbers marks them as-of-authoring and defers to the live source (TRDD-MW5L9N10).
+
+    Same argument the USER already accepted for the /api/ prohibition in the test above:
+    the persona carries the caveat, but skills load on demand and IN ISOLATION, so an
+    agent consulting only a skill would never see it -- and would read the numbers as
+    assertable fact. The skills cite 8 distinct rules between them.
+
+    The drift is not hypothetical. TRDD-62AO9JXY: a governance claim in the persona was
+    25 days stale because its source pin was undated. In a skill the identical drift is
+    LESS visible, because no skill carried even the caveat that a number may have moved.
+
+    Asserts the DEFERRAL, never a rule number or a version -- the deferral is what stays
+    true across every renumber, which is exactly the point it exists to make.
+    """
+    for skill in (GOVERNANCE_SKILL, KANBAN, ISOLATION_SKILL):
+        text = skill.read_text(encoding="utf-8")
+        assert "as-of-authoring" in text, (
+            f"{skill.name} cites rule numbers but never marks them as-of-authoring pointers"
+        )
+        assert re.search(r"live governance source governs", text), (
+            f"{skill.name} must defer to the live governance source when a number conflicts"
+        )
+        assert re.search(r'rule RNN says X', text), (
+            f"{skill.name} must forbid relaying a rule on this file's authority alone"
+        )
         assert re.search(r"aimaestro-(agent|teams)\.sh|\*\.py. helpers|frozen CLI", text), (
             f"{skill.name} must name the CLI that replaces the direct call"
         )

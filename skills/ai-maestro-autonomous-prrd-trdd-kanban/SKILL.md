@@ -15,6 +15,13 @@ columns for its own TRDDs, playing MANAGER, ORCHESTRATOR, ARCHITECT,
 INTEGRATOR, and MEMBER for its own work. The only role it cannot play
 is HUMAN: USER substitutes for MANAGER on every non-exempt approval.
 
+**Rule numbers here are as-of-authoring POINTERS, not facts you may assert.**
+The governance source is versioned and revisable, so a renumber or a revision
+drifts this file silently — and a number resolving is not the same as the rule
+supporting the sentence. Cite a rule by its **substance**; if a number fails to
+resolve or contradicts this text, **the live governance source governs** — re-read
+it. Never tell another agent "rule RNN says X" on this file's authority alone.
+
 **This skill is self-contained: it carries AUTONOMOUS POLICY, and it does
 not defer its mechanics to another skill.** That is deliberate — skills
 load on demand and in isolation, so a layer whose content is "the real
