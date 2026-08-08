@@ -1,9 +1,10 @@
 ---
 trdd-id: HYJYIUHJ
 title: My persona asserts a superseded GitHub baseline that the guardian actively strips
-column: dev
+column: complete
 created: 2026-08-08T16:50:28+0200
-updated: 2026-08-08T16:50:28+0200
+updated: 2026-08-08T16:58:00+0200
+implementation-commits: [2762cd1]
 current-owner: ai-maestro-autonomous-agent
 task-type: infra
 scope: project
@@ -15,8 +16,8 @@ external-refs: [janitor#244, TRDD-1N2F74I2]
 
 ## ⏵ STATE — READ THIS FIRST ON RESUME (authoritative) — 2026-08-08
 
-**IN PROGRESS.** Persona `:724` claims `baseline-history-protect` carries
-`required_linear_history`. It does not, and must not. Fix the line, guard the negative.
+**DONE** — `2762cd1`. Baseline sentence corrected, the trap stated explicitly, negative guard
+falsified 3 ways. 126 tests pass; gate exit 0.
 
 ## How I found it — I acted on the stale text myself, today
 
@@ -77,6 +78,26 @@ So the correct scope here is: fix what I ship, and guard it.
 
 ## Verification
 
-- [ ] `uv run pytest -q`
-- [ ] `uv run python scripts/publish.py --gate` → exit 0
-- [ ] Falsify: re-add `required_linear_history` to the baseline sentence → guard reddens.
+- [x] `uv run pytest -q` → **126 passed**.
+- [x] `uv run python scripts/publish.py --gate` → **exit 0** (9 ok steps).
+- [x] Falsified **3 ways**, each reddening alone, control green, tree clean: the stale 3-item
+      list restored · the "not a restoration" trap statement removed · the
+      verify-against-the-applier lesson removed. Committed BEFORE falsifying, so the restoring
+      `git checkout` could not eat uncommitted work (the TRDD-F2SUT8D4 lesson, applied).
+
+## The guard had to be a NEGATIVE, and that shaped it
+
+The persona now *names* `required_linear_history` in order to warn against it, so the obvious
+guard — "the string must not appear" — would have forbidden the correction itself. And a
+positive-only guard ("the applied pair is stated") passes happily on the stale text, since the
+stale text also contains the applied pair plus one extra. The assertion that actually
+discriminates is the exact 3-item list, scoped to the baseline section. F1 is the real defect;
+F2/F3 protect the *reason*, which is the part that stops the next session repeating it.
+
+## What I could not fix, and why that is the correct scope
+
+`~/.claude/rules/manager-approval-defaults.md` §F still lists the superseded three-rule pair.
+It is outside this project, and the USER's standing constraint is that I change nothing outside
+the project folder and /tmp — so it is reported, not edited. Anything reading that file (any
+agent on this machine, not just me) will keep drawing the wrong conclusion until the owner
+updates it. My persona now carries the counter-statement, which is the part I own.
