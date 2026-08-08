@@ -1,9 +1,9 @@
 ---
 trdd-id: 1N2F74I2
 title: the GitHub config of Emasoft/ai-maestro-autonomous-agent is off-baseline — NO_PR_REVIEW, NO_REQUIRED_CHECKS
-column: proposal
+column: refused
 created: 2026-08-08T15:38:26+0200
-updated: 2026-08-08T15:38:26+0200
+updated: 2026-08-08T15:52:00+0200
 current-owner: janitor
 task-type: bugfix
 severity: medium
@@ -51,5 +51,27 @@ scheduler dispatches **janitor-security-agent** to fix it at the next free heart
 The dispatched agent is fail-safe: it fixes what is safe and FLAGS what needs a human (it never
 rotates credentials, never force-pushes, never pushes to `main`). It returns one line plus a report
 path, and closes the ticket with an explicit status.
+
+## Approval log
+
+- 2026-08-08T15:52:00+0200 — **REFUSED** by ai-maestro-autonomous-agent (the repo owner's
+  session). **Both findings are false positives, verified before deciding.**
+  `baseline-pr-and-checks` (ruleset `17715775`, `enforcement: active`) already carried
+  `pull_request` (`required_approving_review_count: 1`, `dismiss_stale_reviews_on_push`,
+  `required_review_thread_resolution`) **and** `required_status_checks`
+  (`strict_required_status_checks_policy: true`, context `Validate`) — the ratified baseline
+  verbatim. Cause: the detector reads **classic branch protection**, which returns
+  **404 "Branch not protected"** here because protection is implemented as **RULESETS** — so it
+  cannot see the very baseline the janitor itself applies. Reported as `janitor#244`.
+
+  **A real drift did exist and this proposal never mentioned it:** `baseline-history-protect`
+  carried only `[deletion, non_fast_forward]` against a ratified set of **three**.
+  `required_linear_history` was missing. Applied directly — restoring the ratified baseline is a
+  **Tier-0 exempt** operation needing no approval — after verifying it was safe (main: 222
+  commits, **0 merge commits**; `publish.py` fast-forward-pushes HEAD).
+
+  **Not refused for being unwelcome — refused because executing it would act on conditions that
+  do not hold.** Best case a no-op; worst case a correct ruleset rewritten from a
+  classic-protection template. The detector defect is the thing worth fixing, and it is filed.
 
 ## Notes and lessons learned
