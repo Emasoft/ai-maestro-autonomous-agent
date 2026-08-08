@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.7] - 2026-08-08
+
+### Bug Fixes
+
+- **test:** Scope the skill-menu check to the menu section (1dbb8f2)
+
+### Documentation
+
+- Close TRDD-CUD74MUJ — the guard was loose and only falsification found it (e4cd350)
+
+### Features
+
+- **spec:** Adopt role-plugins-spec 1.1.0 — drop the model pin (RULED), add the skill menu (TRDD-CUD74MUJ) (6030951)
 ## [1.6.6] - 2026-08-08
 
 ### Bug Fixes
