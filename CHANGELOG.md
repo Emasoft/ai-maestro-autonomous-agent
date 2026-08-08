@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.9] - 2026-08-08
+
+### Documentation
+
+- Record janitor proposal TRDD-1N2F74I2 as received (GHCFG-001) (3b61bd0)
+- Refuse TRDD-1N2F74I2 → refused (GHCFG-001 was a false positive) (c87ebd2)
 ## [1.6.8] - 2026-08-08
 
 ### Documentation
