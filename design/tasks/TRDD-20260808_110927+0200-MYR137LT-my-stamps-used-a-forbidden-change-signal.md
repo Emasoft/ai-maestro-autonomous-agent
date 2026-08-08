@@ -1,9 +1,10 @@
 ---
 trdd-id: MYR137LT
 title: My provenance stamps used the branch tip - a change signal the SSOT spec forbids
-column: dev
+column: complete
 created: 2026-08-08T11:09:27+0200
-updated: 2026-08-08T11:09:27+0200
+updated: 2026-08-08T11:14:00+0200
+implementation-commits: [00c9878]
 current-owner: ai-maestro-autonomous-agent
 task-type: security
 scope: project
@@ -16,9 +17,9 @@ external-refs: [ai-maestro#97]
 
 ## ⏵ STATE — READ THIS FIRST ON RESUME (authoritative) — 2026-08-08
 
-**IN PROGRESS.** Shipped stamps (v1.6.0–v1.6.2) cite the branch **tip**, which
-`3P-VER-05` forbids as a change signal. Fix = swap tip → **blob sha** in 3 surfaces and
-in the guard that currently *requires* the forbidden form.
+**DONE** — `00c9878`. All stamps now carry the blob; **two** guards that required the
+forbidden tip form were corrected (I had found only one when planning). 122 tests pass;
+gate exit 0 PARITY-CLEAN.
 
 ## The rule, read firsthand before acting
 
@@ -86,5 +87,31 @@ premise. The premise here was "a tip is a valid provenance pointer", which no te
 
 ## Verification
 
-- [ ] `uv run pytest -q`
-- [ ] `uv run python scripts/publish.py --gate`
+- [x] `uv run pytest -q` → **122 passed**.
+- [x] `uv run python scripts/publish.py --gate` → **exit 0**, `PARITY-CLEAN
+      (FAIL=0 WARNING=3 PASS=8)` — baseline unchanged.
+- [x] **TWO guards required the tip, not one.** Planning found the assertion in
+      `test_persona_keystroke_injection_is_absolute…`; a second lived in the base-of-five
+      test and only surfaced when the suite went red after the first fix. Recorded because
+      a plan that names one instance of a pattern has usually undercounted it.
+- [x] Falsified: tip form reintroduced → **2 red**; all blob shas removed → **2 red**;
+      read-date removed → **1 red**; control green, tree clean.
+
+## A flawed falsification, recorded because it nearly became a false conclusion
+
+My first attempt at "remove the blob sha" used `str.replace(..., 1)` — one occurrence,
+while the persona carries **3** and the assertions `re.search` the whole file. It stayed
+green, and the tempting reading was *"the guard is weak"*. **The falsification was
+weak, not the guard.** Re-run replacing all 3 → correctly red.
+
+The real, now-stated property: these assertions require **at least one** blob-stamped
+provenance line in the file, **not one per site**. If a single stamp lost its blob while
+the others kept theirs, the suite would stay green. That is an acceptable bound for a
+volatile-pointer assertion — but it is a bound, and an unstated bound is how the next
+reader over-trusts a green suite.
+
+## What is NOT fixed by this
+
+The blob answers *"did these bytes change?"* — it does **not** answer *"is what I read
+still true?"* on its own, because a blob that has moved tells you to re-read, not what
+changed. The stamp remains a prompt to re-verify, never a substitute for it.
