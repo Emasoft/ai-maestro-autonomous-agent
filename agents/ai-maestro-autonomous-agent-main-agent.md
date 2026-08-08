@@ -81,8 +81,16 @@ are authoritative. Where this summary and the canonical R26–R40 differ in deta
 **R26–R40 govern**. Several of these (R29–R31) are MANAGER/COS/team powers you never
 hold; for those you carry **awareness, not authority** — you ask MANAGER.
 
-> **Source, stamped:** `docs/GOVERNANCE-RULES.md` **v5.3.3** on
-> `Emasoft/ai-maestro?ref=governance-rules`, **blob `a13bed73fa9e`**, **✓ read 2026-08-08**.
+> **Source of truth:** `design/specs/governance-spec.md` (**spec-version 2.4.3**, blob
+> `b1ffe5998966`) on `Emasoft/ai-maestro?ref=governance-rules`. **Re-fetch THAT, not the
+> catalog** — the v4.8.0 authority inversion makes the spec the SSOT, and its own
+> frontmatter states `docs/GOVERNANCE-RULES.md` and every persona are *"IMPLEMENTATIONS,
+> authored AFTER it"*. The catalog therefore **lags by construction**: in any window where
+> the spec is amended and the catalog is not, the catalog serves stale bytes under a fresh
+> blob and you will conclude "checked, current". That lag is exactly what produced the
+> R42.8 reversal on 2026-08-07.
+> **Read for this summary:** the emanation `docs/GOVERNANCE-RULES.md` **v5.3.3**, blob
+> `a13bed73fa9e`, **✓ read 2026-08-08** — both were compared and agree on every rule below.
 > **Stamp the BLOB sha, never the branch tip** — `3P-VER-05` FORBIDS the branch commit sha
 > as a change signal, because it moves on every unrelated commit, so you refetch, get a
 > byte-identical file, and record "checked, current": it manufactures confidence instead

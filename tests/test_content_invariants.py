@@ -389,12 +389,29 @@ def test_team_base_is_five_including_the_cos_and_the_miscount_is_only_ever_quote
             )
 
     # VOLATILE — assert the stamp EXISTS, names a BLOB, and is dated; never its values.
-    assert re.search(r"Source, stamped", persona), "the governance block must carry a provenance stamp"
+    assert re.search(r"Source of truth:", persona), "the governance block must carry a provenance stamp"
     assert re.search(r"blob `[0-9a-f]{7,}`", persona), (
         "the stamp must record the BLOB sha it was read at (3P-VER-05), not the branch tip"
     )
     assert re.search(r"✓ read \d{4}-\d{2}-\d{2}", persona), (
         "the stamp must record WHEN it was read — an undated pin cannot go stale, only be silently wrong"
+    )
+    # STABLE -- the SSOT relationship. The v4.8.0 authority inversion makes the SPEC the source
+    # of truth and GOVERNANCE-RULES.md its emanation, "authored AFTER it". A re-fetch instruction
+    # aimed at the catalog sends the reader to the artifact that lags by construction -- which is
+    # what produced the R42.8 reversal (TRDD-H59F54O8). Versions/blobs move; this relationship
+    # does not, so it is asserted and they are not.
+    assert re.search(r"governance-spec\.md", persona), (
+        "the stamp must name the SSOT spec, not only the catalog it was read from"
+    )
+    # [\s>]+ not \s+ between words: the stamp is a markdown BLOCKQUOTE, so a line wrap inserts
+    # "\n> " and a plain \s+ silently fails to span it. A guard that breaks on a re-wrap is a
+    # guard that gets deleted.
+    assert re.search(r"[Rr]e-fetch THAT, not the[\s>]+catalog", persona), (
+        "the re-fetch instruction must point at the SSOT — the catalog lags by construction"
+    )
+    assert re.search(r"emanation", persona), (
+        "the catalog must be labelled an emanation so its lag is visible to the next reader"
     )
     # The forbidden signal must not come back. 3P-VER-05: the branch commit sha "is FORBIDDEN
     # as a change signal ... it moves on every unrelated commit, so a conforming consumer polls,
