@@ -1,9 +1,10 @@
 ---
 trdd-id: KT4MVFHA
 title: My 403 guard is persona-scoped so the claim survived unscoped in a decision-time checklist
-column: dev
+column: complete
 created: 2026-08-08T16:56:59+0200
-updated: 2026-08-08T16:56:59+0200
+updated: 2026-08-08T17:04:00+0200
+implementation-commits: [8813a5c]
 current-owner: ai-maestro-autonomous-agent
 task-type: security
 scope: project
@@ -15,8 +16,8 @@ external-refs: [ai-maestro#143, ai-maestro#131, TRDD-M3QS578Z]
 
 ## ⏵ STATE — READ THIS FIRST ON RESUME (authoritative) — 2026-08-08
 
-**IN PROGRESS.** `skills/…-governance/references/questions.md` Q10 asserts the 403 with no
-mention of the transport that cannot return one. Scope the claim, widen the guard corpus-wide.
+**DONE** — `8813a5c`. Q10 + the fixture scoped; guard is corpus-wide and falsified 3 ways
+(including vacuous-green). 127 tests pass; gate exit 0 PARITY-CLEAN.
 
 ## Where this came from
 
@@ -79,6 +80,26 @@ same hole for the same reason, and it is my file, so it gets the same scoping.
 
 ## Verification
 
-- [ ] `uv run pytest -q`
-- [ ] `uv run python scripts/publish.py --gate` → exit 0
-- [ ] Falsify: unscope Q10 → red; unscope the fixture → red; empty corpus → red.
+- [x] `uv run pytest -q` → **127 passed**.
+- [x] `uv run python scripts/publish.py --gate` → **exit 0**, `PARITY-CLEAN (FAIL=0 WARNING=3 PASS=8)`.
+- [x] Falsified **3 ways**, each reddening alone, control green, tree clean: Q10 unscoped ·
+      the fixture unscoped · **the vacuous-green case** (guard re-pointed at a corpus with no
+      403 claims). Committed BEFORE falsifying.
+
+## The third falsification is the one worth keeping
+
+A corpus-wide guard has a failure mode a per-file guard does not: it can pass because it found
+**nothing to check**. Rename `skills/`, re-point a glob, move the checklist, and the assertion
+goes green while the corpus is entirely unguarded — and green is exactly what nobody
+investigates. So the guard asserts the 403-claiming set is **non-empty** before it asserts
+anything about its contents, and F3 exists to prove that assertion actually fires. This is
+CORE's refinement from `#143` and it is worth copying verbatim rather than re-deriving.
+
+## The lesson generalizes past this claim
+
+The defect was not that I missed a file. It was that I proved something about `PERSONA` and let
+it stand for the corpus. **A guard's scope is part of its claim** — `test_persona_*` proves
+"the persona says X", never "the plugin says X", and the gap between those two readings is
+invisible in a green run. Where a rule must hold everywhere, the guard has to enumerate
+everywhere and fail on an empty enumeration.
+
