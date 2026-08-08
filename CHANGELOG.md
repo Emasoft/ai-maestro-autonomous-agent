@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.1] - 2026-08-08
+
+### Bug Fixes
+
+- **governance:** A non-MAESTRO user has NO channel to me — treat it as anomalous (TRDD-1R72424K) (7c350a8)
+
+### Documentation
+
+- Close TRDD-1R72424K — guard falsified 5 ways, audit coverage stated (6ed2d78)
 ## [1.6.0] - 2026-08-08
 
 ### Bug Fixes
