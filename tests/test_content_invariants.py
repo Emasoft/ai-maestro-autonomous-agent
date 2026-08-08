@@ -498,9 +498,16 @@ def test_main_agent_omits_model_key_and_menus_every_shipped_skill() -> None:
     )
 
     # RP-SKILL-MENU-01 -- the menu exists and matches the shipped skills exactly.
+    # Scope the name check to the MENU SECTION, not the whole persona: several skills are also
+    # named in passing elsewhere, so a file-wide search would count a mention as a menu entry
+    # and pass a menu that had silently dropped a skill (measured -- that falsification did not
+    # redden until this was scoped).
+    menu = re.search(r"## Your skills.*?(?=\n## )", text, re.S)
+    assert menu, "persona must carry a `## Your skills` menu section (RP-SKILL-MENU-01)"
+    menu_text = menu.group(0)
     shipped = sorted(p.parent.name for p in (REPO_ROOT / "skills").glob("*/SKILL.md"))
     assert shipped, "expected at least one shipped skill"
-    menued = sorted({s for s in shipped if re.search(r"`" + re.escape(s) + r"`", text)})
+    menued = sorted({s for s in shipped if re.search(r"`" + re.escape(s) + r"`", menu_text)})
     assert menued == shipped, (
         f"skill menu is STALE — shipped={shipped} menued={menued}. RP-SKILL-MENU-01: the menu "
         "MUST be updated in the same change that adds, renames, or removes a skill"
