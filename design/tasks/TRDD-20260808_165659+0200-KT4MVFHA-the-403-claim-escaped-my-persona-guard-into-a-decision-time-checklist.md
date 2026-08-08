@@ -102,4 +102,3 @@ it stand for the corpus. **A guard's scope is part of its claim** — `test_pers
 "the persona says X", never "the plugin says X", and the gap between those two readings is
 invisible in a green run. Where a rule must hold everywhere, the guard has to enumerate
 everywhere and fail on an empty enumeration.
-
