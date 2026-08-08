@@ -153,8 +153,48 @@ the checklist alone as the gate.
 
 ## Output
 
-- TRDD edits moving your own cards across ALL columns (`backburner`
-  through `live_auditing`, plus `blocked` / `failed` / `superseded`).
+- TRDD edits moving your own cards across ALL columns (the full enum below).
+
+### The 17 columns — the complete, authoritative enum
+
+`3P-KAN-01` (**MUST**): a `column:` value is **EXACTLY one of these 17, these spellings,
+no others.** `3P-KAN-03` (**MUST**): every consumer — role-plugins included — aligns **TO**
+this list, never the reverse. Reproduced verbatim from the spec's machine-extractable block;
+re-derive with
+`grep -A20 '@spec:kanban-columns' design/specs/3-pillars-spec.md` on
+`Emasoft/ai-maestro?ref=governance-rules`.
+
+```text
+backburner
+todo
+design
+dispatch
+dev
+testing
+ai_review
+human_review
+complete
+publish
+published
+deploy
+live
+live_auditing
+blocked
+failed
+superseded
+```
+
+Happy path (`3P-KAN-04`): `backburner → todo → design → dispatch → dev → testing →
+ai_review → (human_review) → complete`, then **`publish → published`** for
+`release-via: publish` **or** `deploy → live → (live_auditing)` for `release-via: deploy`.
+Return edges (`3P-KAN-05`): `testing → dev` on failure, `ai_review → dev` on rejection.
+`blocked` (`3P-KAN-06`) is entered from any working column while `blocked-by:` is non-empty
+— record `pre-block-column:` and restore to it when it clears.
+
+**`published` is this plugin's own terminal column** — a Claude Code plugin releases via
+`scripts/publish.py`, so its cards end at `publish → published`, never at `live`.
+This list was 16/17 (`published` absent) until TRDD-F2SUT8D4; **the missing one was the
+terminus of the path taken on every release.**
 - USER approval-requests via `amp-send`, with replies logged verbatim in
   each TRDD's `## Approval log`.
 - PRRD silver-rule edits — a Tier-2 proposal to MANAGER when reachable, or

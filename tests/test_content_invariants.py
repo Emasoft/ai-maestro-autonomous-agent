@@ -469,6 +469,36 @@ def test_a_non_maestro_user_instruction_is_anomalous_not_merely_weighable() -> N
     )
 
 
+CANONICAL_COLUMNS = (
+    "backburner", "todo", "design", "dispatch", "dev", "testing", "ai_review",
+    "human_review", "complete", "publish", "published", "deploy", "live",
+    "live_auditing", "blocked", "failed", "superseded",
+)
+
+
+def test_kanban_skill_carries_all_seventeen_canonical_columns() -> None:
+    """The kanban skill carries the complete 17-column enum, incl. `published` (TRDD-F2SUT8D4).
+
+    3P-KAN-01 (MUST): a `column:` value is EXACTLY one of the 17, these spellings, no others.
+    3P-KAN-03 (MUST): every consumer -- role-plugins included -- aligns TO this list.
+
+    The skill carried 16/17. The missing one was `published`, which 3P-KAN-04 makes the
+    TERMINUS of the publish path (`complete -> publish -> published`) -- the path this plugin
+    takes on every single release. An agent working from the skill alone could reach `publish`
+    and have no vocabulary for where it goes next, while 3P-KAN-01 forbids inventing one.
+
+    Asserted BY VALUE, unlike the volatile stamps elsewhere in this file: the vocabulary is
+    USER-ratified (3P-KAN-02) and changing it is a MAJOR spec bump (3P-VER-01), so it is one
+    of the few genuinely stable things to pin. Deliberately checks the SKILL only -- the
+    persona defers kanban mechanics here, and 3P-META-03 names duplicating this vocabulary
+    across artefacts as the drift mechanism itself.
+    """
+    text = KANBAN.read_text(encoding="utf-8")
+    missing = [c for c in CANONICAL_COLUMNS if not re.search(r"\b" + re.escape(c) + r"\b", text)]
+    assert not missing, f"kanban skill is missing canonical column(s): {missing}"
+    assert re.search(r"3P-KAN-01", text), "the enum must cite the clause that makes it a MUST"
+
+
 # ── issue: direct ai-maestro server API calls (USER directive 2026-08-02, TRDD-4P2RZQFE) ──
 
 GOVERNANCE_SKILL = REPO_ROOT / "skills" / "ai-maestro-autonomous-governance" / "SKILL.md"
