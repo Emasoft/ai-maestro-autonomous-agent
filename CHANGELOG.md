@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.3] - 2026-08-08
+
+### Bug Fixes
+
+- **governance:** My stamps used the branch tip — a change signal the SSOT FORBIDS (TRDD-MYR137LT) (00c9878)
+
+### Documentation
+
+- Close TRDD-MYR137LT — two guards required the tip, and one falsification was itself flawed (049b1ad)
 ## [1.6.2] - 2026-08-08
 
 ### Bug Fixes
