@@ -218,8 +218,23 @@ def test_persona_keystroke_injection_is_absolute_no_manager_exception() -> None:
     Verified 2026-08-08 before this rewrite: 1952 lines, subsections R42.0-R42.8, row 1542
     attributed `Explicit (USER - 2026-08-05, ai-maestro#125, TRDD-AODXPI5E)`.
 
-    NOTE the ratified verb list is NARROWER than the pre-retraction persona claimed:
-    `read-prompt` and `answer` ONLY -- `block-state` is NOT an R42.8 exception verb.
+    THE VERB LIST IS VOLATILE AND THIS TEST DELIBERATELY DOES NOT PIN ITS MEMBERSHIP.
+    Measured at `governance-rules` on 2026-08-08: tip cdee1dd (05:56Z) read
+    "`read-prompt` and `answer` ONLY" with zero `block-state`; tip e46764f6 (06:03Z),
+    SEVEN MINUTES LATER, read "`block-state`, `read-prompt` and `answer` ONLY". An earlier
+    revision of this test asserted `block-state` must NOT appear -- which, one commit on,
+    enforced exactly the omission the hub had just corrected.
+
+    So the assertions below split by STABILITY, not by importance:
+      * stable + safety-critical -> asserted hard (inject/slash/queue are self-only;
+        AUTONOMOUS holds no title; R42.8 is ratified). None of these has ever moved.
+      * volatile -> asserted only as "the persona names a list AND carries the probe",
+        never as a membership check. Pinning a fact that moved twice in 30 minutes makes
+        the suite a liability: it goes red on truth and green on staleness.
+
+    The rule this encodes, learned twice in one day: a test that hard-codes an EXTERNAL
+    fact must carry the probe that establishes it, or the premise silently inherits the
+    guard's credibility. Falsification tests the MECHANISM, never the PREMISE.
     """
     text = PERSONA.read_text(encoding="utf-8")
     # The IRON keystroke-injection ban with no authorization escape.
@@ -234,12 +249,13 @@ def test_persona_keystroke_injection_is_absolute_no_manager_exception() -> None:
     assert re.search(r"including\s+AUTONOMOUS:\s+none", text), (
         "R42.8 must be shown title-scoped, with AUTONOMOUS holding no such title"
     )
-    # The verb list is exactly two. `block-state` must NOT be presented as an exception verb.
-    assert re.search(r"`read-prompt`\s+and\s+`answer`\s+ONLY", text), (
-        "the R42.8 exception verbs are read-prompt and answer ONLY"
+    # VOLATILE — assert only that a verb list is named and dated, never its membership.
+    assert re.search(r"`answer`\s+ONLY", text), "persona must state the exception verbs are a closed list"
+    assert re.search(r"governance-rules`?\s+tip\s+`?[0-9a-f]{7,}", text), (
+        "the verb list must carry the tip it was read at — it moved twice in 30 minutes on 2026-08-08"
     )
-    assert not re.search(r"`block-state`[^.]{0,60}exception\s+verb", text), (
-        "block-state is NOT an R42.8 exception verb — do not widen the ratified list"
+    assert re.search(r"re-fetch\s+the\s+row\s+before\s+relying\s+on\s+its\s+exact\s+membership", text), (
+        "persona must send the reader to the live row rather than trusting this list"
     )
     assert re.search(r"`inject`,\s*`slash`\s+and\s+`queue`\s+are\s+explicitly\s+NOT\s+exception\s+verbs", text), (
         "persona must state inject/slash/queue are self-only for every title"

@@ -274,10 +274,15 @@ strictly scoped because stray writes can destroy other agents' work.
    - by **title** — MANAGER: any agent on the host except an ASSISTANT;
      CHIEF-OF-STAFF: **its own team only**, same exclusion; **every other title,
      including AUTONOMOUS: none.**
-   - by **verb** — **`read-prompt` and `answer` ONLY.** `inject`, `slash` and
-     `queue` are explicitly NOT exception verbs for anyone: they deliver an
-     arbitrary command, so they express the CALLER's decision (R42.1 exactly) and
-     stay SELF-ONLY for every title, with the server returning 403 cross-agent.
+   - by **verb** — **`block-state`, `read-prompt` and `answer` ONLY** (✓ the live
+     row at `governance-rules` tip `e46764f6`, 2026-08-08T06:03:37Z). All three
+     are READS or an answer to a prompt already pending; none carries a caller
+     decision. `inject`, `slash` and `queue` are explicitly NOT exception verbs
+     for anyone: they deliver an arbitrary command, so they express the CALLER's
+     decision (R42.1 exactly) and stay SELF-ONLY for every title, with the server
+     returning 403 cross-agent. **That last sentence is the load-bearing one and
+     has never moved; the exception LIST has, twice in one morning — so re-fetch
+     the row before relying on its exact membership.**
 
    So you refuse on **two independent grounds** — you hold no R42.8 title, and the
    injection verbs are self-only regardless. Refuse for those reasons, not by
