@@ -335,6 +335,60 @@ def test_persona_marks_rule_numbers_as_as_of_authoring() -> None:
     assert "agent-messaging" in text, "the agent-messaging deferral precedent must still be present"
 
 
+GOV_SCENARIOS = REPO_ROOT / "tests" / "scenarios" / "governance-scenarios.md"
+
+# The deleted R29.1 text. Legal ONLY as a quoted warning, never as a claim.
+_MISCOUNT = re.compile(r"(?:COS|CHIEF-OF-STAFF)\*{0,2}\s*\+\s*5")
+# Cues that mark an occurrence as a quotation of the error rather than an assertion of it.
+_QUOTED = re.compile(r"Never write|It read|previously read|laundered|deleted|wrong twice", re.I)
+
+
+def test_team_base_is_five_including_the_cos_and_the_miscount_is_only_ever_quoted() -> None:
+    """The base is 5 INCLUDING the COS (R12.1); the deleted "COS + 5" text may appear only as a warning (TRDD-62AO9JXY).
+
+    Found by auditing my own tree for the exposure class I had just advised a peer about.
+    Both the persona and this scenario file asserted the MANAGER "auto-creates the
+    CHIEF-OF-STAFF + 5 base members" — verbatim the text USER deleted on 2026-07-14
+    (GOVERNANCE-RULES v4.2.1) as wrong TWICE: it miscounts the base as six (R12.1 defines
+    five INCLUDING the COS) and credits the SYSTEM with work R12.2/R31.1 give the COS. It
+    survived 25 days because the persona pinned v4.0.2 — a version predating the fix — with
+    no date, so its staleness was unobservable.
+
+    Assertions are split by STABILITY (ATOM-FEF6-38O0). The base-of-five is STABLE: upstream
+    states R12.1 always governed and no behavior change was intended, so "COS + 5" was never
+    correct and this is not a premise that can flip. The source VERSION is VOLATILE, so the
+    stamp is asserted to EXIST and never by value.
+
+    The negative assertion deliberately checks each occurrence's CONTEXT, not the raw string:
+    the correct fix ADDS the forbidden phrase as a quoted prohibition, and a guard that
+    reddens on correct writing gets deleted rather than obeyed.
+    """
+    persona = PERSONA.read_text(encoding="utf-8")
+    scenarios = GOV_SCENARIOS.read_text(encoding="utf-8")
+
+    # STABLE — the corrected fact itself.
+    assert re.search(r"ONLY the CHIEF-OF-STAFF", persona), "persona must state a new team auto-creates the COS and ONLY the COS"
+    assert re.search(r"base is FIVE agents\s+INCLUDING the COS", persona), "persona must state the base is five INCLUDING the COS"
+    assert re.search(r"R12\.1", persona), "persona must cite R12.1, the rule that DEFINES the base"
+    assert re.search(r"including the COS", scenarios, re.I), "the scenario file must carry the corrected base too"
+
+    # STABLE — the miscount may appear ONLY as a quoted warning, never as a claim.
+    for name, text in (("persona", persona), ("governance-scenarios", scenarios)):
+        for m in _MISCOUNT.finditer(text):
+            window = text[max(0, m.start() - 200) : m.start()]
+            assert _QUOTED.search(window), (
+                f"{name}: '{m.group()}' appears without a warning cue nearby — "
+                "the deleted R29.1 text is quotable as an error, never assertable as a fact"
+            )
+
+    # VOLATILE — assert the stamp EXISTS and is dated, never its version/tip values.
+    assert re.search(r"Source, stamped", persona), "the governance block must carry a provenance stamp"
+    assert re.search(r"tip `[0-9a-f]{7,}`", persona), "the stamp must record the tip it was read at"
+    assert re.search(r"✓ read \d{4}-\d{2}-\d{2}", persona), (
+        "the stamp must record WHEN it was read — an undated pin cannot go stale, only be silently wrong"
+    )
+
+
 # ── issue: direct ai-maestro server API calls (USER directive 2026-08-02, TRDD-4P2RZQFE) ──
 
 GOVERNANCE_SKILL = REPO_ROOT / "skills" / "ai-maestro-autonomous-governance" / "SKILL.md"
