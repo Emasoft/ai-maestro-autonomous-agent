@@ -473,11 +473,25 @@ def test_main_agent_omits_model_key_and_menus_every_shipped_skill() -> None:
     """role-plugins-spec 1.1.0: main agents OMIT `model:`, and menu every shipped skill (TRDD-CUD74MUJ).
 
     RP-MODEL-01 was RULED 2026-08-08 (ai-maestro#136, closing TRDD-TYB3Q1NJ): role-plugin MAIN
-    agents omit `model:`, same as subagents -- model choice is a cost/capability decision
-    belonging to whoever launches the session. At spec 1.0.1 this was an OPEN question and our
-    `model: sonnet` was explicitly NOT a violation (we were the ruling's decisive
-    counterexample); "carrying a key past that publish is a conformance failure, before it is
-    not". So this assertion is correct only from v1.6.7 onward -- it is not retroactive.
+    agents omit `model:` -- model choice is a cost/capability decision belonging to whoever
+    launches the session. At spec 1.0.1 this was an OPEN question and our `model: sonnet` was
+    explicitly NOT a violation (we were the ruling's decisive counterexample); "carrying a key
+    past that publish is a conformance failure, before it is not". So this assertion is correct
+    only from v1.6.7 onward -- it is not retroactive.
+
+    This docstring previously read "omit `model:`, SAME AS SUBAGENTS", quoting a rationale
+    upstream has since RETRACTED: "subagents already omit model: everywhere" was measured false
+    fleet-wide (15 pinned subagents at current tips). The ruling's scope is now explicitly MAIN
+    agents, which is what this test checks, so the assertion never moved -- only the reason
+    given for it. Immaterial here regardless: this repo ships exactly ONE agent file and zero
+    subagents, verified.
+
+    HOW THE RETRACTION WAS CAUGHT, because it is the argument for the whole stamp discipline:
+    the spec's BLOB moved 9fb6aa69efc7 -> e1a62f9d83b8 while `spec-version` stayed 1.1.0. A
+    version-based check would have seen nothing. Having now observed BOTH failure modes in one
+    day -- the branch tip moving with no content change (TRDD-MYR137LT) and the content
+    changing with no version bump (this) -- 3P-VER-05's "poll the per-FILE blob sha" is the
+    only signal that was right both times.
 
     RP-SKILL-MENU-01 (new): every main agent whose plugin ships skills MUST carry a compact
     body menu, one line per skill, name + when to reach for it. Measured rationale: an agent
