@@ -1,9 +1,10 @@
 ---
 trdd-id: H59F54O8
 title: My provenance stamp sends the reader to re-fetch the emanation not the source of truth
-column: dev
+column: complete
 created: 2026-08-08T11:49:03+0200
-updated: 2026-08-08T11:49:03+0200
+updated: 2026-08-08T11:54:00+0200
+implementation-commits: [121cb4a]
 current-owner: ai-maestro-autonomous-agent
 task-type: security
 scope: project
@@ -15,9 +16,8 @@ derived-from: MYR137LT
 
 ## ⏵ STATE — READ THIS FIRST ON RESUME (authoritative) — 2026-08-08
 
-**IN PROGRESS.** The stamp says "re-fetch `docs/GOVERNANCE-RULES.md`" — an artifact the
-SSOT declares is authored **after** it. Fix = name the spec as the authority, keep the
-catalog as what was actually read.
+**DONE** — `121cb4a`. Stamp now names the SSOT as the re-fetch target and labels the
+catalog an emanation. 122 tests pass; gate exit 0 PARITY-CLEAN.
 
 ## The defect
 
@@ -77,5 +77,22 @@ pattern, not about the corpus.**
 
 ## Verification
 
-- [ ] `uv run pytest -q`
-- [ ] `uv run python scripts/publish.py --gate`
+- [x] `uv run pytest -q` → **122 passed**.
+- [x] `uv run python scripts/publish.py --gate` → **exit 0**, `PARITY-CLEAN
+      (FAIL=0 WARNING=3 PASS=8)` — baseline unchanged.
+- [x] Falsified 3 ways, each reddening alone, control green, tree clean:
+      SSOT filename removed · re-fetch instruction reworded · "emanation" label removed.
+- [x] The guard **caught my own rename** mid-change (`Source, stamped:` →
+      `Source of truth:`) — the suite went red on a phrasing I had changed myself, which
+      is the assertion doing its job rather than a defect.
+
+## Two guard-regex traps hit while writing this, both worth keeping
+
+1. **`\s+` cannot span a blockquote wrap.** The stamp is a markdown `>` blockquote, so a
+   line break inserts `"\n> "`. `r"not the\s+catalog"` silently failed to match text that
+   plainly reads "not the catalog". Fixed with `[\s>]+`. **A guard that breaks on a re-wrap
+   is a guard that gets deleted** rather than fixed.
+2. **Keying an assertion on a marker phrase couples it to wording.** Asserting
+   `"Source, stamped"` meant renaming the heading broke the test. That is acceptable here
+   (the coupling is deliberate and cheap to update) but it is a coupling, and it should be
+   to a phrase chosen for stability, not to whatever the heading happens to say.
