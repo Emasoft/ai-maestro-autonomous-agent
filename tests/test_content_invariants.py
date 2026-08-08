@@ -921,6 +921,46 @@ def test_persona_rm_rf_checks_the_resolved_path_and_inner_links() -> None:
     assert "junction" in text, "a directory symlink/junction inside the tree is the escape vector (CC 2.1.205)"
 
 
+def test_no_403_claim_travels_without_the_transport_that_cannot_return_one() -> None:
+    """CORPUS-WIDE: any shipped file asserting the 403 must also name `SendMessage`.
+
+    Claude Code 2.1.224 added a native session-to-session transport with no server in the
+    path, so it can never return `403 title_communication_forbidden`. A file that asserts the
+    403 as the boundary does not merely under-describe reality — it ROUTES the reader toward
+    the unpoliced channel, which is in every session's toolbelt (ai-maestro#143, #131).
+
+    This is deliberately corpus-wide. The persona-scoped guards from TRDD-M3QS578Z passed while
+    the governance skill's decision-time checklist still carried the bare claim: a per-file
+    assertion certifies the file it names and is silent about every other one, and that silence
+    is indistinguishable from coverage (TRDD-KT4MVFHA).
+
+    `design/` is excluded: terminal TRDDs are frozen by rule, so demanding an edit there would
+    force a rule violation to go green.
+    """
+    roots = ("agents", "skills", "commands", "tests/scenarios")
+    claim = re.compile(r"403|title_communication_forbidden")
+
+    asserters: list[Path] = []
+    offenders: list[str] = []
+    for root in roots:
+        for path in sorted((REPO_ROOT / root).rglob("*.md")):
+            text = path.read_text(encoding="utf-8")
+            if not claim.search(text):
+                continue
+            asserters.append(path)
+            if "SendMessage" not in text:
+                offenders.append(str(path.relative_to(REPO_ROOT)))
+
+    assert asserters, (
+        "no shipped file asserts the 403 — the corpus moved or was renamed, so this guard just "
+        "went vacuously green; re-point `roots` before trusting it"
+    )
+    assert not offenders, (
+        "these files assert the 403 without naming the transport that cannot return one, so a "
+        f"reader learns the 403 IS the boundary: {offenders}"
+    )
+
+
 def test_persona_never_claims_linear_history_is_part_of_the_baseline() -> None:
     """`required_linear_history` is NOT baseline — the guardian strips it, so claiming it causes real drift.
 
