@@ -1,9 +1,10 @@
 ---
 trdd-id: MW5L9N10
 title: Skills cite governance rule numbers as fact with no deferral to the live source
-column: dev
+column: complete
 created: 2026-08-08T10:57:38+0200
-updated: 2026-08-08T10:57:38+0200
+updated: 2026-08-08T11:02:00+0200
+implementation-commits: [abbfb39]
 current-owner: ai-maestro-autonomous-agent
 task-type: security
 scope: project
@@ -15,9 +16,9 @@ derived-from: 1R72424K
 
 ## ⏵ STATE — READ THIS FIRST ON RESUME (authoritative) — 2026-08-08
 
-**IN PROGRESS.** All skill governance CONTENT verified correct — this is a structural
-gap, not a wrong claim. Fix = a two-line deferral in the 3 SKILL.md entry points,
-matching the existing `/api/` precedent, plus a guard.
+**DONE** — `abbfb39`. Deferral in all 3 SKILL.md entry points; guard falsified once
+**per file** (proving the loop walks all three, not just the first). 122 tests pass;
+gate exit 0 PARITY-CLEAN.
 
 ## The content is clean — that part was checked first
 
@@ -86,5 +87,18 @@ always reached through their SKILL.md.
 
 ## Verification
 
-- [ ] `uv run pytest -q`
-- [ ] `uv run python scripts/publish.py --gate`
+- [x] `uv run pytest -q` → **122 passed**.
+- [x] `uv run python scripts/publish.py --gate` → **exit 0**, `PARITY-CLEAN
+      (FAIL=0 WARNING=3 PASS=8)` — baseline unchanged, this added no warning.
+- [x] **Guard falsified once PER FILE**, each reddening alone, control green, tree clean:
+
+      | file | broken | result |
+      |---|---|---|
+      | governance/SKILL.md | `as-of-authoring` | FAIL |
+      | prrd-trdd-kanban/SKILL.md | `live governance source governs` | FAIL |
+      | workspace-isolation/SKILL.md | `rule RNN says X` | FAIL |
+
+      Breaking a **different** file each time is the point: a loop-over-files guard that
+      is only ever falsified on the first element proves the assertion, not the loop.
+      A guard that silently checked one file and passed the other two would look
+      identical to this one from its green result.
