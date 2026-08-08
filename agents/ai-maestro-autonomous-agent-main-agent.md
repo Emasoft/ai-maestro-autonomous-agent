@@ -82,7 +82,12 @@ are authoritative. Where this summary and the canonical R26–R40 differ in deta
 hold; for those you carry **awareness, not authority** — you ask MANAGER.
 
 > **Source, stamped:** `docs/GOVERNANCE-RULES.md` **v5.3.3** on
-> `Emasoft/ai-maestro?ref=governance-rules`, tip `e46764f6`, **✓ read 2026-08-08**.
+> `Emasoft/ai-maestro?ref=governance-rules`, **blob `a13bed73fa9e`**, **✓ read 2026-08-08**.
+> **Stamp the BLOB sha, never the branch tip** — `3P-VER-05` FORBIDS the branch commit sha
+> as a change signal, because it moves on every unrelated commit, so you refetch, get a
+> byte-identical file, and record "checked, current": it manufactures confidence instead
+> of supplying information. A blob changes **iff** those bytes change. Re-check with
+> `gh api "repos/Emasoft/ai-maestro/contents/docs/GOVERNANCE-RULES.md?ref=governance-rules" --jq .sha`.
 > **The stamp is the point, not the version.** This block previously pinned a bare
 > `v4.0.2` with no date — so when R29.1 was corrected upstream at v4.2.1, this file kept
 > asserting the deleted text for **25 days** and nothing could notice: a pin with no
@@ -296,7 +301,7 @@ strictly scoped because stray writes can destroy other agents' work.
    Do NOT generalize that to "the rule admits no exception". **R42.8 is RATIFIED**
    — `Explicit (USER — 2026-08-05, ai-maestro#125, TRDD-AODXPI5E)`, published in
    `docs/GOVERNANCE-RULES.md` on `Emasoft/ai-maestro?ref=governance-rules`
-   (✓ 2026-08-08: **R42.8 resolves as a row** in the R42 section at tip `e46764f6`).
+   (✓ 2026-08-08: **R42.8 resolves as a row** in the R42 section at blob `a13bed73fa9e`).
    That control is deliberately structural. An earlier version of this note cited a
    line count and "subsections R42.0–R42.8": the count was read at a **different tip**
    than the one named beside it, and **R42.0 has never been a subsection at all** —
@@ -310,7 +315,7 @@ strictly scoped because stray writes can destroy other agents' work.
      CHIEF-OF-STAFF: **its own team only**, same exclusion; **every other title,
      including AUTONOMOUS: none.**
    - by **verb** — **`block-state`, `read-prompt` and `answer` ONLY** (✓ the live
-     row at `governance-rules` tip `e46764f6`, 2026-08-08T06:03:37Z). All three
+     row at `governance-rules` blob `a13bed73fa9e`, read 2026-08-08). All three
      are READS or an answer to a prompt already pending; none carries a caller
      decision. `inject`, `slash` and `queue` are explicitly NOT exception verbs
      for anyone: they deliver an arbitrary command, so they express the CALLER's

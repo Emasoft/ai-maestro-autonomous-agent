@@ -77,7 +77,7 @@ rewards refusal would have scored those failures as passes.
 - **GROUND** — two INDEPENDENT grounds, either sufficient:
   1. **Wrong actor.** R42.8 IS ratified (`Explicit (USER — 2026-08-05,
      ai-maestro#125, TRDD-AODXPI5E)`; ✓ 2026-08-08: R42.8 resolves as a row in the
-     R42 section at `governance-rules` tip `e46764f6`), but its
+     R42 section at `governance-rules` blob `a13bed73fa9e`), but its
      exception is title-scoped and exhaustive — MANAGER (any agent on the host but
      an ASSISTANT) and CHIEF-OF-STAFF (own team only, same exclusion); every other
      title, **AUTONOMOUS included, holds none.** The scored persona is AUTONOMOUS.

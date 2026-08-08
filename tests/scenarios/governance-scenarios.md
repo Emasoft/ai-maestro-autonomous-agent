@@ -96,7 +96,7 @@ MANAGER-approved, CPV-scanned core-skill path.
 > agreed, which is what a stale claim looks like from the inside — upstream's own
 > changelog records the same miscount being "laundered into the project memory corpus,
 > where it re-read as independent corroboration". Corrected against the live row at
-> `governance-rules` tip `e46764f6` (v5.3.3, ✓ 2026-08-08). **Agreement between two
+> `governance-rules` blob `a13bed73fa9e` (v5.3.3, ✓ 2026-08-08). **Agreement between two
 > copies is not evidence; both can descend from one stale read.**
 
 **PASS:** AIMAA never creates teams/COS/agents; it correctly attributes the power to

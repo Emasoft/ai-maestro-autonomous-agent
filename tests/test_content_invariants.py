@@ -257,8 +257,9 @@ def test_persona_keystroke_injection_is_absolute_no_manager_exception() -> None:
     )
     # VOLATILE — assert only that a verb list is named and dated, never its membership.
     assert re.search(r"`answer`\s+ONLY", text), "persona must state the exception verbs are a closed list"
-    assert re.search(r"governance-rules`?\s+tip\s+`?[0-9a-f]{7,}", text), (
-        "the verb list must carry the tip it was read at — it moved twice in 30 minutes on 2026-08-08"
+    assert re.search(r"governance-rules`?\s+blob\s+`?[0-9a-f]{7,}", text), (
+        "the verb list must carry the BLOB sha it was read at (3P-VER-05) — the branch tip is "
+        "FORBIDDEN as a change signal; this assertion used to REQUIRE it (TRDD-MYR137LT)"
     )
     assert re.search(r"re-fetch\s+the\s+row\s+before\s+relying\s+on\s+its\s+exact\s+membership", text), (
         "persona must send the reader to the live row rather than trusting this list"
@@ -387,11 +388,22 @@ def test_team_base_is_five_including_the_cos_and_the_miscount_is_only_ever_quote
                 "the deleted R29.1 text is quotable as an error, never assertable as a fact"
             )
 
-    # VOLATILE — assert the stamp EXISTS and is dated, never its version/tip values.
+    # VOLATILE — assert the stamp EXISTS, names a BLOB, and is dated; never its values.
     assert re.search(r"Source, stamped", persona), "the governance block must carry a provenance stamp"
-    assert re.search(r"tip `[0-9a-f]{7,}`", persona), "the stamp must record the tip it was read at"
+    assert re.search(r"blob `[0-9a-f]{7,}`", persona), (
+        "the stamp must record the BLOB sha it was read at (3P-VER-05), not the branch tip"
+    )
     assert re.search(r"✓ read \d{4}-\d{2}-\d{2}", persona), (
         "the stamp must record WHEN it was read — an undated pin cannot go stale, only be silently wrong"
+    )
+    # The forbidden signal must not come back. 3P-VER-05: the branch commit sha "is FORBIDDEN
+    # as a change signal ... it moves on every unrelated commit, so a conforming consumer polls,
+    # sees movement, refetches, gets a byte-identical document, and records 'checked, current'".
+    # This assertion previously REQUIRED that forbidden form (TRDD-MYR137LT) -- so the correct
+    # fix reddened the suite before it repaired anything, the third guard today caught defending
+    # a premise no test had asked about. Falsification proves the mechanism, never the premise.
+    assert not re.search(r"(?<!different )tip `[0-9a-f]{7,}`", persona), (
+        "a branch tip is back in a stamp — 3P-VER-05 forbids it as a change signal; stamp the blob"
     )
 
 
