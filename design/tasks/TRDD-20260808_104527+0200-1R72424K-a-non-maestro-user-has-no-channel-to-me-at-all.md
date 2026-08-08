@@ -1,9 +1,10 @@
 ---
 trdd-id: 1R72424K
 title: A non-MAESTRO user cannot reach AUTONOMOUS at all - the persona treats their order as a weighable request
-column: dev
+column: complete
 created: 2026-08-08T10:45:27+0200
-updated: 2026-08-08T10:45:27+0200
+updated: 2026-08-08T10:49:00+0200
+implementation-commits: [7c350a8]
 current-owner: ai-maestro-autonomous-agent
 task-type: security
 scope: project
@@ -16,10 +17,9 @@ external-refs: [ai-maestro#125]
 
 ## ⏵ STATE — READ THIS FIRST ON RESUME (authoritative) — 2026-08-08
 
-**IN PROGRESS.** Persona cites R36/R37 for a claim those rules do not make about
-AUTONOMOUS, and misses R38.2 — the rule that actually governs the case. Behaviour is
-not wrong; it is weaker than the rule allows. Fix = correct the citation, add the
-channel fact, guard it.
+**DONE** — `7c350a8`. Citation corrected, R38.2 channel fact added, guard falsified
+5 ways. 121 tests pass; gate exit 0 PARITY-CLEAN. **Unreleased** — lands in the next
+version (v1.6.0 shipped before this).
 
 ## What the live rules say (v5.3.3, tip `e46764f6`, ✓ read 2026-08-08)
 
@@ -93,5 +93,30 @@ sentence claims. **"The number resolves" is not "the rule supports the sentence.
 
 ## Verification
 
-- [ ] `uv run pytest -q`
-- [ ] `uv run python scripts/publish.py --gate`
+- [x] `uv run pytest -q` → **121 passed**.
+- [x] `uv run python scripts/publish.py --gate` → **exit 0**, `PARITY-CLEAN
+      (FAIL=0 WARNING=3 PASS=8)`, CRITICAL/MAJOR/MINOR/NIT all 0 — baseline unchanged.
+- [x] **Guard falsified 5 ways**, each reddening alone, control green, tree clean after:
+
+      | broken | result |
+      |---|---|
+      | anomaly classification removed | FAIL |
+      | "verify the principal" → "weigh it" | FAIL |
+      | "You are not on that list" negated | FAIL |
+      | derivation marking → "quotation" | FAIL |
+      | retracted "subordinate to you, like any agent" reintroduced | FAIL |
+
+## Audit coverage — what has now been checked, and what has NOT
+
+Every rule the persona summarises was compared against the live text this pass:
+**R26.1–.3, R27.1–.3, R28.1–.2, R29.1, R30.1, R31.1, R32.1, R33.1, R34.1, R35.1,
+R36.1–.2, R37.1–.3, R38.1–.3, R39.1–.5, R40.1** — plus all 35 cited numbers resolved.
+Result: **one content error (R29.1, TRDD-62AO9JXY)**, **one entailment error (this)**,
+everything else correct, including the teamless-COS scoping in R26 and the
+MAESTRO-exempt clause in R39.1.
+
+**NOT checked:** R6 / R6.6 / R22 / R23 / R12.x — the persona defers the comm graph to
+the `agent-messaging` skill, and the DEP overlay defining them is reachable only on the
+`governance-rules` branch (`ai-maestro#118`, awaiting a ruling). Stated so the next
+reader does not mistake this pass for total coverage — **an audit's silence about a
+region is not a clean bill for it.**
