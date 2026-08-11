@@ -1,9 +1,9 @@
 ---
 trdd-id: DUXFCQXT
 title: Persona sub-agent-spawn instructions must inject the token-saving-tools contract not just memory
-column: complete
+column: completed
 created: 2026-07-03T10:25:14+0200
-updated: 2026-07-03T10:25:14+0200
+updated: 2026-08-11T20:34:49+0200
 current-owner: ai-maestro-autonomous-agent
 assignee: ai-maestro-autonomous-agent
 priority: 4
@@ -60,3 +60,9 @@ spawn instruction sites in the persona.
 This was the ONLY actionable survivor of the token-efficiency review — the broad
 "token-wasting across the codebase" mandate produced no other verified defect,
 which is itself a signal the codebase is largely clean on that axis.
+
+## Approval log
+
+- 2026-08-11T20:34:49+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via: none`, so
+  `complete` is this card's terminal column; work landed in `a318308`. Archived per the TRDD
+  archival protocol.

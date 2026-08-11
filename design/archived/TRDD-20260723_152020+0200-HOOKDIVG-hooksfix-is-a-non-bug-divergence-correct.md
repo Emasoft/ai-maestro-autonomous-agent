@@ -1,9 +1,9 @@
 ---
 trdd-id: HOOKDIVG
 title: Resolve the deferred hooksfix — the intentional_divergence hook declaration is correct, not a bug
-column: complete
+column: completed
 created: 2026-07-23T15:20:20+0200
-updated: 2026-07-23T15:20:20+0200
+updated: 2026-08-11T20:34:49+0200
 current-owner: ai-maestro-autonomous-agent
 assignee: ai-maestro-autonomous-agent
 priority: 4
@@ -78,3 +78,7 @@ CPV's canon-path axis with git's hooksPath-selector axis.
 
 - 2026-07-23 — USER `/go-on-yourself`. Tier-0 audit + memory correction; no code/pipeline
   change, no publish. Authorized; the deferred hooksfix is now closed as a non-bug.
+- 2026-08-11T20:34:49+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via: none`, so
+  `complete` is this card's terminal column. `implementation-commits` is empty by design — the
+  resolution was "non-bug", so there was no code change to record. Archived per the TRDD
+  archival protocol.

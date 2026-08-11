@@ -1,9 +1,9 @@
 ---
 trdd-id: V7HJ492I
 title: Fix 3 code-review w9dtmt0a2 findings — smart_exec deno dispatch x2 + gitignore anchored-dir leak
-column: complete
+column: completed
 created: 2026-07-03T01:51:24+0200
-updated: 2026-07-03T02:01:48+0200
+updated: 2026-08-11T20:34:49+0200
 current-owner: ai-maestro-autonomous-agent
 assignee: ai-maestro-autonomous-agent
 priority: 3
@@ -119,3 +119,9 @@ unchanged, glob unchanged, file-pattern unchanged).
   broader mandate (token-wasting / cache-inefficiency / lean-ctx-skipping bash)
   was defeated by rate/session limits — only the 3 code-correctness findings
   survived verification. Offer a fresh re-run when limits clear.
+
+## Approval log
+
+- 2026-08-11T20:34:49+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via: none`, so
+  `complete` is this card's terminal column; work landed in `3e55ace`, `e2706db`, `f81f501`
+  (regression-test EHT included). Archived per the TRDD archival protocol.
