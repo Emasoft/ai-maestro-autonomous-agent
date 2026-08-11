@@ -1046,11 +1046,14 @@ def test_archived_cards_are_terminal_and_match_their_release_mode() -> None:
             bad.append(f"{tid}: release-via={release_via or 'absent'} but column={column} (want {want})")
     assert not bad, "archived cards contradict their release mode: " + "; ".join(bad)
 
-    # No dead exemptions: every frozen id must still be in the state it is excused for.
+    # No dead exemptions: every frozen id must STILL EXIST and still be in the state it is
+    # excused for. Iterating only the cards would miss the other half — an exemption whose
+    # card was renamed or removed matches nothing and would sit there forever looking active.
+    excused = {tid: (column, release_via) for tid, column, release_via, _ in cards}
     stale = [
         tid
-        for tid, column, release_via, _ in cards
-        if tid in _FROZEN_PUBLISH_AS_COMPLETED and not (release_via == "publish" and column == "completed")
+        for tid in _FROZEN_PUBLISH_AS_COMPLETED
+        if excused.get(tid) != ("completed", "publish")
     ]
     assert not stale, (
         f"these ids are allowlisted as frozen publish-as-completed but no longer are: {stale} — "
