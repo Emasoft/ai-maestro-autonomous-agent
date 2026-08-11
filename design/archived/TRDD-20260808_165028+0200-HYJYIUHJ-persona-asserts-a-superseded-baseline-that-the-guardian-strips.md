@@ -1,9 +1,9 @@
 ---
 trdd-id: HYJYIUHJ
 title: My persona asserts a superseded GitHub baseline that the guardian actively strips
-column: complete
+column: completed
 created: 2026-08-08T16:50:28+0200
-updated: 2026-08-08T16:58:00+0200
+updated: 2026-08-11T22:09:20+0200
 implementation-commits: [2762cd1]
 current-owner: ai-maestro-autonomous-agent
 task-type: infra
@@ -101,3 +101,17 @@ It is outside this project, and the USER's standing constraint is that I change 
 the project folder and /tmp — so it is reported, not edited. Anything reading that file (any
 agent on this machine, not just me) will keep drawing the wrong conclusion until the owner
 updates it. My persona now carries the counter-statement, which is the part I own.
+
+## Approval log
+
+- 2026-08-11T22:09:20+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column; `2762cd1` resolves to
+  `fix(governance): required_linear_history is NOT baseline`. Archived per the TRDD archival
+  protocol.
+  **The unresolved half above is no longer only reported — it is now discoverable.** The stale
+  `~/.claude/rules/manager-approval-defaults.md` §F still misleads every agent on this machine and
+  is outside any project a session may edit, so it cannot be fixed at the source from here. A
+  warning that lives only in a closed card protects nobody, so the fact was written to LOCAL
+  memory as `stale-global-rule-baseline-vs-the-applier` / `ATOM-ER7O-161U`, indexed by the SYMPTOM
+  a future session will actually carry ("repo looks off-baseline but is compliant") rather than by
+  the answer's jargon. Still owner-action-required at the source; no longer silent in the meantime.

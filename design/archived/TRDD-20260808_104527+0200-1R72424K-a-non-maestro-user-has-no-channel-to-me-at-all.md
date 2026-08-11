@@ -1,9 +1,9 @@
 ---
 trdd-id: 1R72424K
 title: A non-MAESTRO user cannot reach AUTONOMOUS at all - the persona treats their order as a weighable request
-column: complete
+column: completed
 created: 2026-08-08T10:45:27+0200
-updated: 2026-08-08T10:49:00+0200
+updated: 2026-08-11T22:09:20+0200
 implementation-commits: [7c350a8]
 current-owner: ai-maestro-autonomous-agent
 task-type: security
@@ -120,3 +120,13 @@ the `agent-messaging` skill, and the DEP overlay defining them is reachable only
 `governance-rules` branch (`ai-maestro#118`, awaiting a ruling). Stated so the next
 reader does not mistake this pass for total coverage — **an audit's silence about a
 region is not a clean bill for it.**
+
+## Approval log
+
+- 2026-08-11T22:09:20+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column; `7c350a8` resolves to
+  `fix(governance): a non-MAESTRO user has NO channel to me`. Archived per the TRDD archival
+  protocol. Its closing rule — **an audit's silence about a region is not a clean bill for it** —
+  is the same fact `TRDD-KT4MVFHA` proved the expensive way three hours later, when persona-scoped
+  guards passed while two other shipped files still carried the unscoped claim. The rule was
+  already written down here; it was applied to audits and not yet to guards.

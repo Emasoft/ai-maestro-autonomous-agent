@@ -1,9 +1,9 @@
 ---
 trdd-id: KT4MVFHA
 title: My 403 guard is persona-scoped so the claim survived unscoped in a decision-time checklist
-column: complete
+column: completed
 created: 2026-08-08T16:56:59+0200
-updated: 2026-08-08T17:04:00+0200
+updated: 2026-08-11T22:09:20+0200
 implementation-commits: [8813a5c]
 current-owner: ai-maestro-autonomous-agent
 task-type: security
@@ -102,3 +102,15 @@ it stand for the corpus. **A guard's scope is part of its claim** — `test_pers
 "the persona says X", never "the plugin says X", and the gap between those two readings is
 invisible in a green run. Where a rule must hold everywhere, the guard has to enumerate
 everywhere and fail on an empty enumeration.
+
+## Approval log
+
+- 2026-08-11T22:09:20+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column; `8813a5c` resolves to
+  `fix(governance): scope the 403 claim everywhere it appears, not just the persona`. Archived per
+  the TRDD archival protocol.
+  Its lesson was promoted out of this card so it would outlive it: **`ATOM-JDTP-18YE`** on the
+  USER-scope page `a-doc-guard-that-asserts-a-mention-cannot-see-a-stale-claim`, joined to the
+  sibling fact that a guard asserting a MENTION cannot see a stale CLAIM. Recorded here because a
+  lesson that lives only in an archived card is one nobody recalls by symptom — which is the exact
+  failure this card is about, applied to itself.
