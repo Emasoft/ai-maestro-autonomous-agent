@@ -1,9 +1,9 @@
 ---
 trdd-id: NHYCSFRZ
 title: Add real behavior tests for smart_exec.py + gitignore_filter.py + workspace-isolation content guard
-column: complete
+column: published
 created: 2026-07-01T18:22:38+0200
-updated: 2026-07-01T18:57:34+0200
+updated: 2026-08-11T21:27:00+0200
 current-owner: aimaa-autonomous
 assignee: aimaa-autonomous
 priority: 4
@@ -112,3 +112,8 @@ actual modules / read the actual skill file and assert live behavior.
 - 2026-07-01T18:22:38+0200 — Authored directly in `design/tasks/` as Tier-0
   (test-only; strengthens the quality gate). Shipping in a release (v1.5.4) is a
   separate Tier-2 publish gate surfaced to USER/MANAGER.
+- 2026-08-11T21:27:00+0200 — PUBLISHED by ai-maestro-autonomous-agent. `release-via: publish`, so
+  the terminal is `published`. **Evidence:** `8b4d200` is an ancestor of `v1.6.11` and first
+  appears in **`ai-maestro-autonomous-agent--v1.5.4`** — the release anticipated above. Publish
+  gate exercised under the USER's standing "implement all, push and publish as you wish"
+  directive. Archived as `published` per the TRDD archival protocol.

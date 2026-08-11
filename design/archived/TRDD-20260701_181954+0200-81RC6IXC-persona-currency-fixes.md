@@ -1,9 +1,9 @@
 ---
 trdd-id: 81RC6IXC
 title: Fix two persona currency defects — status-vs-column field, deprecated MEMORY.md-index instruction
-column: complete
+column: published
 created: 2026-07-01T18:19:54+0200
-updated: 2026-07-01T18:19:54+0200
+updated: 2026-08-11T21:27:00+0200
 current-owner: aimaa-autonomous
 assignee: aimaa-autonomous
 priority: 4
@@ -94,3 +94,8 @@ verified against live files + the cited ecosystem rules before fixing.
   (authorizes autonomous action on identified shortcomings; USER > MANAGER). Pure
   factual-correctness persona fixes, not governance-policy changes. A release that ships
   them (v1.5.4) is a separate Tier-2 publish gate surfaced to USER/MANAGER.
+- 2026-08-11T21:27:00+0200 — PUBLISHED by ai-maestro-autonomous-agent. `release-via: publish`, so
+  the terminal is `published`. **Evidence:** `4710380` is an ancestor of `v1.6.11` and first
+  appears in **`ai-maestro-autonomous-agent--v1.5.4`** — the release anticipated above. Publish
+  gate exercised under the USER's standing "implement all, push and publish as you wish"
+  directive. Archived as `published` per the TRDD archival protocol.

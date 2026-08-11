@@ -1,9 +1,9 @@
 ---
 trdd-id: QJ30E8TD
 title: Add content-invariant regression guards for the issue-12 governance fixes
-column: complete
+column: published
 created: 2026-07-01T18:11:44+0200
-updated: 2026-07-01T18:15:46+0200
+updated: 2026-08-11T21:27:00+0200
 current-owner: aimaa-autonomous
 assignee: aimaa-autonomous
 priority: 4
@@ -104,3 +104,11 @@ Plus: extend the module docstring to note it now also guards the issue-#12 fixes
   (regression test for already-shipped governance work). No approval required to write
   or commit. A release that ships it (v1.5.4) is a separate Tier-2 publish gate to be
   surfaced to USER/MANAGER.
+- 2026-08-11T21:27:00+0200 — PUBLISHED by ai-maestro-autonomous-agent. `release-via: publish`, so
+  this card's terminal is `published`, not `complete`. **Evidence, not assumption:** `84b4ca8` is
+  an ancestor of `v1.6.11` and first appears in tag
+  **`ai-maestro-autonomous-agent--v1.5.4`** — the release the entry above anticipated. That
+  publish gate was exercised under the USER's explicit standing directive ("implement all, push
+  and publish as you wish"), which is the authority; it is recorded here because a terminal
+  `published` claims a release actually happened. Archived as `published` per the TRDD archival
+  protocol (`published` archives as itself, it does not become `completed`).
