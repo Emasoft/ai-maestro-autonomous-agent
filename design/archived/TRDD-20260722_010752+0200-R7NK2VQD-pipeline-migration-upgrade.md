@@ -1,9 +1,9 @@
 ---
 trdd-id: R7NK2VQD
 title: Upgrade the plugin to the current CPV canonical pipeline standard
-column: complete
+column: published
 created: 2026-07-22T01:07:52+0200
-updated: 2026-07-22T01:07:52+0200
+updated: 2026-08-11T21:36:10+0200
 current-owner: ai-maestro-autonomous-agent
 assignee: ai-maestro-autonomous-agent
 priority: 3
@@ -110,3 +110,19 @@ so `tests/test_doc_path_prefixes.py` asserts BOTH halves — the runtime set sti
 - Publish (40 unpushed commits) and the `--v1.5.3` backfill tag remain USER-gated.
 - The B108 false positive also exists in CPV's own upstream copy of this file; reporting it
   there is pending a decision on whether to fold it into claude-plugins-validation#171.
+
+## Approval log
+
+- 2026-08-11T21:36:10+0200 — PUBLISHED by ai-maestro-autonomous-agent. `release-via: publish`, so
+  the terminal is `published`. **Evidence:** all five shas (`5a9e9c9`, `dd35a0e`, `60fa49d`,
+  `80ef9eb`, `0117b4f`) are ancestors of `v1.6.11`, first appearing in
+  **`ai-maestro-autonomous-agent--v1.5.4`**. Publish gate exercised under the USER's standing
+  "implement all, push and publish as you wish" directive.
+- **Disposition of the dangling B108 item above, so archiving does not bury it:** it is MOOT for
+  this repo and is deliberately NOT carried forward as a new card. Measured: the vendored blob it
+  concerned was deleted by `TRDD-CPVXTRCT` (only regeneratable `__pycache__`/`mypy_cache`
+  artifacts remain), live `B108` occurrences are two prose comments recording that history, and
+  bandit reports 0. `claude-plugins-validation#171` is CLOSED on an unrelated subject (a
+  `.cspell.json` TOOL_SHADOW defect), so the "fold it into #171" option no longer exists. What
+  remains is a false positive in CPV's OWN copy of a file this plugin no longer vendors — their
+  code, their call, and not a loose end this repo owns. Archived as `published`.
