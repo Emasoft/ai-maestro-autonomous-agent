@@ -93,7 +93,7 @@ jobs:
           # gate would have rejected. Bump all five together (see TRDD-CPV320UP;
           # v3.2.0 -> v3.5.0 bump TRDD-CPV350UP). tests/test_cpv_pin_parity.py
           # enforces this mechanically.
-          uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v3.5.0 \
+          uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v5.4.0 \
             --with pyyaml \
             cpv-remote-validate plugin . --strict \
             > "$RUNNER_TEMP/cpv-validation-report.txt" 2>&1

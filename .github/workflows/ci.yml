@@ -197,7 +197,7 @@ jobs:
           PLUGIN_REPO_LINT_PHASE_TIMEOUT: "600"
         run: |
           set +e
-          uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v3.5.0 \
+          uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v5.4.0 \
               --with pyyaml \
               cpv-remote-validate plugin . --strict \
               > "$RUNNER_TEMP/cpv-validation-report.txt" 2>&1

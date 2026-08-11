@@ -1680,7 +1680,7 @@ Examples:
     if info.has_kind(ProjectKind.CLAUDE_PLUGIN):
         print(f"\n{BLUE}=== Step 4: CPV lint (mandatory for claude plugins) ==={NC}")
         run([
-            "uvx", "--from", "git+https://github.com/Emasoft/claude-plugins-validation@v3.5.0",
+            "uvx", "--from", "git+https://github.com/Emasoft/claude-plugins-validation@v5.4.0",
             "--with", "pyyaml", "cpv-remote-validate", "lint", str(plugin_root),
         ], cwd=git_root)
         print(f"{GREEN}ok CPV lint passed with zero errors{NC}")
@@ -1694,7 +1694,7 @@ Examples:
     if info.has_kind(ProjectKind.CLAUDE_PLUGIN):
         print(f"\n{BLUE}=== Step 5: CPV strict validate plugin (mandatory) ==={NC}")
         run([
-            "uvx", "--from", "git+https://github.com/Emasoft/claude-plugins-validation@v3.5.0",
+            "uvx", "--from", "git+https://github.com/Emasoft/claude-plugins-validation@v5.4.0",
             "--with", "pyyaml", "cpv-remote-validate", "plugin", str(plugin_root), "--strict",
         ], cwd=git_root)
         print(f"{GREEN}ok CPV strict validation passed{NC}")
@@ -1717,7 +1717,7 @@ Examples:
     if info.has_kind(ProjectKind.CLAUDE_PLUGIN):
         print(f"\n{BLUE}=== Step 5.5: CI-parity preflight (mandatory) ==={NC}")
         run([
-            "uvx", "--from", "git+https://github.com/Emasoft/claude-plugins-validation@v3.5.0",
+            "uvx", "--from", "git+https://github.com/Emasoft/claude-plugins-validation@v5.4.0",
             "--with", "pyyaml", "cpv-remote-validate", "ci-preflight", str(plugin_root),
         ], cwd=git_root)
         print(f"{GREEN}ok CI-parity preflight passed{NC}")
