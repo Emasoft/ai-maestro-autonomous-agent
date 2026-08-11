@@ -1,9 +1,9 @@
 ---
 trdd-id: 1504BH3Q
 title: My own R42.8 verification note carried two false values - one stale one never true
-column: complete
+column: completed
 created: 2026-08-08T10:21:03+0200
-updated: 2026-08-08T10:24:00+0200
+updated: 2026-08-11T21:55:05+0200
 implementation-commits: [bf45d25]
 current-owner: ai-maestro-autonomous-agent
 task-type: security
@@ -90,3 +90,13 @@ that is not a gap.** Adding an assertion on a line count would re-introduce the 
       "stale value" and "counted differently" demand opposite fixes.
 - [x] `grep -rn "R42\.0|1952 lines" agents/ tests/ README.md` → every remaining hit is
       inside a corrective explanation that quotes the error, none asserts it.
+
+## Approval log
+
+- 2026-08-11T21:55:05+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column; `bf45d25` resolves to
+  `fix(governance): my own verification note carried two false values`. Archived per the TRDD
+  archival protocol. Its distinction — a hit inside a corrective explanation that QUOTES an error
+  is not the same as a hit that ASSERTS it — is the same shape the corpus-wide 403 guard needed
+  later (`TRDD-KT4MVFHA`), where the persona names `required_linear_history` precisely in order to
+  forbid it, so a whole-file absence check would have banned the correction itself.

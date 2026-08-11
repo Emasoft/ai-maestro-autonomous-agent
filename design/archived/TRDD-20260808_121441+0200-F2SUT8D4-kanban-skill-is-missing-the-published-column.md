@@ -1,9 +1,9 @@
 ---
 trdd-id: F2SUT8D4
 title: The kanban skill carries 16 of the 17 mandated columns - published is absent
-column: complete
+column: completed
 created: 2026-08-08T12:14:41+0200
-updated: 2026-08-08T12:22:00+0200
+updated: 2026-08-11T21:55:05+0200
 implementation-commits: [859ed3e]
 current-owner: ai-maestro-autonomous-agent
 task-type: bugfix
@@ -98,3 +98,16 @@ Two failures, not one:
 Nothing was lost (I could restore it verbatim), but that was luck about scope, not process.
 **`git checkout <path>` is a destructive command against uncommitted work**, and it does not
 feel like one because it is spelled like navigation.
+
+## Approval log
+
+- 2026-08-11T21:55:05+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column; `859ed3e` resolves to
+  `fix(kanban): the skill carried 16 of the 17 mandated columns`. Archived per the TRDD archival
+  protocol.
+  **Closing note, because this card was load-bearing for the work that archived it:** the missing
+  column it restored was `published` — the exact terminal this sweep applied to twelve
+  `release-via: publish` cards on 2026-08-11. Had it stayed missing, those cards would have been
+  archived as `completed` and the publish branch of the pipeline would have quietly ceased to
+  exist on this board. Its `git checkout` lesson also held throughout: every batch was committed
+  BEFORE any falsification, so no restoring checkout could eat uncommitted work.

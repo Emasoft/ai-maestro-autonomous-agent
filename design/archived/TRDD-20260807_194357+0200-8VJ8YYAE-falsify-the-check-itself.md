@@ -1,9 +1,9 @@
 ---
 trdd-id: 8VJ8YYAE
 title: A recorded check must itself be falsified before it is trusted
-column: complete
+column: completed
 created: 2026-08-07T19:43:57+0200
-updated: 2026-08-07T19:43:57+0200
+updated: 2026-08-11T21:55:05+0200
 current-owner: ai-maestro-autonomous-agent
 task-type: docs
 scope: project
@@ -102,3 +102,13 @@ instance, corrected by supersession) · public retraction on `janitor#92`.
 - `uv run pytest -q` → **119 passed**.
 - `uv run python scripts/publish.py --gate` → exit 0, CRITICAL=0 MAJOR=0 MINOR=0 NIT=0.
 - Both new assertions individually falsified, then restored.
+
+## Approval log
+
+- 2026-08-11T21:55:05+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column; `411679d` resolves to
+  `fix(persona): a recorded check must itself be falsified`. Archived per the TRDD archival
+  protocol. This card's rule is the one that has done the most work since: every guard added
+  during this board sweep was falsified before being trusted, and it caught a loose one
+  (`TRDD-CUD74MUJ`, where the skill-menu name check passed on a menu that had silently lost a
+  skill). A guard nobody has watched fail is a guess.
