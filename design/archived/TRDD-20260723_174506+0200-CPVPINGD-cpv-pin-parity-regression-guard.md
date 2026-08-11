@@ -1,9 +1,9 @@
 ---
 trdd-id: CPVPINGD
 title: Regression guard — a unit test that fails if the CPV gate pins ever drift or re-float
-column: completed
+column: published
 created: 2026-07-23T17:45:06+0200
-updated: 2026-08-11T21:17:34+0200
+updated: 2026-08-11T21:22:39+0200
 current-owner: ai-maestro-autonomous-agent
 assignee: ai-maestro-autonomous-agent
 priority: 4
@@ -70,3 +70,14 @@ version in a comment (`# CPV is PINNED to @v3.2.0`) is NOT miscounted as a gate 
   it defaults to `none` and `complete` is this card's terminal column. **Repaired the backtracking
   field:** `implementation-commits:` was `[]` although `79b5d2f` names `TRDD-CPVPINGD` in its
   subject. Archived per the TRDD archival protocol.
+- 2026-08-11T21:22:39+0200 — **CORRECTION, supersedes the entry above.** That entry's claim that
+  `release-via:` is absent is FALSE: this card carries `release-via: publish` (frontmatter line
+  21), so its terminal column is `published`, not `completed`. Column corrected. The work did
+  ship — `79b5d2f` is an ancestor of `v1.6.11` and first appears in
+  **`ai-maestro-autonomous-agent--v1.5.5`** — so `published` is factually right, not just
+  procedurally. The wrong entry is left in place per the correction protocol: the error is the
+  audit trail, and deleting it would hide that the record was ever wrong.
+  **Cause, so it is not repeated:** this card was picked BY NAME from a broken-backtracking scan
+  rather than through the `release-via` filter the other batches used, so the batch's blanket
+  "release-via absent" premise was inherited instead of re-checked for this card. A per-card claim
+  must be verified per card, even when the surrounding batch shares one.
