@@ -1,9 +1,9 @@
 ---
 trdd-id: CPVXTRCT
 title: Extract the 2 used gitignore functions to gitignore_rules.py; delete the vendored cpv_validation_common + smart_exec pair
-column: complete
+column: completed
 created: 2026-07-23T11:07:48+0200
-updated: 2026-07-23T11:07:48+0200
+updated: 2026-08-11T21:12:12+0200
 current-owner: ai-maestro-autonomous-agent
 task-type: refactor
 scope: project
@@ -64,3 +64,9 @@ release path), S3.1 (tests updated, no mock).
 
 `smart_exec` was already effectively orphaned before this change (its only importer was the
 vendored file); removed here as part of the same no-ghosts cleanup. No further action.
+
+## Approval log
+
+- 2026-08-11T21:12:12+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column; work landed in `54c1a62`
+  (verified present). Archived per the TRDD archival protocol.

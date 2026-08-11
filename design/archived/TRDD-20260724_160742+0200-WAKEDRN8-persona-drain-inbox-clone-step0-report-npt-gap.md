@@ -1,9 +1,9 @@
 ---
 trdd-id: WAKEDRN8
 title: Persona worker-side duties — drain AMP inbox on wake, clone assigned repo as step 0, report the NPT gap
-column: complete
+column: completed
 created: 2026-07-24T16:07:42+0200
-updated: 2026-07-24T16:12:30+0200
+updated: 2026-08-11T21:12:12+0200
 current-owner: ai-maestro-autonomous-agent
 task-type: docs
 approval-tier: 2
@@ -78,5 +78,10 @@ governance authority's request in #17. FIX is authorized; SHIP (publish) stays U
   USER is approver in standalone mode). Implements #17. Commit stays local; publish USER-gated.
 - 2026-07-24T16:12:30+0200 — COMPLETED. Impl `2dcf7fa` (persona + 3 guards). Full suite 100 passed,
   ruff clean, MD004 clean. Commit local (unpushed); rides the next USER-approved publish.
+
+- 2026-08-11T21:12:12+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column; work landed in `2dcf7fa`
+  (verified present). Tier-2 approval confirmed recorded above before archiving. Archived per the
+  TRDD archival protocol.
 
 ## Notes and lessons learned

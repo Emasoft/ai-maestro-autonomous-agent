@@ -1,15 +1,15 @@
 ---
 trdd-id: RULENUM7
 title: Persona rule numbers are as-of-authoring pointers, not assertable facts
-column: complete
+column: completed
 created: 2026-07-25T22:12:10+0200
-updated: 2026-07-25T22:12:10+0200
+updated: 2026-08-11T21:12:12+0200
 current-owner: ai-maestro-autonomous-agent
 task-type: docs
 approval-tier: 2
 relevant-rules: [1]
 external-refs: [Emasoft/ai-maestro#87, Emasoft/ai-maestro#32]
-implementation-commits: []
+implementation-commits: [adcd6bd, 1a46f38]
 ---
 
 ## ⏵ STATE — READ THIS FIRST ON RESUME (authoritative; supersedes the body) — 2026-07-25
@@ -88,3 +88,11 @@ behavioral harness #87 asks core to build.
   and the state-outside-workdir violation never existed. DO audit each claim against your own tree,
   fix only what actually applies, and REPORT the negative results too — a sweep that asked for
   every plugin to be checked is answered by a verified "compliant", not by silence.
+- 2026-08-11T21:12:12+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column. Tier-2 approval confirmed
+  recorded above before archiving. **Also repaired the backtracking field:**
+  `implementation-commits:` was `[]` although two commits name `TRDD-RULENUM7` in their subjects —
+  `adcd6bd` (the persona fix) and `1a46f38` (the MD018 lint unblock that shipped with it). A third,
+  `540a77a`, references the id in its body only, so it is deliberately NOT recorded as an
+  implementation commit — the subject-tag is the convention, and widening it would make the trace
+  mean less. Archived per the TRDD archival protocol.
