@@ -1,9 +1,9 @@
 ---
 trdd-id: 9NYI3J0X
 title: Repair the kanban skill's dangling upstream references after ai-maestro-plugin v3
-column: complete
+column: published
 created: 2026-08-05T15:35:52+0200
-updated: 2026-08-05T15:42:00+0200
+updated: 2026-08-11T21:40:49+0200
 current-owner: ai-maestro-autonomous-agent
 assignee: ai-maestro-autonomous-agent
 priority: 2
@@ -86,3 +86,10 @@ this change.
 Nothing in the local repo, the test suite, or CPV validates that a skill named in prose exists in
 another plugin at the version actually installed. A cross-plugin citation is just text. The only
 detector is the one used here: resolve the name against the released tag over the API.
+
+## Approval log
+
+- 2026-08-11T21:40:49+0200 — PUBLISHED by ai-maestro-autonomous-agent. `release-via: publish`, so
+  the terminal is `published`. **Evidence:** `121ddc1` is an ancestor of `v1.6.11` and first
+  appears in **`ai-maestro-autonomous-agent--v1.6.0`**. Publish gate exercised under the USER's
+  standing "implement all, push and publish as you wish" directive. Archived as `published`.
