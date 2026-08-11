@@ -1,9 +1,9 @@
 ---
 trdd-id: Q2CD6V8Y
 title: Guard the validator pin against silent divergence across its sites
-column: planned
+column: completed
 created: 2026-08-11T23:47:52+0200
-updated: 2026-08-11T23:47:52+0200
+updated: 2026-08-11T23:49:22+0200
 current-owner: ai-maestro-autonomous-agent
 assignee: ai-maestro-autonomous-agent
 approval-tier: 0
@@ -15,7 +15,7 @@ labels: [tests, ci, cpv]
 relevant-rules: [1]
 release-via: none
 test-requirements: [pytest, lint]
-implementation-commits: []
+implementation-commits: [c46be95]
 parent-trdd: null
 ---
 
@@ -69,12 +69,23 @@ accurate history.
 
 ## Acceptance
 
-- [ ] Test present and passing; full suite green.
-- [ ] `ruff check` clean.
-- [ ] Falsified: divergent pins fail; a vacuous (zero-match) scan fails.
+- [x] Test present and passing; full suite green — **130 passed** (129 → 130).
+- [x] `ruff check` clean.
+- [x] Falsified both ways, each restored:
+
+| broke | result |
+|---|---|
+| `ci.yml` left at `v3.5.0` while the rest moved | fails, and **names the divergent file**: `{'v3.5.0': ['.github/workflows/ci.yml'], 'v5.4.0': [...]}` |
+| the pin pattern renamed (scan matches nothing) | fails on the vacuity assert — does **not** pass over zero matches |
+
+The scan sees exactly what it should: `v5.4.0`, 5 occurrences, across
+`scripts/publish.py` + both workflows.
 
 ## Approval log
 
 - 2026-08-11T23:47:52+0200 — Tier 0 (a derived guardrail in this repo's own test suite; no
   baseline deviation, no cross-project reach, no `.github/` content change — the workflows are
   only *read*). Authored directly as `planned`.
+- 2026-08-11T23:49:22+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via: none`, so
+  `complete` is terminal and it archives as `completed`. Implemented by `c46be95`. Archived per
+  the TRDD archival protocol.
