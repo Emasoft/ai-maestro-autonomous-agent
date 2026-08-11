@@ -1,9 +1,9 @@
 ---
 trdd-id: NVH0S3MG
 title: Record the triage verdict for the frozen archived record CPV flags
-column: planned
+column: completed
 created: 2026-08-11T23:25:57+0200
-updated: 2026-08-11T23:25:57+0200
+updated: 2026-08-11T23:30:29+0200
 current-owner: ai-maestro-autonomous-agent
 assignee: ai-maestro-autonomous-agent
 approval-tier: 2
@@ -15,7 +15,7 @@ labels: [security, publish-gate, cpv]
 relevant-rules: [1]
 release-via: none
 test-requirements: [pytest, cpv-strict]
-implementation-commits: []
+implementation-commits: [34d4a24, 136e997, d9e5a76]
 external-refs: ["github.com/Emasoft/claude-plugins-validation/issues/208"]
 ---
 
@@ -82,10 +82,43 @@ whose skill names end in `-write` / `-edit` / `-append`.
 
 ## Acceptance
 
-- [ ] `.cpv-audit-consent.json` committed with an honest, specific reason.
-- [ ] `publish.py --gate` exits 0.
-- [ ] `uv run pytest -q` still green.
-- [ ] CPV#208 corrected publicly — both wrong claims retracted, residual defect (2) left standing.
+- [x] `.cpv-audit-consent.json` committed with an honest, specific reason (`34d4a24`).
+- [x] `publish.py --gate` exits **0** — `CRITICAL=0 MAJOR=0 MINOR=0 NIT=0`, 3 advisory WARNINGs
+      (`RC-PIPELINE-DRIFT-001`, by-design and explicitly non-suppressible).
+- [x] `uv run pytest -q` still green — **129 passed**.
+- [x] CPV#208 corrected publicly — all three wrong claims retracted, issue retitled to the
+      residual defect (2), and the retraction leads with "stop if you already started."
+
+## What it took, and the third mistake
+
+The consent entry alone did **nothing**. Measured with a positive control: the pinned **v3.5.0**
+contains `AGENT_MEMORY_MOD` (8 hits) and **zero** occurrences of `cpv-audit-consent`. I had read
+the mechanism in CPV's HEAD (v5.4.0) and assumed it described the version this repo runs.
+
+The first probe of *that* was also unsound — `git show v3.5.0:… | grep -c` printed `0` from an
+**empty stream**, because the tag was not fetched. A wrong ref returns a zero indistinguishable
+from a real absence. Only after `git fetch --tags`, with `AGENT_MEMORY_MOD` as a positive control,
+was the zero real. Three errors in one investigation, each caught only by measuring instead of
+reasoning:
+
+| # | claim | how it died |
+|---|---|---|
+| 1 | the markdown classifier can't reach a verdict on a bridging match | ran `classify(...)` → `safe_doc` |
+| 2 | CPV offers no acknowledge path | found `.cpv-audit-consent.json` in its source |
+| 3 | the consent registry applies to my gate | positive-controlled grep of the actual pinned tag |
+
+Bumping the pin `v3.5.0 → v5.4.0` (all **five** live sites — `publish.py` ×3, `ci.yml`,
+`release.yml`) then made the consent effective, and immediately surfaced two real MINORs the stale
+pin had been hiding: shellcheck `SC2221`/`SC2222`, an **unreachable `case` branch in the push gate
+itself** (`*` matches `/`, so `*python*scripts/publish.py*` already subsumed the absolute-path
+alternative). Fixed in `d9e5a76`, after checking both forms against all seven ACCEPT/REJECT cases
+the hook's own comments name — they agree on every one, so the removal changes no behavior.
+
+**The durable lesson:** a stale validator does not merely fail to catch new things — it makes a
+clean report mean less than the reader thinks it means. This repo had been green against rules two
+majors out of date.
+
+## Approval log
 
 ## Approval log
 
@@ -94,3 +127,8 @@ whose skill names end in `-write` / `-edit` / `-append`.
   card is a **narrowing** of that authorization: it achieves the same goal — unblock the 20
   commits — without touching another project's tree at all. Substitution reported to the USER
   explicitly rather than performed silently.
+- 2026-08-11T23:30:29+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via: none`, so
+  `complete` is this card's terminal column and it archives as `completed`. Implemented by
+  `34d4a24` (consent entry), `136e997` (pin bump, 5 sites), `d9e5a76` (dead branch in the push
+  gate). Gate exit 0; 129 tests pass. CPV#208 retracted and retitled — no PR was opened against
+  another project, because none turned out to be needed. Archived per the TRDD archival protocol.
