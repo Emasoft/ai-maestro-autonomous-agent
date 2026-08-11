@@ -129,8 +129,13 @@ find_publish_ancestor() {
         # The matcher is deliberately loose because it must keep accepting every
         # legitimate wrapper (`uv run python ...`, `/usr/bin/env python3 ...`);
         # tightening it risks locking the maintainer out of publishing entirely.
+        # ONE alternative, deliberately: `*` matches `/` too, so
+        # `*python*scripts/publish.py*` already covers the absolute-path form
+        # `*python*/scripts/publish.py*`. Carrying both made the second branch
+        # unreachable (shellcheck SC2221/SC2222) — dead code in the middle of a
+        # push gate, which is the worst place to leave a branch nobody can hit.
         case "${cmd}" in
-            *python*scripts/publish.py*|*python*/scripts/publish.py*)
+            *python*scripts/publish.py*)
                 return 0
                 ;;
         esac
