@@ -1,9 +1,9 @@
 ---
 trdd-id: M3QS578Z
 title: The persona governs OUTBOUND cross-session sends but says nothing about INBOUND trust
-column: complete
+column: completed
 created: 2026-08-08T12:26:20+0200
-updated: 2026-08-08T12:31:00+0200
+updated: 2026-08-11T21:50:24+0200
 implementation-commits: [b614c55]
 current-owner: ai-maestro-autonomous-agent
 task-type: security
@@ -103,3 +103,12 @@ message the server would have 403'd"*, which is stronger than what I searched fo
 mid-paragraph clause · this). The pattern is stable enough to state as a rule:
 **an absence returned by one pattern is a fact about the pattern.** Widen before concluding,
 and if the claim matters, read the region rather than grepping it.
+
+## Approval log
+
+- 2026-08-11T21:50:24+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column; `b614c55` verified present.
+  The security claim this card shipped was later found still UNSCOPED in two other files the
+  persona-only guards never read (`TRDD-KT4MVFHA`) — the fix here was right, its guard's SCOPE was
+  not. Noted so a reader of this card does not take it as proof the whole corpus was covered.
+  Archived per the TRDD archival protocol.

@@ -1,9 +1,9 @@
 ---
 trdd-id: MW5L9N10
 title: Skills cite governance rule numbers as fact with no deferral to the live source
-column: complete
+column: completed
 created: 2026-08-08T10:57:38+0200
-updated: 2026-08-08T11:02:00+0200
+updated: 2026-08-11T21:50:24+0200
 implementation-commits: [abbfb39]
 current-owner: ai-maestro-autonomous-agent
 task-type: security
@@ -102,3 +102,12 @@ always reached through their SKILL.md.
       is only ever falsified on the first element proves the assertion, not the loop.
       A guard that silently checked one file and passed the other two would look
       identical to this one from its green result.
+
+## Approval log
+
+- 2026-08-11T21:50:24+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column; `abbfb39` verified present.
+  The closing observation above — that a guard checking one file looks green exactly like a guard
+  checking three — later generalised into the corpus-wide 403 guard of `TRDD-KT4MVFHA` and the
+  USER-scope lesson `ATOM-JDTP-18YE` ("a guard's SCOPE is part of its claim"). Recorded so the
+  lineage of that idea is not lost in the archive. Archived per the TRDD archival protocol.

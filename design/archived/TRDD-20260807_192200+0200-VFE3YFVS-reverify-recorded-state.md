@@ -1,9 +1,9 @@
 ---
 trdd-id: VFE3YFVS
 title: Persona must require re-verifying recorded external state before relying on it
-column: complete
+column: completed
 created: 2026-08-07T19:22:00+0200
-updated: 2026-08-07T19:22:00+0200
+updated: 2026-08-11T21:50:24+0200
 current-owner: ai-maestro-autonomous-agent
 task-type: docs
 scope: project
@@ -101,3 +101,11 @@ Cross-scope, already captured — this TRDD does not restate them:
 - New guard proven to fail on a seeded violation, then restored.
 - `implementation-commits:` is filled in AFTER the commit exists — a predicted sha reads
   as evidence while pointing at nothing.
+
+## Approval log
+
+- 2026-08-11T21:50:24+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column; `fdf57cf` verified to
+  resolve to `feat(persona): require re-verifying recorded external state (TRDD-VFE3YFVS)` — this
+  card's own rule applied to itself, which is the point of the line above it. Archived per the
+  TRDD archival protocol.
