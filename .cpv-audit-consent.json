@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "consents": [
+    {
+      "file": "design/archived/TRDD-20260701_181954+0200-81RC6IXC-persona-currency-fixes.md",
+      "ruleId": "AGENT_MEMORY_MOD",
+      "lineSha256": "1d6deb494f16fcbfbace527160c36406e4a636f2c05d23f4a958a0c72a14afbc",
+      "reason": "Frozen archived task record. The line QUOTES the MEMORY.md instruction this very card REMOVED; the matched verb is the tail of the skill name /janitor-memory-write."
+    }
+  ]
+}
