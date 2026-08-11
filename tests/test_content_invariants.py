@@ -1061,6 +1061,56 @@ def test_archived_cards_are_terminal_and_match_their_release_mode() -> None:
     )
 
 
+# The CPV validator pin lives in several files; `design/` and CHANGELOG.md legitimately cite
+# HISTORICAL pins (the v3.2.0→v3.5.0 and v3.5.0→v5.4.0 bumps are recorded there), so scanning
+# them would turn accurate history into a permanent failure.
+_PIN_RE = re.compile(r"claude-plugins-validation@(v[0-9][0-9A-Za-z.\-]*)")
+_PIN_SCAN_SUFFIXES = (".py", ".yml", ".yaml", ".sh", ".toml")
+_PIN_SCAN_EXCLUDED = ("design/", "reports/", "reports_dev/", "CHANGELOG.md", "tests/test_content_invariants.py")
+
+
+def test_the_cpv_validator_pin_is_identical_everywhere_it_appears() -> None:
+    """Every CPV pin site must name the SAME version, or `green` means two different things.
+
+    The pin sits in scripts/publish.py (x3) and both workflows. The realistic failure is not all
+    of them going stale together — it is ONE moving without the others: publish.py is the file
+    you edit while debugging locally, ci.yml is the one you forget. Then the local gate and CI
+    both report PASS while running different validators, and nothing says they disagree.
+
+    Discovery is by SCAN, not a hardcoded file list: a hardcoded list is the same bug one level
+    up, going stale the moment a sixth site appears and reporting green forever after.
+    """
+    tracked = subprocess.run(
+        ["git", "ls-files"], cwd=REPO_ROOT, capture_output=True, text=True, check=True
+    ).stdout.splitlines()
+
+    found: dict[str, list[str]] = {}
+    for rel in tracked:
+        if not rel.endswith(_PIN_SCAN_SUFFIXES) or rel.startswith(_PIN_SCAN_EXCLUDED):
+            continue
+        path = REPO_ROOT / rel
+        if not path.is_file():
+            continue
+        for version in _PIN_RE.findall(path.read_text(encoding="utf-8", errors="replace")):
+            found.setdefault(version, []).append(rel)
+
+    assert found, (
+        "no CPV pin found in any tracked source file — the pin moved, was renamed, or the scan "
+        "suffix list is wrong. This guard just went vacuous; fix the scan rather than deleting it."
+    )
+    sites = {rel for rels in found.values() for rel in rels}
+    assert any(s.endswith("publish.py") for s in sites), (
+        f"scan found pins but none in publish.py — the scan is looking in the wrong place: {sorted(sites)}"
+    )
+    assert any(s.startswith(".github/workflows/") for s in sites), (
+        f"scan found pins but none in a workflow — CI would be unguarded: {sorted(sites)}"
+    )
+    assert len(found) == 1, (
+        "the CPV validator pin DIVERGED across its sites — the local gate and CI would run "
+        f"different validators and both report PASS: { {v: sorted(set(r)) for v, r in found.items()} }"
+    )
+
+
 # `449af1a` was recorded on TRDD-a08b839d before an amend or rebase rewrote it; the object does
 # not exist in any branch or tag, and an absent commit cannot be recovered. The card is terminal
 # and frozen, so the defect is documented in its append-only approval log, not edited away.
