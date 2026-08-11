@@ -1,9 +1,9 @@
 ---
 trdd-id: MYR137LT
 title: My provenance stamps used the branch tip - a change signal the SSOT spec forbids
-column: complete
+column: completed
 created: 2026-08-08T11:09:27+0200
-updated: 2026-08-08T11:14:00+0200
+updated: 2026-08-11T21:59:51+0200
 implementation-commits: [00c9878]
 current-owner: ai-maestro-autonomous-agent
 task-type: security
@@ -115,3 +115,13 @@ reader over-trusts a green suite.
 The blob answers *"did these bytes change?"* — it does **not** answer *"is what I read
 still true?"* on its own, because a blob that has moved tells you to re-read, not what
 changed. The stamp remains a prompt to re-verify, never a substitute for it.
+
+## Approval log
+
+- 2026-08-11T21:59:51+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column; `00c9878` resolves to
+  `fix(governance): my stamps used the branch tip — a changed tip is not a changed fact`.
+  Archived per the TRDD archival protocol. Its rule generalises past governance stamps: this
+  sweep's ship-evidence deliberately records each card's FIRST CONTAINING TAG rather than "it is
+  on main", for the same reason — an ancestor relation is a fact about the artifact, where a
+  branch position is a fact about a pointer that moves.

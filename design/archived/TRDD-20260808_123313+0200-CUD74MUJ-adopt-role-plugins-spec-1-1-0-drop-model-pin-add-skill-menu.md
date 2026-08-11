@@ -1,9 +1,9 @@
 ---
 trdd-id: CUD74MUJ
 title: Adopt role-plugins-spec 1.1.0 - drop the model pin (RULED) and add the skill menu
-column: complete
+column: completed
 created: 2026-08-08T12:33:13+0200
-updated: 2026-08-08T12:40:00+0200
+updated: 2026-08-11T21:59:51+0200
 implementation-commits: [6030951]
 current-owner: ai-maestro-autonomous-agent
 task-type: infra
@@ -104,3 +104,17 @@ Worth stating because the guard's *primary* case (a 4th skill shipped, menu stal
 correctly from the start. **A guard can be right about the hazard it was designed for and
 loose about the neighbouring one**, and the only thing that distinguished them was trying
 both. A single successful falsification would have certified this guard.
+
+## Approval log
+
+- 2026-08-11T21:59:51+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column; `6030951` resolves to
+  `feat(spec): adopt role-plugins-spec 1.1.0 — drop the model pin (RULED), add the skill menu`.
+  Archived per the TRDD archival protocol.
+  **One live obligation this card leaves behind, stated so archiving does not bury it:**
+  `RP-SKILL-MENU-01` warns that a STALE menu is worse than none, and the guard added here enforces
+  the menu against the shipped `SKILL.md` COUNT — so it stays true only while that guard runs. It
+  is `test_main_agent_omits_model_key_and_menus_every_shipped_skill` in
+  `tests/test_content_invariants.py`; a future refactor that drops or renames it silently re-opens
+  the defect. That is a standing invariant of the test suite, not an unfinished task, so it is
+  recorded here rather than carried forward as a new card.

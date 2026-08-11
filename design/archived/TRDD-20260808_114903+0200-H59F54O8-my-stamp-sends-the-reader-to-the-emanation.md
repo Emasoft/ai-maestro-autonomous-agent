@@ -1,9 +1,9 @@
 ---
 trdd-id: H59F54O8
 title: My provenance stamp sends the reader to re-fetch the emanation not the source of truth
-column: complete
+column: completed
 created: 2026-08-08T11:49:03+0200
-updated: 2026-08-08T11:54:00+0200
+updated: 2026-08-11T21:59:51+0200
 implementation-commits: [121cb4a]
 current-owner: ai-maestro-autonomous-agent
 task-type: security
@@ -96,3 +96,13 @@ pattern, not about the corpus.**
    `"Source, stamped"` meant renaming the heading broke the test. That is acceptable here
    (the coupling is deliberate and cheap to update) but it is a coupling, and it should be
    to a phrase chosen for stability, not to whatever the heading happens to say.
+
+## Approval log
+
+- 2026-08-11T21:59:51+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column; `121cb4a` resolves to
+  `fix(governance): my stamp told the reader to re-fetch the emanation`. Archived per the TRDD
+  archival protocol. The SSOT-vs-emanation distinction it draws is the one that later settled the
+  `required_linear_history` question in `TRDD-HYJYIUHJ`: a quoted ratification in a rules FILE was
+  superseded, and the authority was the plugin that APPLIES the baseline. Same failure, different
+  substrate — pointing a reader at the derived copy rather than the source.
