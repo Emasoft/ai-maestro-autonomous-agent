@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -989,4 +990,124 @@ def test_persona_never_claims_linear_history_is_part_of_the_baseline() -> None:
     )
     assert "what the janitor APPLIES" in section, (
         "the durable lesson is to verify against the applier, not against a quoted ratification"
+    )
+
+
+# Frozen UUID-era cards archived as `completed` although they declare `release-via: publish`.
+# Terminal columns are frozen, so these are corrected going FORWARD, not retroactively. Each
+# entry must STILL be in that state — a dead exemption is how an allowlist becomes a blindfold.
+_FROZEN_PUBLISH_AS_COMPLETED = {
+    "e7281b7e-31f6-4740-a7f0-fed48f0ba3be",
+    "a08b839d-dfd8-4b5e-b89c-e41a999ad001",
+    "d21a83f1-f33e-43d3-96e8-dac7e590c960",
+    "ffcfadbd-58b1-4e48-a8c4-9089884684f0",
+    "b48aa385-3ca1-4b50-8f23-d02e0777c23e",
+}
+_TERMINAL_COLUMNS = {"completed", "published", "superseded", "cancelled"}
+
+
+def _archived_cards() -> list[tuple[str, str, str, list[str]]]:
+    """(trdd_id, column, release_via, shas) for every archived TRDD."""
+    out = []
+    for path in sorted((REPO_ROOT / "design" / "archived").glob("*.md")):
+        text = path.read_text(encoding="utf-8")
+
+        def field(key: str) -> str:
+            m = re.search(rf"^{key}:\s*(\S+)", text, re.M)
+            return m.group(1) if m else ""
+
+        m = re.search(r"^implementation-commits:\s*\[(.*?)\]", text, re.M)
+        shas = [s.strip() for s in (m.group(1).split(",") if m else []) if s.strip()]
+        out.append((field("trdd-id"), field("column"), field("release-via"), shas))
+    return out
+
+
+def test_archived_cards_are_terminal_and_match_their_release_mode() -> None:
+    """An archived card must be TERMINAL, and `release-via: publish` must archive as `published`.
+
+    `design/archived/` is the decided zone: a non-terminal column there claims work is still open
+    in a folder nobody re-reads. And `published` archives AS ITSELF — collapsing it to `completed`
+    erases that a release happened, which is exactly the defect CPVPINGD shipped on 2026-08-11
+    (its log asserted "release-via absent" while the frontmatter said `publish`, because the card
+    was selected by name and inherited a batch premise it did not share).
+    """
+    cards = _archived_cards()
+    assert cards, "no archived cards found — the folder moved and this guard just went vacuous"
+
+    bad = []
+    for tid, column, release_via, _ in cards:
+        if column not in _TERMINAL_COLUMNS:
+            bad.append(f"{tid}: non-terminal column {column!r} in design/archived/")
+            continue
+        if column in ("superseded", "cancelled"):
+            continue  # withdrawn/replaced: release mode never applied
+        want = "published" if release_via == "publish" else "completed"
+        if column != want and tid not in _FROZEN_PUBLISH_AS_COMPLETED:
+            bad.append(f"{tid}: release-via={release_via or 'absent'} but column={column} (want {want})")
+    assert not bad, "archived cards contradict their release mode: " + "; ".join(bad)
+
+    # No dead exemptions: every frozen id must still be in the state it is excused for.
+    stale = [
+        tid
+        for tid, column, release_via, _ in cards
+        if tid in _FROZEN_PUBLISH_AS_COMPLETED and not (release_via == "publish" and column == "completed")
+    ]
+    assert not stale, (
+        f"these ids are allowlisted as frozen publish-as-completed but no longer are: {stale} — "
+        "shrink _FROZEN_PUBLISH_AS_COMPLETED rather than leaving an exemption that hides a real defect"
+    )
+
+
+# `449af1a` was recorded on TRDD-a08b839d before an amend or rebase rewrote it; the object does
+# not exist in any branch or tag, and an absent commit cannot be recovered. The card is terminal
+# and frozen, so the defect is documented in its append-only approval log, not edited away.
+_KNOWN_DANGLING_COMMITS = {"449af1a"}
+
+
+def test_every_recorded_implementation_commit_resolves() -> None:
+    """`implementation-commits` must point at real objects — a dangling sha fails SILENTLY.
+
+    That field is the backtracking trace a future bug hunt follows from code back to the TRDD
+    that introduced it. A sha that no longer resolves gives the reader "unknown revision" with
+    nothing saying the record was always wrong, so they blame their own tooling. Four such
+    fields were repaired on 2026-08-11; this makes the fifth impossible to ship unnoticed.
+    """
+    if subprocess.run(
+        ["git", "rev-parse", "--is-shallow-repository"],
+        cwd=REPO_ROOT, capture_output=True, text=True, check=False,
+    ).stdout.strip() == "true":
+        # A CI checkout at depth=1 has none of the history, so every sha would "fail" here.
+        # Skipping is correct: the guard is about the RECORD being wrong, not the clone.
+        return
+
+    cards = _archived_cards()
+    assert cards, "no archived cards found — the folder moved and this guard just went vacuous"
+    assert any(shas for _, _, _, shas in cards), (
+        "no card records any implementation-commits — the field was renamed and this guard is vacuous"
+    )
+
+    dangling = []
+    for tid, _, _, shas in cards:
+        for sha in shas:
+            if sha in _KNOWN_DANGLING_COMMITS:
+                continue
+            rc = subprocess.run(
+                ["git", "cat-file", "-t", sha],
+                cwd=REPO_ROOT, capture_output=True, text=True, check=False,
+            ).returncode
+            if rc != 0:
+                dangling.append(f"{tid}: {sha}")
+    assert not dangling, "implementation-commits that do not resolve: " + "; ".join(dangling)
+
+    # No dead exemptions: a known-dangling sha that started resolving means the allowlist is lying.
+    resurrected = [
+        sha
+        for sha in _KNOWN_DANGLING_COMMITS
+        if subprocess.run(
+            ["git", "cat-file", "-t", sha], cwd=REPO_ROOT, capture_output=True, text=True, check=False
+        ).returncode == 0
+    ]
+    assert not resurrected, (
+        f"these shas are allowlisted as unrecoverable but now resolve: {resurrected} — "
+        "drop them from _KNOWN_DANGLING_COMMITS so the guard covers them again"
     )
