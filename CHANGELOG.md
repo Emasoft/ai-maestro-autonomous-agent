@@ -2,6 +2,47 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.12] - 2026-08-11
+
+### Bug Fixes
+
+- **board:** CPVPINGD is release-via publish — correct completed -> published (ea009f4)
+- **tests:** The dead-exemption check missed the half where the card vanished (TRDD-9D2SCI1Z) (f4f8177)
+- **hooks:** Drop the unreachable case branch in the push gate (TRDD-NVH0S3MG) (d9e5a76)
+- **publish:** Fix the dead case branch at its SOURCE, not in the generated copy (TRDD-NVH0S3MG) (982804c)
+
+### Documentation
+
+- **board:** Archive 4 terminal release-via:none cards to design/archived/ (75d4e17)
+- **board:** Apply the column + approval-log edits 75d4e17 left unstaged (bb05409)
+- **board:** Archive 3 more terminal cards, and repair CRFIX6MD's backtracking field (91dd67b)
+- **board:** Archive 3 more terminal cards, incl. a Tier-2 approval check (0d1b3d9)
+- **board:** Archive 3 more, repairing a second broken backtracking field (af08e50)
+- **board:** Repair the last 2 broken backtracking fields and archive them (53497c5)
+- **board:** First 3 release-via:publish cards -> published (with ship evidence) (759d002)
+- **board:** 3 more publish-mode cards -> published, incl. a Tier-3 disposition check (3223bb4)
+- **board:** 3 more -> published, with an explicit disposition for a dangling item (2657b31)
+- **board:** Last 3 publish-mode cards -> published; publish branch fully drained (d273c4f)
+- **board:** 3 more -> completed; record the R42.8 reversal lineage (a812236)
+- **board:** 3 more -> completed, carrying forward two known limitations (bddf582)
+- **board:** 3 more -> completed; note the cards this sweep actually leaned on (322c04a)
+- **board:** 3 more -> completed; one standing invariant recorded, not buried (ed8216b)
+- **board:** Last 3 cards archived — design/tasks/ is now empty and honest (c9110df)
+- **board:** Record a dangling implementation-commit found by auditing the sweep (9753df8)
+- Close TRDD-9D2SCI1Z — the guard's own dead-exemption gap was the finding (da4d74a)
+- Close TRDD-NVH0S3MG — three wrong claims, each killed by measuring (TRDD-NVH0S3MG) (9a7eb1a)
+
+### Security
+
+- **gate:** Record the triage verdict for the archived record CPV flags (TRDD-NVH0S3MG) (34d4a24)
+
+### Testing
+
+- **board:** Guard the two archive defects the audit found (TRDD-9D2SCI1Z) (0a333bd)
+
+### Build
+
+- **cpv:** Bump the pinned validator v3.5.0 -> v5.4.0 (TRDD-NVH0S3MG) (136e997)
 ## [1.6.11] - 2026-08-08
 
 ### Bug Fixes
