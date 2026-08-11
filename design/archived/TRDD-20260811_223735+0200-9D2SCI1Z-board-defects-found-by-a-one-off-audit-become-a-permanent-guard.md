@@ -1,9 +1,9 @@
 ---
 trdd-id: 9D2SCI1Z
 title: Board defects found by a one-off audit become a permanent guard
-column: planned
+column: completed
 created: 2026-08-11T22:37:35+0200
-updated: 2026-08-11T22:37:35+0200
+updated: 2026-08-11T22:40:54+0200
 current-owner: ai-maestro-autonomous-agent
 assignee: ai-maestro-autonomous-agent
 approval-tier: 0
@@ -15,7 +15,7 @@ labels: [governance, tests, kanban]
 relevant-rules: [1]
 release-via: none
 test-requirements: [pytest, lint]
-implementation-commits: []
+implementation-commits: [0a333bd, f4f8177]
 ---
 
 # TRDD-9D2SCI1Z — board defects found by a one-off audit become a permanent guard
@@ -62,11 +62,35 @@ Two tests in `tests/test_content_invariants.py`:
 
 ## Acceptance
 
-- [ ] Both tests present and passing (`uv run pytest -q`).
-- [ ] `ruff check` clean.
-- [ ] Each test falsified by hand — including the vacuous-green branch — and restored.
+- [x] Both tests present and passing — `uv run pytest -q` → **129 passed** (127 → 129).
+- [x] `ruff check` clean.
+- [x] Each test falsified by hand — including the vacuous-green branch — and restored.
+
+## What falsification found (the part worth keeping)
+
+Falsifying the guard found a defect **in the guard**. The "no dead exemptions" check
+iterated the CARDS and asked whether each allowlisted id had left its excused state — so an
+exemption naming a card that no longer exists matched nothing and reported nothing. The
+comment claimed the exemptions are checked against reality; the code delivered half of that,
+and the missing half is the one that decays unattended (an id stops matching the moment
+someone renames a file). Fixed in `f4f8177` to iterate the ALLOWLIST instead.
+
+Six falsifications, each restored:
+
+| broke | result |
+|---|---|
+| a `publish` card flipped to `completed` | fails, names `TVM7Q4XK` |
+| a bogus sha added to a card | fails, names `93KUP3R6: deadbee` |
+| a resolvable sha in the dangling allowlist | fails, names `db3a892` |
+| an exemption for a nonexistent card | **passed silently** → fixed, then fails |
+| the frozen allowlist emptied | fails, names all 5 frozen cards |
+| `design/archived/` pointed elsewhere | BOTH fail on the vacuous-green assert |
 
 ## Approval log
 
 - 2026-08-11T22:37:35+0200 — Tier 0 (a derived guardrail inside this repo's own test suite,
   no baseline deviation, no cross-project reach). Authored directly as `planned`.
+- 2026-08-11T22:40:54+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via: none`,
+  so `complete` is this card's terminal column and it archives as `completed`. Implemented by
+  `0a333bd` (the two guards) and `f4f8177` (the dead-exemption fix falsification surfaced).
+  Archived per the TRDD archival protocol.
