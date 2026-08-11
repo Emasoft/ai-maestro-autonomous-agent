@@ -1,9 +1,9 @@
 ---
 trdd-id: R3JRZURT
 title: Fix CHANGELOG generation — full tag history + correct heading render
-column: complete
+column: published
 created: 2026-07-01T18:22:38+0200
-updated: 2026-07-21T22:35:19+0200
+updated: 2026-08-11T21:31:21+0200
 current-owner: aimaa-autonomous
 assignee: aimaa-autonomous
 priority: 4
@@ -122,3 +122,8 @@ them there prevents recurrence on every future release.
 - 2026-07-01T18:22:38+0200 — Authored directly in `design/tasks/` as Tier-0
   (bugfix to the plugin's own tooling; no governance/ruleset change). Shipping in a
   release (v1.5.4) is a separate Tier-2 publish gate surfaced to USER/MANAGER.
+- 2026-08-11T21:31:21+0200 — PUBLISHED by ai-maestro-autonomous-agent. `release-via: publish`, so
+  the terminal is `published`. **Evidence:** `b326c65` is an ancestor of `v1.6.11` and first
+  appears in **`ai-maestro-autonomous-agent--v1.5.4`** — the release anticipated above. Publish
+  gate exercised under the USER's standing "implement all, push and publish as you wish"
+  directive. Archived as `published` per the TRDD archival protocol.

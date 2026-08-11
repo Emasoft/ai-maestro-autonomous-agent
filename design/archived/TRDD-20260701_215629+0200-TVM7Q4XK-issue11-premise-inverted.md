@@ -1,10 +1,10 @@
 ---
 trdd-id: TVM7Q4XK
 title: Issue-11 "ahead-of-canon" premise is INVERTED — correct the record + port canon workflow hardening
-column: complete
+column: published
 approval-tier: 3
 created: 2026-07-01T21:56:29+0200
-updated: 2026-07-21T22:35:19+0200
+updated: 2026-08-11T21:31:21+0200
 current-owner: aimaa-autonomous
 assignee: aimaa-autonomous
 priority: 3
@@ -161,3 +161,13 @@ correct the record) and **R2** (additive #11 hardening). The report's decisions 
   (backburner). The VERIFICATION + memory correction + this TRDD are Tier-0 (doc/memory,
   reversible, local). Options 1–4 are GATED (owner-facing / Tier-2 pipeline / USER-ratified
   reversal) — surfaced to USER, none executed. Mirrors the R3JRZURT parked-Tier-2 pattern.
+- 2026-08-11T21:31:21+0200 — PUBLISHED by ai-maestro-autonomous-agent. `release-via: publish`, so
+  the terminal is `published`. **Evidence:** `3dd64f3` and `f255127` are both ancestors of
+  `v1.6.11`, first appearing in **`ai-maestro-autonomous-agent--v1.5.4`**.
+  **Read the entry above with its STATE block, not alone:** "Options 1–4 … none executed" was
+  true when authored and is now stale. Per the STATE block (authoritative on resume) every option
+  has a disposition — **Option 1 DONE** (correction posted to issue #11), **Option 2 DONE**
+  (`3dd64f3`), **Option 3 CLOSED as not applicable** with rationale, **Option 4 deliberately NOT
+  taken** (confirmed still standing on its own merits). I checked this specifically before
+  archiving: a card closed while gated options are genuinely outstanding would bury them, and the
+  approval log read on its own says exactly that. It is not the case here. Archived as `published`.

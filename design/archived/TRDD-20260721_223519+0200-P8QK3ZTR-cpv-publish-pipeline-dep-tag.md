@@ -1,9 +1,9 @@
 ---
 trdd-id: P8QK3ZTR
 title: Update the publish pipeline via CPV — fix the missing dependency-resolution tag
-column: complete
+column: published
 created: 2026-07-21T22:35:19+0200
-updated: 2026-07-21T22:35:19+0200
+updated: 2026-08-11T21:31:21+0200
 current-owner: ai-maestro-autonomous-agent
 assignee: ai-maestro-autonomous-agent
 priority: 2
@@ -98,3 +98,13 @@ another project's tree).
   zero-interpolation rule on the two workflows this repo authors.
 - `ruff` clean. `cpv-remote-validate --strict` **EXIT=0, CRITICAL=0 MAJOR=0 MINOR=0
   NIT=0** (WARNING=9, all non-blocking).
+
+## Approval log
+
+- 2026-08-11T21:31:21+0200 — PUBLISHED by ai-maestro-autonomous-agent. `release-via: publish`, so
+  the terminal is `published`. **Evidence:** `f255127` is an ancestor of `v1.6.11` and first
+  appears in **`ai-maestro-autonomous-agent--v1.5.4`**. That sha is shared with `TRDD-TVM7Q4XK`,
+  which is correct rather than a mistake — one commit can carry two cards' work, and this card is
+  the one that owns the dependency-resolution tag fix. Publish gate exercised under the USER's
+  standing "implement all, push and publish as you wish" directive. Archived as `published` per
+  the TRDD archival protocol.
