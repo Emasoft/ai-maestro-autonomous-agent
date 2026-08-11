@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.13] - 2026-08-11
+
+### Documentation
+
+- Close TRDD-Q2CD6V8Y — guard the pin, not just the symptom (TRDD-Q2CD6V8Y) (dbc2d95)
+
+### Testing
+
+- **cpv:** Guard the validator pin against silent divergence (TRDD-Q2CD6V8Y) (c46be95)
 ## [1.6.12] - 2026-08-11
 
 ### Bug Fixes
