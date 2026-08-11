@@ -1,9 +1,9 @@
 ---
 trdd-id: 4P2RZQFE
 title: Skills must instruct the CLI wrappers and forbid direct ai-maestro server API calls
-column: complete
+column: completed
 created: 2026-08-02T11:58:33+0200
-updated: 2026-08-02T12:14:07+0200
+updated: 2026-08-11T21:07:55+0200
 current-owner: ai-maestro-autonomous-agent
 task-type: security
 approval-tier: 2
@@ -80,6 +80,11 @@ grep -rn "never.*raw.*/api\|frozen CLI" skills/*/SKILL.md
 - 2026-08-02T11:58:33+0200 — Authored under the USER's explicit 2026-08-02 directive declaring
   this an iron rule (Tier-2; USER is approver in standalone mode). The directive IS the
   approval — no separate sign-off sought.
+- 2026-08-11T21:07:55+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column; work landed in `2f3df20`
+  (verified present). Tier-2 approval confirmed present above before archiving — a Tier-2 card
+  archived without a recorded approval would bury the gap, not close it. Archived per the TRDD
+  archival protocol.
 
 ## Notes and lessons learned
 [^1]: [id:ATOM-API01-SKILLGAP, status:valid, keywords:"rule_is_in_the_persona_but_not_in_the_skills self_audit_checklist_returns_ALLOWED_for_a_forbidden_transport skills_load_in_isolation_persona_is_not_inherited a_rule_that_is_not_a_checklist_question_is_not_enforced", ocd:2026-08-02, lmd:2026-08-02]

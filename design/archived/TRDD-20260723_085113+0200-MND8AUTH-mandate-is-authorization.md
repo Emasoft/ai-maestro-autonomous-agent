@@ -1,9 +1,9 @@
 ---
 trdd-id: MND8AUTH
 title: A clear MANAGER or USER mandate is authorization to begin — kill the over-asking persona reflex
-column: complete
+column: completed
 created: 2026-07-23T08:51:13+0200
-updated: 2026-07-23T08:53:00+0200
+updated: 2026-08-11T21:07:55+0200
 current-owner: ai-maestro-autonomous-agent
 task-type: bugfix
 scope: project
@@ -82,3 +82,6 @@ behavior ships a real test), S5.1 (persona governance edit).
   MANAGER … fix it"). USER is Tier-3, above the Tier-2 persona-edit gate, so this is
   authorized without a separate MANAGER round. Created directly in `design/tasks/`
   as authorized work.
+- 2026-08-11T21:07:55+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column; work landed in `3c27ced`
+  (verified present). Archived per the TRDD archival protocol.
