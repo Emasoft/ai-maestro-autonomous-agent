@@ -1,9 +1,9 @@
 ---
 trdd-id: LTOXG2PQ
 title: R42.8 IS ratified - reverse the 08-07 retraction, publication lagged the grant
-column: complete
+column: completed
 created: 2026-08-08T08:03:43+0200
-updated: 2026-08-08T08:03:43+0200
+updated: 2026-08-11T21:45:37+0200
 current-owner: ai-maestro-autonomous-agent
 task-type: security
 scope: project
@@ -105,3 +105,14 @@ the only surface telling the truth.
 - `uv run python scripts/publish.py --gate` → exit 0, CRITICAL=0 MAJOR=0 MINOR=0 NIT=0.
 - `ai-maestro#129` retitled to state R42.8 IS ratified, with the correction as a comment;
   the earlier `⚠ STOP` comment is explicitly voided there.
+
+## Approval log
+
+- 2026-08-11T21:45:37+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column; work landed in `8127880`
+  (verified present). **Lineage worth preserving:** `8127880` REVERTS `db3a892`, which is
+  `TRDD-93KUP3R6`'s implementation ("R42.8 is NOT ratified"). Both cards are legitimately terminal
+  and neither supersedes the other — 93KUP3R6 was correct on the evidence available on 08-07, and
+  this card corrected it on 08-08 when the grant turned out to have preceded its publication. The
+  pair reads as a contradiction only if the dates are dropped, so they are recorded here.
+  Archived per the TRDD archival protocol.
