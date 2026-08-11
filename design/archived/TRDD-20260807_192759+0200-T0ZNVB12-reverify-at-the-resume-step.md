@@ -1,9 +1,9 @@
 ---
 trdd-id: T0ZNVB12
 title: Carry the re-verify duty into the startup checklist resume step
-column: complete
+column: completed
 created: 2026-08-07T19:27:59+0200
-updated: 2026-08-07T19:27:59+0200
+updated: 2026-08-11T21:03:39+0200
 current-owner: ai-maestro-autonomous-agent
 task-type: docs
 scope: project
@@ -70,3 +70,9 @@ original step-4 lines this change replaces, and the seeded string is absent.
 - `uv run python scripts/publish.py --gate` → exit 0, CRITICAL=0 MAJOR=0 MINOR=0 NIT=0
   (3 standing by-design `RC-PIPELINE-DRIFT-001` WARNINGs).
 - `implementation-commits:` filled in after the commit exists.
+
+## Approval log
+
+- 2026-08-11T21:03:39+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column; work landed in `2d5ba56`
+  (verified present, subject names `TRDD-T0ZNVB12`). Archived per the TRDD archival protocol.

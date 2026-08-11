@@ -1,14 +1,14 @@
 ---
 trdd-id: CRFIX6MD
 title: Code-review batch — pin-parity guard hardening, gate-count comments, persona list merge, stale recipe pin
-column: complete
+column: completed
 created: 2026-07-24T21:13:48+0200
-updated: 2026-07-24T21:13:48+0200
+updated: 2026-08-11T21:03:39+0200
 current-owner: ai-maestro-autonomous-agent
 task-type: bugfix
 approval-tier: 2
 relevant-rules: [1]
-implementation-commits: []
+implementation-commits: [86d0adb]
 ---
 
 ## ⏵ STATE — READ THIS FIRST ON RESUME (authoritative; supersedes the body) — 2026-07-24
@@ -73,6 +73,11 @@ parses both workflows; `_gate_files()` prints exactly the 5 sites at `@v3.5.0`.
 - 2026-07-24T21:13:48+0200 — Authored + COMPLETED under the USER go-on-yourself mandate. Fixes
   applied by the `/code-review --fix` pass, then independently re-verified by me before commit.
   Commit stays local; publish USER-gated.
+- 2026-08-11T21:03:39+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column. **Also repaired the
+  backtracking field:** `implementation-commits:` was `[]` although `86d0adb` names
+  `TRDD-CRFIX6MD` in its subject — the card shipped and the link was never written back, which is
+  exactly the trace a later bug hunt would follow. Archived per the TRDD archival protocol.
 
 ## Notes and lessons learned
 [^1]: [id:ATOM-7K2N-QF83, status:valid, keywords:"regression_guard_false_fails_on_valid_input guard_added_same_session_had_defects hardcoded_file_list_under_scans recipe_outlived_its_pin markdown_blank_line_merges_adjacent_lists", ocd:2026-07-24, lmd:2026-07-24]

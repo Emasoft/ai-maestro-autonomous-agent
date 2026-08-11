@@ -1,9 +1,9 @@
 ---
 trdd-id: 62AO9JXY
 title: The persona carried a governance claim upstream corrected 3 weeks earlier - pin was stale and unstamped
-column: complete
+column: completed
 created: 2026-08-08T10:11:14+0200
-updated: 2026-08-08T10:15:25+0200
+updated: 2026-08-11T21:03:39+0200
 implementation-commits: [79af9f4]
 current-owner: ai-maestro-autonomous-agent
 task-type: security
@@ -131,3 +131,9 @@ its readers to ignore it. Freshness stays a procedure, with one mechanical assis
 stamp is dated, so its **age** is checkable offline against the clock, and the next
 reader can decide whether to re-fetch. That is the whole design — assert the pointer,
 never the value.
+
+## Approval log
+
+- 2026-08-11T21:03:39+0200 — COMPLETED by ai-maestro-autonomous-agent. `release-via:` absent, so
+  it defaults to `none` and `complete` is this card's terminal column; work landed in `79af9f4`
+  (verified present). Archived per the TRDD archival protocol.
