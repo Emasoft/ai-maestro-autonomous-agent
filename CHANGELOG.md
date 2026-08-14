@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.15] - 2026-08-14
+
+### Bug Fixes
+
+- **persona:** Scope the R6 403-enforcement claim to the server path (ai-maestro#131) (a4e3210)
 ## [1.6.14] - 2026-08-14
 
 ### Bug Fixes
