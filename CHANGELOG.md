@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.14] - 2026-08-14
+
+### Bug Fixes
+
+- **board:** A release mode records what happened, not what I intended (TRDD-GA3TCRC7) (25244c5)
+
+### Documentation
+
+- Sync guidance to Claude Code 2.1.225-2.1.232 (TRDD-GA3TCRC7) (7c900a3)
+- Close TRDD-GA3TCRC7 — the pointer I trusted was the stale one (b94c2c9)
 ## [1.6.13] - 2026-08-11
 
 ### Documentation

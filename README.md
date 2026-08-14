@@ -3,7 +3,7 @@
 <!--BADGES-START-->
 <!--BADGES-END-->
 
-**Version**: 1.6.13
+**Version**: 1.6.14
 
 ## Overview
 
