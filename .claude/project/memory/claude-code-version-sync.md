@@ -2,7 +2,7 @@
 name: claude-code-version-sync
 description: "a new Claude Code version shipped — what in this plugin goes stale? / which changelog window was already swept and where does the next sync start / the code.claude.com release-notes URL 404s, how do I read the changelog / is the persona still aligned with the host's isolation and subagent rules"
 ocd: 2026-08-04
-lmd: 2026-08-04
+lmd: 2026-08-15
 metadata:
   node_type: memory
   type: project
@@ -12,12 +12,14 @@ metadata:
 # claude-code-version-sync
 
 
-^ATOM-43Z5-O3YW [desc:"Coverage is contiguous 2.1.181 → 2.1.232 across five TRDDs; the next sync starts at 2.1.233. Read the changelog via gh api — the docs release-notes URL 404s. ADVANCE THIS POINTER IN THE SAME CHANGE AS THE SWEEP.", keywords: which_claude_code_versions_were_already_swept where_does_the_next_sync_start release_notes_url_404 how_to_read_the_claude_code_changelog is_my_plugin_stale_after_a_claude_code_release the_next_sync_pointer_disagrees_with_the_archived_cards memory_says_start_at_a_window_already_swept, ocd: 2026-08-04, lmd: 2026-08-14]
+^ATOM-43Z5-O3YW [desc:"Coverage is contiguous 2.1.181 → 2.1.233 across six TRDDs; the next sync starts at 2.1.234. Read the changelog via gh api — the docs release-notes URL 404s. ADVANCE THIS POINTER IN THE SAME CHANGE AS THE SWEEP.", keywords: which_claude_code_versions_were_already_swept where_does_the_next_sync_start release_notes_url_404 how_to_read_the_claude_code_changelog is_my_plugin_stale_after_a_claude_code_release the_next_sync_pointer_disagrees_with_the_archived_cards memory_says_start_at_a_window_already_swept, ocd: 2026-08-04, lmd: 2026-08-15]
 
-**Where the coverage stands.** Five cards, contiguous, each naming its window in the
+**Where the coverage stands.** Six cards, contiguous, each naming its window in the
 title: `TRDD-BFDQH5A7` (2.1.181→2.1.200) · `TRDD-R6L582UX` (2.1.201→2.1.205) ·
 `TRDD-9ZH31KC8` (2.1.206→2.1.221) · `TRDD-M50MBTSB` (2.1.222→2.1.224) ·
-`TRDD-GA3TCRC7` (2.1.225→2.1.232). **The next sync starts at 2.1.233.** Check the host
+`TRDD-GA3TCRC7` (2.1.225→2.1.232) · `TRDD-V1AGFGQK` (2.1.233 — one falsified README
+claim: the 2.1.232 input-redirection permission check was REVERTED in 2.1.233).
+**The next sync starts at 2.1.234.** Check the host
 you are on first — `claude --version` — and pin every claim to the version you read it
 in.
 

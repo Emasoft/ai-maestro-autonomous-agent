@@ -1239,14 +1239,19 @@ def test_readme_documents_the_2_1_232_permission_prompt_surfaces() -> None:
     """Both new stall surfaces are permission prompts, which are a full stop with nobody watching.
 
     `< file` used to be the quiet spelling of a read the analyzer would have prompted on as
-    an argument; 2.1.232 closed that on every platform. Separately, trust stopped inheriting
-    from a parent directory, so the fresh clone an unattended task just made now raises its
-    own workspace-trust prompt. Naming the version is deliberate: it is what lets a later
-    sweep notice the claim needs re-checking.
+    an argument; 2.1.232 closed that on every platform — and 2.1.233 REVERTED it pending a
+    narrower version (TRDD-V1AGFGQK). The README must record the revert, not the check:
+    asserting the retracted claim is how this very test held the door open for a stale fact
+    (it went red on the truth and green on the staleness). Separately, trust stopped
+    inheriting from a parent directory, so the fresh clone an unattended task just made now
+    raises its own workspace-trust prompt. Naming versions is deliberate: it is what lets a
+    later sweep notice the claim needs re-checking.
     """
     flat = _flat(README.read_text(encoding="utf-8"))
-    assert "input redirection (< file) is permission-checked" in flat, (
-        "README must record that plain `< file` input redirection is permission-checked since 2.1.232"
+    assert "2.1.233 reverted that" in flat, (
+        "README must record that 2.1.233 reverted the 2.1.232 input-redirection permission "
+        "check (a narrower version is promised upstream); asserting the old check would "
+        "defend a falsified claim"
     )
     assert "nested repository needs its own trust confirmation" in flat, (
         "README must record that repo trust no longer inherits from a parent directory"
