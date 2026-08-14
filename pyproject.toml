@@ -19,3 +19,8 @@ dev = [
     "mypy",
     "pytest-split>=0.9",
 ]
+
+[tool.pytest.ini_options]
+# Pin collection to tests/ — gitignored scratch dirs (reports_dev/, docs_dev/)
+# accumulate stray *.py copies that otherwise break bare `pytest` collection.
+testpaths = ["tests"]

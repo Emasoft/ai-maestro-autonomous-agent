@@ -515,7 +515,12 @@ strictly scoped because stray writes can destroy other agents' work.
 ## Communication Permissions (R6)
 
 The R6 communication graph is ENFORCED at the API — violations return
-HTTP 403 `title_communication_forbidden` with a routing suggestion. This
+HTTP 403 `title_communication_forbidden` with a routing suggestion.
+**That enforcement covers ONLY the server path (AMP / frozen CLI).** The
+host's cross-session `SendMessage` (CC ≥2.1.224) never traverses the
+server, so a forbidden route over it returns no 403 and no error at all
+(ai-maestro#131) — the graph still binds you there; see the second-
+transport caveat in the duties section above. This
 list mirrors the server graph as enforced upstream by the
 `validateMessageRoute()` function in the AI Maestro server repo, called
 before every delivery in the send-message and AMP services, as of the
