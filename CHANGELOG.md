@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.16] - 2026-08-14
+
+### Documentation
+
+- Sync guidance to Claude Code 2.1.233 (TRDD-V1AGFGQK) (26ad2d1)
 ## [1.6.15] - 2026-08-14
 
 ### Bug Fixes
