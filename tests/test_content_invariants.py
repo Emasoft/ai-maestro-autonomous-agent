@@ -27,6 +27,18 @@ AMP_TEMPLATES = REPO_ROOT / "skills" / "ai-maestro-autonomous-governance" / "ref
 SELF_ID = "This is the Claude responsible for the ai-maestro-autonomous-agent project."
 
 
+def _flat(text: str) -> str:
+    """Collapse whitespace and drop markdown emphasis so a phrase assertion survives re-wrapping.
+
+    These files are hard-wrapped prose. A guard that matches a raw multi-word phrase is
+    really matching one particular line break, so re-flowing a paragraph — or bolding a
+    word mid-phrase — turns a passing guard red for no behavioural reason. The tempting
+    repair is to weaken the assertion, which quietly retires the guard. Normalizing here
+    means the assertion can only fail when the CLAIM changes.
+    """
+    return re.sub(r"\s+", " ", text.replace("**", "").replace("`", ""))
+
+
 def test_no_r6_v2_references_remain() -> None:
     """Persona, questions, and README cite R6 v3 — no stale 'R6 v2' / 'v2 graph' survives."""
     for path in (PERSONA, QUESTIONS, README):
@@ -1163,4 +1175,103 @@ def test_every_recorded_implementation_commit_resolves() -> None:
     assert not resurrected, (
         f"these shas are allowlisted as unrecoverable but now resolve: {resurrected} — "
         "drop them from _KNOWN_DANGLING_COMMITS so the guard covers them again"
+    )
+
+
+def test_persona_governs_the_inheriting_fork_spawn_kind() -> None:
+    """Claude Code 2.1.232 made `subagent_type: "fork"` the default, and a fork inherits EVERYTHING.
+
+    The persona's propagation rule was written for the only spawn kind that existed in
+    its head: one that inherits nothing, so you inject. A fork inverts that — injection
+    is already satisfied, and what actually transfers is the standing AUTONOMOUS
+    authorization, which no one-line "read-only" in the child's prompt outranks. Guard
+    both halves, because they fail in opposite directions: drop the inject invariant and
+    fresh sub-agents run ungoverned; drop the fork warning and a fork self-executes under
+    a mandate it was never given.
+    """
+    flat = _flat(PERSONA.read_text(encoding="utf-8"))
+    assert 'subagent_type: "fork"' in flat, "persona must name the fork spawn kind exactly as the tool spells it"
+    assert "2.1.232" in flat, "persona must date default-on forking to its release"
+    # The invariant must survive the nuance: injection stays unconditional.
+    assert "inject into EVERY one" in flat, (
+        "persona must keep injection unconditional — a rule gated on 'which spawn kind was this?' gets skipped"
+    )
+    # The blanket claim is now false and must not come back.
+    assert "Sub-agents you spawn inherit NOTHING" not in flat, (
+        "persona still asserts the blanket 'sub-agents inherit NOTHING', which 2.1.232 falsified for forks"
+    )
+    assert "inherits your full conversation" in flat and "also inherits your standing AUTHORIZATION" in flat, (
+        "persona must state that a fork inherits the standing authorization, not merely the context"
+    )
+    assert "read-only delegation do not use a fork" in flat, (
+        "persona must route genuinely read-only delegation away from forks"
+    )
+    assert "never trust a fork's self-report" in flat, (
+        "persona must require re-running the gates rather than believing a fork's own 'green'"
+    )
+
+
+def test_persona_says_a_cross_session_name_is_not_an_identity_and_a_send_is_not_a_delivery() -> None:
+    """2.1.225-2.1.232 removed the friction in front of the second transport; discipline is the only check left.
+
+    Three host changes compound: bare-name delivery no longer asks for a `[ref]`, `@name`
+    became a first-class path in, and colliding session names are silently auto-uniquified
+    — so the addressed name is neither confirmed nor stable. Meanwhile `crossSessionInbound`
+    can hold or refuse, so a send is not a delivery. A persona that named the channel but
+    not these would leave an agent trusting a name it never resolved and an arrival it
+    never got.
+    """
+    flat = _flat(PERSONA.read_text(encoding="utf-8"))
+    assert "A NAME IS NOT AN IDENTITY" in flat, (
+        "persona must state that a cross-session name is not an identity (2.1.232 auto-uniquifies collisions)"
+    )
+    assert "name-word-word" in flat, "persona must name the auto-uniquified variant shape"
+    assert "a send is NOT a delivery" in flat, (
+        "persona must state that a cross-session send may be held, refused, or expire"
+    )
+    assert "crossSessionInbound" in flat, (
+        "persona must name the setting that holds or refuses inbound cross-session messages"
+    )
+    assert "2.1.225" in flat, "persona must date the initiate-by-name widening of the channel"
+
+
+def test_readme_documents_the_2_1_232_permission_prompt_surfaces() -> None:
+    """Both new stall surfaces are permission prompts, which are a full stop with nobody watching.
+
+    `< file` used to be the quiet spelling of a read the analyzer would have prompted on as
+    an argument; 2.1.232 closed that on every platform. Separately, trust stopped inheriting
+    from a parent directory, so the fresh clone an unattended task just made now raises its
+    own workspace-trust prompt. Naming the version is deliberate: it is what lets a later
+    sweep notice the claim needs re-checking.
+    """
+    flat = _flat(README.read_text(encoding="utf-8"))
+    assert "input redirection (< file) is permission-checked" in flat, (
+        "README must record that plain `< file` input redirection is permission-checked since 2.1.232"
+    )
+    assert "nested repository needs its own trust confirmation" in flat, (
+        "README must record that repo trust no longer inherits from a parent directory"
+    )
+    assert "trust no longer inherits from a parent directory" in flat, (
+        "README must say WHY the nested-repo prompt appears, not just that it does"
+    )
+
+
+def test_persona_treats_unsolicited_skill_bodies_as_untrusted_by_provenance() -> None:
+    """2.1.228 hardened synced skills mechanically; the persuasive half cannot be hardened.
+
+    A skill body is procedure the agent follows, which makes it a strictly higher-value
+    injection carrier than a README it merely reads. The rule has to key on PROVENANCE —
+    "any skill" would indict this plugin's own three shipped skills and be ignored as
+    obviously overbroad, which is how a real rule gets discarded.
+    """
+    flat = _flat(PERSONA.read_text(encoding="utf-8"))
+    assert "claude.ai-synced skill" in flat, (
+        "persona's untrusted-source list must include skills the USER did not install here"
+    )
+    assert "2.1.228" in flat, "persona must date the synced-skill hardening"
+    assert "PROCEDURE you follow, not data you read" in flat, (
+        "persona must say WHY a skill body outranks a README as an injection carrier"
+    )
+    assert "provenance, not the word" in flat, (
+        "persona must scope the rule by provenance so its own shipped skills are not swept in"
     )

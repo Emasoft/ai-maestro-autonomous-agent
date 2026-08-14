@@ -208,9 +208,20 @@ transient API errors:
   since 2.1.218. A Bash command over 10,000 characters always prompts; so do
   zsh `[[ ]]` conditionals using variable subscripts, modifiers, or regex
   (2.1.218, tightened again in 2.1.221), and file-descriptor redirect forms the
-  permission analyzer parses differently from bash. Keep commands short — put
+  permission analyzer parses differently from bash. Since 2.1.232 plain input
+  redirection (`< file`) is permission-checked on every platform, exactly like
+  the argument spelling of the same read — so the redirect is no longer the
+  quiet way in. Keep commands short — put
   long input in a file and pass the path — or the turn waits on a human who
   is not there.
+- **A nested repository needs its own trust confirmation** since 2.1.232 —
+  trust no longer inherits from a parent directory. A clone inside a clone, a
+  submodule you step into, or a repo checked out under an already-trusted
+  workspace therefore raises a workspace-trust prompt that the parent used to
+  cover. It is the same failure mode as the bullet above and it lands in the
+  place unattended runs actually go: the fresh clone a task just made. Trust
+  the repositories you will work in before the run starts, rather than
+  discovering the prompt with nobody there to answer it.
 
 ## The persona at a glance
 

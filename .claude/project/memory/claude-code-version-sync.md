@@ -12,11 +12,12 @@ metadata:
 # claude-code-version-sync
 
 
-^ATOM-43Z5-O3YW [desc:"Coverage is contiguous 2.1.181 → 2.1.221 across three TRDDs; the next sync starts at 2.1.222. Read the changelog via gh api — the docs release-notes URL 404s.", keywords: which_claude_code_versions_were_already_swept where_does_the_next_sync_start release_notes_url_404 how_to_read_the_claude_code_changelog is_my_plugin_stale_after_a_claude_code_release, ocd: 2026-08-04, lmd: 2026-08-04]
+^ATOM-43Z5-O3YW [desc:"Coverage is contiguous 2.1.181 → 2.1.232 across five TRDDs; the next sync starts at 2.1.233. Read the changelog via gh api — the docs release-notes URL 404s. ADVANCE THIS POINTER IN THE SAME CHANGE AS THE SWEEP.", keywords: which_claude_code_versions_were_already_swept where_does_the_next_sync_start release_notes_url_404 how_to_read_the_claude_code_changelog is_my_plugin_stale_after_a_claude_code_release the_next_sync_pointer_disagrees_with_the_archived_cards memory_says_start_at_a_window_already_swept, ocd: 2026-08-04, lmd: 2026-08-14]
 
-**Where the coverage stands.** Three cards, contiguous, each naming its window in the
+**Where the coverage stands.** Five cards, contiguous, each naming its window in the
 title: `TRDD-BFDQH5A7` (2.1.181→2.1.200) · `TRDD-R6L582UX` (2.1.201→2.1.205) ·
-`TRDD-9ZH31KC8` (2.1.206→2.1.221). **The next sync starts at 2.1.222.** Check the host
+`TRDD-9ZH31KC8` (2.1.206→2.1.221) · `TRDD-M50MBTSB` (2.1.222→2.1.224) ·
+`TRDD-GA3TCRC7` (2.1.225→2.1.232). **The next sync starts at 2.1.233.** Check the host
 you are on first — `claude --version` — and pin every claim to the version you read it
 in.
 
@@ -33,7 +34,7 @@ gh api repos/anthropics/claude-code/contents/CHANGELOG.md --jq '.content' | base
 awk '/^## 2\.1\.205$/{f=1} f; /^## 2\.1\.200$/{exit}' /tmp/cc-changelog.md   # one window
 ```
 
-It is ~480 KB, so capture to a file and slice the window — never read it whole.
+It is ~480 KB, so capture to a file and slice the window — never read it whole. [^1]
 
 
 ^ATOM-7RHI-HK83 [desc:"Triage rule for a CC sweep: an entry matters only if it makes a rule STALE or exposes a hole the plugin claims to close — and 'verified absent' must be proven, not assumed.", keywords: what_counts_as_on-mission_in_a_changelog_sweep most_changelog_entries_need_no_change the_host_caught_up_to_a_rule_we_already_had prove_absence_before_claiming_a_plugin_is_unaffected, ocd: 2026-08-04, lmd: 2026-08-04]
@@ -71,7 +72,7 @@ this plugin if it touches one of the four things the persona actually governs:
 
 Everything else (rendering, IDE surfaces, telemetry, MCP plumbing, Windows terminal
 fixes) is host business. Sorting by this test is what keeps a sweep to a handful of
-edits instead of a rewrite.
+edits instead of a rewrite. [^2]
 
 ## See also
 
@@ -81,3 +82,6 @@ edits instead of a rewrite.
   USER-gated step.
 
 ## Notes and lessons learned
+
+[^1]: [id:ATOM-1GEI-AVA3, status:valid, desc:"The next-sync pointer said 2.1.222 while an archived card had already swept 222-224 — a by-design moving value that nothing advances is stale the moment the sweep lands.", keywords:"the_next_sync_pointer_disagrees_with_the_archived_cards memory_says_start_at_a_window_already_swept I_nearly_re-swept_a_window_a_card_already_covered a_moving_pointer_in_memory_went_stale where_does_the_next_changelog_sweep_start", ocd:2026-08-14, lmd:2026-08-14] DO NOT leave the "next sync starts at X" pointer for a later pass, BECAUSE it is a MOVING value with no other writer: the sweep that consumes it is the only event that can advance it, so the moment a sweep lands and the pointer does not, memory asserts a window already covered — here it read 2.1.222 for 7 days while TRDD-M50MBTSB had swept 222→224, and the next agent's choices were to redo that work or to mis-scope around it. Nothing goes red; a stale pointer reads exactly like a fresh one. DO advance the pointer, the card list and the atom's own desc in the SAME change as the sweep, and cross-check it against the archived cards (`grep -l 'cc-21' design/archived/`) before trusting it.
+[^2]: [id:ATOM-QQTB-MIY7, status:valid, desc:"The four axes miss two classes: identity/addressing drift, and any entry whose only effect is a new permission prompt — both surfaced in the 2.1.225-2.1.232 sweep.", keywords:"the_four_on-mission_axes_have_no_home_for_this_entry identity_and_addressing_drift_in_a_changelog_sweep a_changelog_entry_fits_no_axis_but_still_matters session_names_are_not_stable_identities I_triaged_an_entry_under_the_wrong_axis", ocd:2026-08-14, lmd:2026-08-14] DO NOT triage a changelog entry by first-match against the four axes, BECAUSE two real classes have no axis and get dropped: (1) IDENTITY/ADDRESSING drift — 2.1.232 removed the confirm-by-ref step, added @-mention, and auto-uniquified colliding session names, so the name you address is neither confirmed nor stable; it reached the persona only by being stretched under "sub-agent propagation". (2) A fix whose ONLY effect is a NEW PERMISSION PROMPT — nested-git trust stopped inheriting, which is irrelevant to write scope (the writable roots are absolute) but is a full stop under axis 4; triaged under scope it reads as a no-op, which is how it was nearly dropped. DO run every entry against ALL FOUR axes before discarding it, and ask separately "does this create a prompt, or change who I think I am talking to?" — those two questions are the axes' blind spot.
