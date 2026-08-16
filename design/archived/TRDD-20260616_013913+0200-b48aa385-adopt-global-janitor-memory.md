@@ -131,3 +131,10 @@ memory skills/rule, then update tests + agent.toml, then validate + publish.
   CPV-canon standardization suggestion — flagged to MANAGER as a follow-up).
   `dev → completed`; `git mv` to `design/archived/`. Reported on issue #7;
   filed a Janitor coordinate issue + corroborated janitor#37.
+- 2026-08-16T16:35:11+0200 — TERMINAL-TRUE, verified against code+git (fleet audit).
+  The `## Plan` rows 2-8 still read `pending` and the STATE carries an unexecuted
+  `**NEXT ACTION:**` — both are authoring-time prose, superseded by 7fe8d84 + 9f20bfd
+  (both commits exist). Measured on disk: `CLAUDE.md` present (56 lines);
+  `skills/autonomous-memory-{recall,write}/` and `rules/memory-protocol.md` absent as
+  planned; the persona cites `janitor-memory-recall` 4x. Stale STATE/plan prose, not an
+  unearned column. Guard: STATE is authoritative for INTENT only; code+git settle STATUS.
