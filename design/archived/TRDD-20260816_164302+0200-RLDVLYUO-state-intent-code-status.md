@@ -1,9 +1,9 @@
 ---
 trdd-id: RLDVLYUO
 title: Ship the STATE-is-intent code-is-status guard in the persona
-column: dev
+column: published
 created: 2026-08-16T16:43:02+0200
-updated: 2026-08-16T16:43:02+0200
+updated: 2026-08-16T16:59:09+0200
 current-owner: autonomous-session
 task-type: docs
 scope: project
@@ -11,7 +11,7 @@ project-id: ai-maestro-autonomous-agent
 release-via: publish
 approval-tier: 0
 relevant-rules: []
-implementation-commits: []
+implementation-commits: [687e1a4, 84c2989]
 ---
 
 # Ship the STATE-is-intent code-is-status guard in the persona
@@ -49,3 +49,13 @@ dies today.
 - [x] Released, not left on main.
 
 ## Approval log
+
+- 2026-08-16T16:59:09+0200 — PUBLISHED by autonomous-session. Guard added at the persona's
+  memory-protocol section (687e1a4), pinned by `test_persona_state_is_intent_code_is_status`
+  in `tests/test_content_invariants.py`, released as **v1.6.17** (84c2989,
+  https://github.com/Emasoft/ai-maestro-autonomous-agent/releases/tag/v1.6.17). Full suite
+  135 passed; `scripts/publish.py --patch` green through all 14 gates (tests, lint, CPV
+  --strict, CI parity, version consistency). The guard was FALSIFIED before being trusted:
+  green on the real persona, red on a copy with the rule sentence removed.
+  Tier 0 (docs within own scope) under the USER's standing 2026-08-08 publish grant — the
+  same authority under which v1.6.15 and v1.6.16 shipped.
