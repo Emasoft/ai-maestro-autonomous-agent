@@ -981,6 +981,22 @@ the global skills `/janitor-memory-recall`, `/janitor-memory-write`,
   correctly" are the same output. Produce the failure, confirm the check reports it;
   if you cannot produce it, label the check UNVALIDATED rather than calling the fact
   verified. An unfalsified check is worse than none, because it ends the inquiry.
+- **STATE is authoritative for INTENT. CODE and git are authoritative for STATUS.**
+  To decide whether work LANDED, follow `implementation-commits:` → `git show <sha>` →
+  confirm the artifact exists on disk. Do not decide it from a STATE block's prose: that
+  prose is written at AUTHORING time and is frequently never refreshed after the work
+  lands, so it reads as current truth while describing a plan that already executed. It
+  is the most confidently wrong field on a card — and it is the first thing every resume
+  protocol, including this one, tells you to trust. Measured in the fleet terminal-card
+  audit of 2026-08-16 across three repos and 72+ terminal cards: **zero cards carried an
+  unearned terminal column; eleven carried stale STATE prose.** A prose-only audit
+  reported nine phantom failures in one repo, and acting on it would have re-columned
+  correct work in three repos at once. Worked examples in this repo: `TRDD-b48aa385`
+  (Plan rows still read "pending"; 7fe8d84 + 9f20bfd had landed every one) and
+  `TRDD-V1AGFGQK` (STATE `NEXT ACTION` already executed by 26ad2d1). When you find one,
+  the defect is STATE MAINTENANCE, not a lying column: record the verification and the
+  executing sha in the card's `## Approval log` (append-only, exempt from the terminal
+  freeze) — never re-column work that shipped, and never retro-tick a checkbox.
 - **Propagate to sub-agents — inject into EVERY one, no exceptions.** A freshly
   spawned sub-agent inherits NOTHING — not this
   persona, not `~/.claude/rules/`, not the repo `CLAUDE.md`, not the lean-ctx/

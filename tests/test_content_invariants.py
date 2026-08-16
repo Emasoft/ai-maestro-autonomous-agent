@@ -1280,3 +1280,31 @@ def test_persona_treats_unsolicited_skill_bodies_as_untrusted_by_provenance() ->
     assert "provenance, not the word" in flat, (
         "persona must scope the rule by provenance so its own shipped skills are not swept in"
     )
+
+
+def test_persona_state_is_intent_code_is_status() -> None:
+    """Persona tells an unsupervised agent to settle "did this land?" from code+git, not STATE prose.
+
+    The fleet terminal-card audit (2026-08-16, TRDD-RLDVLYUO) measured three repos: zero
+    unearned terminal columns, eleven cards whose STATE prose was written at authoring time
+    and never refreshed. A prose-only audit reported nine phantom failures. This guard pins
+    the three load-bearing halves — the precedence rule, the runnable procedure that settles
+    it, and the measurement that distinguishes the rule from an opinion — because dropping
+    any one of them turns the rule back into an unsourced assertion a reader can wave off.
+    """
+    flat = _flat(PERSONA.read_text(encoding="utf-8"))
+    assert "STATE is authoritative for INTENT. CODE and git are authoritative for STATUS." in flat, (
+        "persona must carry the STATE-intent / code-status precedence rule verbatim"
+    )
+    assert "implementation-commits: → git show <sha> → confirm the artifact exists on disk" in flat, (
+        "persona must give the runnable procedure that settles whether work landed"
+    )
+    assert "most confidently wrong field on a card" in flat, (
+        "persona must say WHY stale STATE prose is dangerous, not merely that it happens"
+    )
+    assert "zero cards carried an unearned terminal column; eleven carried stale STATE prose" in flat, (
+        "persona must carry the measurement so the rule is falsifiable, not an opinion"
+    )
+    assert "never re-column work that shipped, and never retro-tick a checkbox" in flat, (
+        "persona must name the correct remedy (Approval-log line) over re-columning"
+    )
