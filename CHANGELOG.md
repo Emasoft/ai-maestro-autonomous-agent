@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.18] - 2026-08-16
+
+### Documentation
+
+- Close TRDD-RLDVLYUO -> published, archive (TRDD-RLDVLYUO) (8ac6ca0)
 ## [1.6.17] - 2026-08-16
 
 ### Documentation
