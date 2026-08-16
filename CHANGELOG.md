@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.17] - 2026-08-16
+
+### Documentation
+
+- Close TRDD-V1AGFGQK -> published, archive (TRDD-V1AGFGQK) (80e5293)
+- Record terminal-card audit verdicts on two stale-STATE cards (TRDD-b48aa385, TRDD-V1AGFGQK) (fef70a6)
+- **persona:** STATE is intent, code and git are status (TRDD-RLDVLYUO) (687e1a4)
 ## [1.6.16] - 2026-08-14
 
 ### Documentation
