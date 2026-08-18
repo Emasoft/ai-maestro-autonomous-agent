@@ -1,9 +1,9 @@
 ---
 trdd-id: 9SIVDRLO
 title: Make CPV pin prose version-agnostic so comments can never drift from the gate again
-column: todo
+column: complete
 created: 2026-08-18T19:52:44+0200
-updated: 2026-08-18T19:52:44+0200
+updated: 2026-08-18T20:00:30+0200
 current-owner: autonomous-agent-session
 task-type: bugfix
 approval-tier: 0
@@ -34,8 +34,10 @@ historical. After this, the only version-bearing sites are the 5 the parity test
 
 ## Acceptance
 
-- [ ] No comment in ci.yml/release.yml names a specific CPV version.
-- [ ] The 5 executing sites untouched; `tests/test_cpv_pin_parity.py` green.
+- [x] No comment in ci.yml/release.yml names a specific CPV version (sweep run at fix
+  time; remaining version strings are pinact-maintained action-SHA annotations, a
+  different guarded mechanism).
+- [x] The 5 executing sites untouched (all agree); `tests/test_cpv_pin_parity.py`: 3 passed.
 
 ## Approval log
 
