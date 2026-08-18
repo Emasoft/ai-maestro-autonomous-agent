@@ -90,11 +90,15 @@ def test_consistency_detects_persona_drift(tmp_path: Path) -> None:
     assert "8.8.8" in msg
 
 
-def test_do_bump_roundtrip_keeps_all_four_sources_consistent(tmp_path: Path) -> None:
-    """do_bump updates plugin.json + README + persona together, so consistency holds at the new version."""
+def test_bump_helpers_roundtrip_keeps_all_four_sources_consistent(tmp_path: Path) -> None:
+    """The individual bump helpers update plugin.json + README + persona together, so consistency holds at the new version."""
     _make_plugin(tmp_path, "1.0.0")
     # pyproject is optional; omit it — the four-way check still covers plugin.json/README/persona.
-    assert publish.do_bump(tmp_path, "1.1.0") is True
+    # These are the exact helpers the live Step-9 path (language_bump_version) composes;
+    # the removed do_bump() wrapper duplicated this composition with zero production callers.
+    results = [publish.update_plugin_json(tmp_path, "1.1.0"), publish.update_readme_version(tmp_path, "1.1.0")]
+    results.extend(publish.update_persona_versions(tmp_path, "1.1.0"))
+    assert all(ok for ok, _ in results), results
     ok, msg = publish.check_version_consistency(tmp_path)
     assert ok, msg
     assert "1.1.0" in msg

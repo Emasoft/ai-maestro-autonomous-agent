@@ -1202,7 +1202,8 @@ def check_version_consistency(plugin_root: Path) -> tuple[bool, str]:
         except Exception:
             pass
 
-    # README.md "**Version**: X.Y.Z" display string (kept in sync by do_bump)
+    # README.md "**Version**: X.Y.Z" display string (kept in sync by the live
+    # Step-9 bumper language_bump_version(); PRRD S4.2)
     readme = plugin_root / "README.md"
     if readme.exists():
         try:
@@ -1243,31 +1244,11 @@ def check_version_consistency(plugin_root: Path) -> tuple[bool, str]:
     return False, "\n".join(lines)
 
 
-# ── Bump all files ───────────────────────────────────────────────────────────
-
-
-def do_bump(plugin_root: Path, new_version: str, dry_run: bool = False) -> bool:
-    """Bump version across all files. Returns True on success."""
-    if dry_run:
-        print(f"  [DRY-RUN] Would bump to {new_version}")
-        return True
-
-    all_results: list[tuple[bool, str]] = []
-    all_results.append(update_plugin_json(plugin_root, new_version))
-    all_results.append(update_pyproject_toml(plugin_root, new_version))
-    all_results.extend(update_python_versions(plugin_root, new_version))
-    all_results.append(update_readme_version(plugin_root, new_version))
-    all_results.extend(update_persona_versions(plugin_root, new_version))
-
-    errors = 0
-    for ok, msg in all_results:
-        status = f"{GREEN}[OK]{NC}" if ok else f"{RED}[ERROR]{NC}"
-        print(f"  {status} {msg}")
-        if not ok:
-            errors += 1
-
-    return errors == 0
-
+# NOTE: there is deliberately NO do_bump() wrapper here. One existed with zero
+# production callers, and the v1.3.0 incident proved it was a patch-magnet: a
+# fix aimed at it never reached a release because the live path is
+# language_bump_version() (Step 9). Removed under TRDD-J48IO8F3 — do not
+# reintroduce a parallel bump entry point.
 
 # ── Main pipeline ────────────────────────────────────────────────────────────
 

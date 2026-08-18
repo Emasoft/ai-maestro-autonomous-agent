@@ -81,5 +81,5 @@ def test_publish_module_imports() -> None:
     module = importlib.util.module_from_spec(spec)
     sys.modules["publish_smoke"] = module  # so @dataclass can resolve cls.__module__
     spec.loader.exec_module(module)
-    for fn in ("check_version_consistency", "do_bump", "update_readme_version", "update_persona_versions"):
+    for fn in ("check_version_consistency", "language_bump_version", "update_readme_version", "update_persona_versions"):
         assert hasattr(module, fn), f"publish.py missing {fn}"

@@ -1,9 +1,9 @@
 ---
 trdd-id: J48IO8F3
 title: Retire dead do_bump and correct every prose site attributing version sync to it
-column: dev
+column: complete
 created: 2026-08-18T19:52:44+0200
-updated: 2026-08-18T19:52:44+0200
+updated: 2026-08-18T19:58:00+0200
 current-owner: autonomous-agent-session
 task-type: bugfix
 approval-tier: 2
@@ -44,9 +44,9 @@ never runs in production):
 
 ## Acceptance
 
-- [ ] PRRD S4.1 revised to S4.2 naming `language_bump_version()`; approval logged.
-- [ ] `do_bump` absent from `scripts/publish.py`; zero non-historical references.
-- [ ] Tests green.
+- [x] PRRD S4.1 revised to S4.2 naming `language_bump_version()`; approval logged.
+- [x] `do_bump` absent from `scripts/publish.py`; sweep: only historical references remain.
+- [x] Tests green: 135 passed (full suite, 2026-08-18T19:57+0200).
 
 ## Approval log
 
