@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.19] - 2026-08-18
+
+### Bug Fixes
+
+- **publish:** Retire dead do_bump and correct sync attribution (TRDD-J48IO8F3) (deb56e2)
+
+### Documentation
+
+- Add Phase-2 TRDDs from confirmed audit findings (TRDD-J48IO8F3, TRDD-9SIVDRLO, TRDD-D6P88CM1) (b3413e5)
+- **ci:** Make CPV pin prose version-agnostic (TRDD-9SIVDRLO) (70a3d4c)
+- **publish:** Stop claiming the uninstalled git-hooks/pre-push is the live gate (TRDD-D6P88CM1) (6491e21)
 ## [1.6.18] - 2026-08-16
 
 ### Documentation
