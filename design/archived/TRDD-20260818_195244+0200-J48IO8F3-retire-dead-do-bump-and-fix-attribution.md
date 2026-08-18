@@ -1,7 +1,7 @@
 ---
 trdd-id: J48IO8F3
 title: Retire dead do_bump and correct every prose site attributing version sync to it
-column: complete
+column: completed
 created: 2026-08-18T19:52:44+0200
 updated: 2026-08-18T19:58:00+0200
 current-owner: autonomous-agent-session

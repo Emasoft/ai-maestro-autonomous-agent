@@ -1,7 +1,7 @@
 ---
 trdd-id: D6P88CM1
 title: Stop publish.py docs claiming the uninstalled git-hooks pre-push is the live gate
-column: complete
+column: completed
 created: 2026-08-18T19:52:44+0200
 updated: 2026-08-18T20:04:00+0200
 current-owner: autonomous-agent-session

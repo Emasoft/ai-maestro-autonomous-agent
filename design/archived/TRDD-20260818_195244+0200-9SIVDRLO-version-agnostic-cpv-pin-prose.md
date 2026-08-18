@@ -1,7 +1,7 @@
 ---
 trdd-id: 9SIVDRLO
 title: Make CPV pin prose version-agnostic so comments can never drift from the gate again
-column: complete
+column: completed
 created: 2026-08-18T19:52:44+0200
 updated: 2026-08-18T20:00:30+0200
 current-owner: autonomous-agent-session
