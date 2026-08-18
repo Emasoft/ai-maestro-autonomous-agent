@@ -1,9 +1,9 @@
 ---
 trdd-id: D6P88CM1
 title: Stop publish.py docs claiming the uninstalled git-hooks pre-push is the live gate
-column: todo
+column: complete
 created: 2026-08-18T19:52:44+0200
-updated: 2026-08-18T19:52:44+0200
+updated: 2026-08-18T20:04:00+0200
 current-owner: autonomous-agent-session
 task-type: docs
 approval-tier: 0
@@ -41,7 +41,8 @@ CHANGELOG:329); what is undeclared is that the declared-divergent file is INERT.
 
 ## Acceptance
 
-- [ ] All three sites corrected; sweep clean; tests green.
+- [x] All three sites corrected + header added to git-hooks/pre-push; sweep: the only
+  remaining mention is the new corrective note itself; tests: 135 passed.
 
 ## Approval log
 

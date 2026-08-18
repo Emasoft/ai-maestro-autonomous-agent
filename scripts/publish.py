@@ -33,9 +33,12 @@ Gate mode (--gate):
   lint, CPV lint, CPV `--strict` plugin validation, CI-parity preflight, version
   consistency, and the git-cliff availability precheck — then returns. It mutates
   no git state and takes no bump type, so it is safe to call from a git hook.
-  `git-hooks/pre-push` invokes exactly this mode; before it existed that hook
-  died with `unrecognized arguments: --gate`, i.e. the canonical CPV pre-push
-  hook shipped in this repo could never actually gate a push. Gate mode is NOT a
+  NOTE (TRDD-D6P88CM1): NO runner invokes --gate automatically in this repo.
+  The installed hook is `.githooks/pre-push` (`core.hooksPath=.githooks`), a
+  process-ancestry check that refuses any push not descended from this script —
+  strictly stricter than gating. `git-hooks/pre-push`, the CPV-canonical
+  reference hook that calls --gate, is NOT installed here (declared divergence,
+  plugin.json `cpv.pipeline.intentional_divergence`). Gate mode is NOT a
   bypass: it is a strict SUBSET of the release pipeline's checks, running the
   same functions with the same fail-fast semantics, and it deliberately cannot
   reach the bump/commit/tag/push stages at all.
@@ -1432,8 +1435,9 @@ Examples:
   %(prog)s --patch --dry-run    # run every validation step fully, then
                                 # stop before bump/commit/push
   %(prog)s --gate               # pre-push gate: every validation step,
-                                # no bump/commit/tag/push (used by
-                                # git-hooks/pre-push)
+                                # no bump/commit/tag/push (manual/CI use;
+                                # no installed hook invokes it — the live
+                                # hook is .githooks/pre-push)
         """,
     )
     # The bump flags stay mutually exclusive, but `required=` moves to the
@@ -1460,7 +1464,8 @@ Examples:
             "Pre-push gate mode: run the clean-tree check, tests, lint, CPV "
             "lint, CPV --strict validation, CI-parity preflight, version "
             "consistency, and the git-cliff precheck, then stop. Mutates no "
-            "git state and needs no bump type. Called by git-hooks/pre-push."
+            "git state and needs no bump type. No installed hook invokes it "
+            "(the live gate is .githooks/pre-push); run it manually or from CI."
         ),
     )
     args = parser.parse_args()
