@@ -42,7 +42,7 @@ edge cases:
 ## Prerequisites
 
 - You are an AUTONOMOUS agent with `ai-maestro-autonomous-agent` installed.
-- You have the `agent-messaging` skill available (from `ai-maestro-plugin`).
+- You have the frozen AMP messaging CLIs available (`amp-send`, `amp-inbox`, `amp-init`, `amp-identity` — shipped by `ai-maestro-plugin`; background: its `agent-messaging` knowledge skill).
 - You know your own agent name and working directory (`~/agents/<your-name>/`).
 
 ## Instructions

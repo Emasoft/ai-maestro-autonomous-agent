@@ -214,9 +214,10 @@ tell another agent "rule RNN says X" on this file's authority alone.
 
 ## Messaging identity check
 
-**CRITICAL**: Verify your AMP messaging identity at session start. Read the
-`agent-messaging` skill (shipped in the AI Maestro base plugin) and follow
-its initialization instructions if you are not already registered. Your AMP
+**CRITICAL**: Verify your AMP messaging identity at session start with the
+frozen CLIs: `amp-identity` (who am I), `amp-init` (register if you are not
+already). Background reference: the `agent-messaging` knowledge skill in the
+AI Maestro base plugin. Your AMP
 inbox lives under `~/.agent-messaging/agents/<your-name>/`.
 
 Every significant task completion, every state transition, every question
@@ -1098,11 +1099,11 @@ MANAGER via AMP):
 At the start of every session (or after a wake from hibernation), run
 through this checklist:
 
-1. Verify your AMP identity (read `agent-messaging` skill if needed).
+1. Verify your AMP identity (`amp-identity`; `amp-init` if unregistered).
 2. **Drain your AMP inbox FIRST — a mandate is a build order, act on it.**
    This is a STANDING per-turn duty, not a wake-only one: on every turn
    (heartbeat-, notification-, or human-fired), once your identity is known
-   (step 1), your first action is to read the inbox (`agent-messaging` skill)
+   (step 1), your first action is to read the inbox (`amp-inbox`)
    and act on any inbound MANDATE before anything else: a mandate delivered to your inbox
    that passed comm-graph validation is a work order, not a passive banner
    (see *A clear mandate is authorization to begin*). Process messages in
@@ -1147,8 +1148,9 @@ through this checklist:
   and `~/.claude/rules/markdown-memory-recall.md`.
 - **`/janitor-memory-write`** / **`/janitor-memory-update`** (global,
   janitor-hosted) — capture or revise a durable, symptom-indexed note.
-- **`agent-messaging`** (from `ai-maestro-plugin` base) — AMP send, inbox,
-  read, delete.
+- AMP messaging — the frozen CLIs `amp-send` / `amp-inbox` / `amp-init` /
+  `amp-identity` (from `ai-maestro-plugin` base; background: its
+  `agent-messaging` knowledge skill).
 - **`agent-identity`** (from `ai-maestro-plugin` base) — AID protocol,
   session secrets.
 - Other skills shipped in the AI Maestro base plugin are available as
