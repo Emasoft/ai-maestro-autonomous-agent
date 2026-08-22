@@ -229,6 +229,15 @@ transient API errors:
   place unattended runs actually go: the fresh clone a task just made. Trust
   the repositories you will work in before the run starts, rather than
   discovering the prompt with nobody there to answer it.
+- **A cloned repo's own MCP config can raise that same prompt, and 2.1.238
+  extended it to `claude -p`.** An MCP `headersHelper` in a project
+  `.mcp.json`, and an inline MCP server declared in a project or `--add-dir`
+  agent file, now require that folder's trust dialog to have been accepted —
+  headless mode included, where it previously did not apply. So a repo that
+  ships its own `.mcp.json` stalls an unattended run at the moment it is
+  entered, not at the moment an MCP tool is called. Same remedy as above:
+  trust the repo before the run, and prefer cloning targets you have already
+  trusted.
 
 ## The persona at a glance
 
