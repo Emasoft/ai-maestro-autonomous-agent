@@ -169,7 +169,7 @@ transient API errors:
   sessions (Claude Code 2.1.186+). `CLAUDE_CODE_MAX_RETRIES` is now clamped to
   15, but the watchdog lifts that cap and (2.1.199+) defaults to 300 retries
   with backoff on transient, non-usage-limit errors — so a brief 5xx or
-  connection drop no longer ends the turn. As of 2.1.240 the watchdog fails
+  connection drop no longer ends the turn. As of 2.1.239 the watchdog fails
   immediately on org spend-limit and out-of-credits errors instead of waiting
   indefinitely for a reset — correct for an unattended run (no more hang),
   but those two conditions need a human and nothing will retry them.

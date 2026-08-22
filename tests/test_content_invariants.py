@@ -1242,7 +1242,7 @@ def test_persona_rests_send_is_not_a_delivery_on_what_survived_2_1_238() -> None
     `SendMessage` reporting success on a write that had actually failed. Upstream then
     closed that whole family: 2.1.234 reports a session list too long to check, 2.1.235
     refuses an oversize message up front, 2.1.238 reports a `refuse` and reports an inbox
-    DROP, 2.1.240 made `/`-titled sessions addressable again. Silence therefore means more
+    DROP, 2.1.239 made `/`-titled sessions addressable again. Silence therefore means more
     than it did, and an agent still reading the old paragraph would over-distrust a channel
     the host had already fixed — the same staleness failure as the 2.1.233 revert test above,
     which went red on the truth and green on the staleness.

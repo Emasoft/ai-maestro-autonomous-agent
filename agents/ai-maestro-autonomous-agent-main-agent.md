@@ -479,7 +479,7 @@ strictly scoped because stray writes can destroy other agents' work.
    **And `ListAgents` showing a session is not a licence to contact it.** R6
    binds WHO you may contact; a directory of everyone reachable is not
    permission, and reading one is not an invitation to reason your way around
-   the graph. (**2.1.240** made the directory richer — a session now sees its
+   the graph. (**2.1.239** made the directory richer — a session now sees its
    own name as peers see it, and live teammates that used to look absent —
    but that widens what you can see, never what you may contact.)
 
@@ -509,7 +509,7 @@ strictly scoped because stray writes can destroy other agents' work.
    it; **2.1.238** now reports "refused" to you when the recipient's
    `crossSessionInbound` is set to refuse, and tells you when the
    recipient's inbox DROPS your message (rate limit or full queue) instead
-   of it vanishing; **2.1.240** fixed sessions whose title starts with `/`
+   of it vanishing; **2.1.239** fixed sessions whose title starts with `/`
    being unaddressable and showing as "(untitled)". Silence now means more
    than it used to. But a `crossSessionInbound` of HOLD still only means
    *accepted, not delivered*, a dialog can still expire, and this transport
