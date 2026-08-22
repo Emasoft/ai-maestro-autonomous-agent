@@ -53,8 +53,10 @@ Follow these steps before executing any write operation.
    deterministic. Resolving the symlinks is not optional: a link inside your
    own workdir can point at another agent's directory, and a glob match on the
    un-resolved string happily approves that write. Claude Code fixed this same
-   class in its own isolation three times (2.1.212, 2.1.216, 2.1.217) — a scope
-   check that compares literal strings is not a scope check.
+   class in its own isolation five times (2.1.212, 2.1.216, 2.1.217, 2.1.232,
+   2.1.236) — a scope check that compares literal strings is not a scope
+   check. 2.1.236's fix was a deny rule a rename could evade; same defect —
+   the identity of what's protected has to survive the path it's reached by.
 3. **Open the [layers](references/layers.md) reference** and check
    each canonicalized path against Layer 1 (writable locally). If all
    paths match Layer 1 patterns, the write is ALLOWED.

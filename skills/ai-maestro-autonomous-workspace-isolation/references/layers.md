@@ -57,10 +57,13 @@ MY_AGENT_NAME="<your-agent-name>"
 # Canonicalize BOTH sides before comparing. A `case` match on the string the
 # caller typed is NOT a scope check — a symlink inside your own workdir can
 # point at another agent's directory and the glob approves the write. Claude
-# Code hit this same class three times in one month and fixed each by
-# canonicalizing: 2.1.212 (.claude/worktrees), 2.1.216 (.claude), 2.1.217 (a
-# background session's own cwd, "which could let sessions escape their
-# workspace folder"). Do not re-introduce the string comparison.
+# Code hit this same class five times. Three were fixed by canonicalizing:
+# 2.1.212 (.claude/worktrees), 2.1.216 (.claude), 2.1.217 (a background
+# session's own cwd, "which could let sessions escape their workspace
+# folder"). Two more were the same defect one layer down, in the sandbox:
+# 2.1.232 (Linux protected-path bypass), 2.1.236 (macOS wildcard deny rules
+# evaded by renaming the denied file). Do not re-introduce the string
+# comparison.
 resolve() { python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$1"; }
 
 TARGET_REAL="$(resolve "$TARGET")"          # resolves even if the leaf does not exist yet

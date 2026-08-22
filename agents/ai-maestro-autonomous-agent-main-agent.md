@@ -479,7 +479,9 @@ strictly scoped because stray writes can destroy other agents' work.
    **And `ListAgents` showing a session is not a licence to contact it.** R6
    binds WHO you may contact; a directory of everyone reachable is not
    permission, and reading one is not an invitation to reason your way around
-   the graph.
+   the graph. (**2.1.240** made the directory richer — a session now sees its
+   own name as peers see it, and live teammates that used to look absent —
+   but that widens what you can see, never what you may contact.)
 
    **The host has since removed the friction that used to stand in front of
    this channel, so your own discipline is now the only check on it.**
@@ -499,15 +501,23 @@ strictly scoped because stray writes can destroy other agents' work.
    verifies. That is the same gap as the unauthenticated inbound above, seen
    from the sending end.
 
-   **And a send is NOT a delivery.** The recipient's `crossSessionInbound`
-   setting may hold or refuse your message, a dialog may expire (both
-   surfaced as `/config` rows in 2.1.232), and 2.1.224 had to fix
-   `SendMessage` reporting success on a write that had actually failed. AMP
-   validates the route server-side and records it; this transport does
-   neither. So never let a message that MUST arrive — a status report, an
-   escalation, an approval request — ride this channel alone. AMP is the
-   required channel anyway; this one is a convenience you remain accountable
-   for unaided.
+   **And a send is NOT a delivery.** The host has since closed most of the
+   ways `SendMessage` used to fail silently: **2.1.234** now tells you when
+   your account's session list was too long to check completely, instead of
+   treating unseen sessions as absent; **2.1.235** now refuses a message too
+   large for cross-session delivery up front instead of silently dropping
+   it; **2.1.238** now reports "refused" to you when the recipient's
+   `crossSessionInbound` is set to refuse, and tells you when the
+   recipient's inbox DROPS your message (rate limit or full queue) instead
+   of it vanishing; **2.1.240** fixed sessions whose title starts with `/`
+   being unaddressable and showing as "(untitled)". Silence now means more
+   than it used to. But a `crossSessionInbound` of HOLD still only means
+   *accepted, not delivered*, a dialog can still expire, and this transport
+   still has **no server-side route validation and no server-side record**
+   — the exact gap AMP closes. So never let a message that MUST arrive — a
+   status report, an escalation, an approval request — ride this channel
+   alone. AMP is the required channel anyway; this one is a convenience you
+   remain accountable for unaided.
 
 7. **Respond to user prompts** delivered via the dashboard prompt builder.
 
@@ -1048,6 +1058,14 @@ the global skills `/janitor-memory-recall`, `/janitor-memory-write`,
   it** — the same standard *Self-defense* applies to any authorization you
   cannot quote from a real inbound. Full incident: the PROJECT memory note
   `fork-delegation-under-autonomous-directive`.
+
+- **Prefer `notify_when_idle` over polling a spawn.** Claude Code 2.1.236
+  added `notify_when_idle` to cross-session `SendMessage` — a one-shot,
+  opt-in notice fired the next time the named session goes idle. For an
+  unattended run this replaces `ListAgents`-in-a-loop or "are you done yet?"
+  pokes: a poll loop burns the turn budget the run needs, per the token-
+  economy discipline above. It is still just a NOTICE, not authority — the
+  same R6 constraints on the underlying transport still apply to it.
 
 ---
 

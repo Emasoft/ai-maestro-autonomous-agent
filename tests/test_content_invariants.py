@@ -1235,6 +1235,36 @@ def test_persona_says_a_cross_session_name_is_not_an_identity_and_a_send_is_not_
     assert "2.1.225" in flat, "persona must date the initiate-by-name widening of the channel"
 
 
+def test_persona_rests_send_is_not_a_delivery_on_what_survived_2_1_238() -> None:
+    """The evidence for "a send is NOT a delivery" was overtaken by the host; the CLAIM outlived it.
+
+    The persona used to argue the channel was unreliable by citing 2.1.224's fix for
+    `SendMessage` reporting success on a write that had actually failed. Upstream then
+    closed that whole family: 2.1.234 reports a session list too long to check, 2.1.235
+    refuses an oversize message up front, 2.1.238 reports a `refuse` and reports an inbox
+    DROP, 2.1.240 made `/`-titled sessions addressable again. Silence therefore means more
+    than it did, and an agent still reading the old paragraph would over-distrust a channel
+    the host had already fixed — the same staleness failure as the 2.1.233 revert test above,
+    which went red on the truth and green on the staleness.
+
+    What actually survives is narrower and is the real R6 argument: HOLD is accepted-not-
+    delivered, a dialog can expire, and the transport has no server-side route validation
+    and no server-side record. This test pins the claim to those, and asserts the retired
+    evidence is NOT re-asserted as live — a negative assertion, because the failure mode
+    here is a future edit restoring the tidier old sentence.
+    """
+    flat = _flat(PERSONA.read_text(encoding="utf-8"))
+    assert "2.1.238" in flat, (
+        "persona must date the release that closed the silent refuse/drop paths"
+    )
+    assert "no server-side route validation and no server-side record" in flat, (
+        "persona must rest the claim on the gap AMP closes, not on a fixed host bug"
+    )
+    assert "reporting success on a write that had actually failed" not in flat, (
+        "persona must not re-assert 2.1.224's silent-success bug as a live failure mode"
+    )
+
+
 def test_readme_documents_the_2_1_232_permission_prompt_surfaces() -> None:
     """Both new stall surfaces are permission prompts, which are a full stop with nobody watching.
 

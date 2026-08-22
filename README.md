@@ -169,10 +169,17 @@ transient API errors:
   sessions (Claude Code 2.1.186+). `CLAUDE_CODE_MAX_RETRIES` is now clamped to
   15, but the watchdog lifts that cap and (2.1.199+) defaults to 300 retries
   with backoff on transient, non-usage-limit errors — so a brief 5xx or
-  connection drop no longer ends the turn.
-- Pair it with the `ai-maestro-janitor` heartbeat, which is the real wake
-  trigger after a **usage-limit** pause: the watchdog absorbs transient
-  errors, the heartbeat fires a fresh turn once the usage-limit window resets.
+  connection drop no longer ends the turn. As of 2.1.240 the watchdog fails
+  immediately on org spend-limit and out-of-credits errors instead of waiting
+  indefinitely for a reset — correct for an unattended run (no more hang),
+  but those two conditions need a human and nothing will retry them.
+- Pair it with the `ai-maestro-janitor` heartbeat for wake paths the host
+  doesn't cover natively: a session that died for another reason, a host not
+  on claude.ai auth, or scheduled work. Since 2.1.234 Claude Code itself
+  resumes a session when a **claude.ai usage-limit** resets ("Continue
+  automatically at usage limit" in `/config`, on by default) — on an
+  unattended host, confirm that toggle is on rather than assume it; the
+  heartbeat still owns everything outside that one case.
 - Know the **session-wide caps** a long run will actually reach:
   `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` (20, 2.1.217) and
   `CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION` (200, 2.1.212). These are
