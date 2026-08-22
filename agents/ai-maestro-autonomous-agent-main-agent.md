@@ -506,8 +506,10 @@ strictly scoped because stray writes can destroy other agents' work.
    your account's session list was too long to check completely, instead of
    treating unseen sessions as absent; **2.1.235** now refuses a message too
    large for cross-session delivery up front instead of silently dropping
-   it; **2.1.238** now reports "refused" to you when the recipient's
-   `crossSessionInbound` is set to refuse, and tells you when the
+   it; **2.1.236** now refuses a rapid burst up front once it would exceed
+   what the recipient's inbox accepts, instead of reporting those sent while
+   they were dropped; **2.1.238** now reports "refused" to you when the
+   recipient's `crossSessionInbound` is set to refuse, and tells you when the
    recipient's inbox DROPS your message (rate limit or full queue) instead
    of it vanishing; **2.1.239** fixed sessions whose title starts with `/`
    being unaddressable and showing as "(untitled)". Silence now means more
