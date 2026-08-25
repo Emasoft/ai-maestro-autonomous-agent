@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.22] - 2026-08-25
+
+### Documentation
+
+- Migrate kanban vocabulary 17 -> 22/27 per 3-pillars 3.0.0 (hub fleet-prep) (07cdedd)
 ## [1.6.21] - 2026-08-25
 
 ### Documentation
