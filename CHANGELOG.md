@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.21] - 2026-08-25
+
+### Documentation
+
+- Archive TRDD-BUXVS9MD -> published (released as v1.6.20) (2b32a8e)
 ## [1.6.20] - 2026-08-25
 
 ### Bug Fixes
