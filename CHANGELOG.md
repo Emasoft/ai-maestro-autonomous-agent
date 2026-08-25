@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.20] - 2026-08-25
+
+### Bug Fixes
+
+- **docs:** Correct 8 version pins — 2.1.240 -> 2.1.239 (1ea3560)
+- **docs:** Add the 2.1.236 burst-drop closure; correct the card's own count (f37570d)
+
+### Documentation
+
+- Archive Phase-2 cards -> completed, shipped in v1.6.19 (TRDD-J48IO8F3, TRDD-9SIVDRLO, TRDD-D6P88CM1) (3c0eea5)
+- Sweep bare-name agent-messaging invocation teaching to frozen amp-* CLIs (dcc1ada)
+- **memory:** Record hub cards TRDD-BGAH6PHP (replies verb) + TRDD-WPZP48VV (USER-escalation proposal) (70352fd)
+- **memory:** TRDD-BGAH6PHP LANDED — replies verb shipped; amp-inbox grep workaround superseded (1dfd8c9)
+- Align shipped prose with Claude Code 2.1.234-2.1.240 (5f5685b)
+- Record the 2.1.234-2.1.240 sweep as TRDD-BUXVS9MD + close two gaps (e2053e5)
+- **TRDD-BUXVS9MD:** Verify against artifacts, retract an unverified assertion (458bd5a)
+- **TRDD-BUXVS9MD:** State the pin verification's real scope and limits (e34cfd2)
+- **TRDD-BUXVS9MD:** Record the 2.1.234 Desktop silent-drop exclusion (0bd03ac)
 ## [1.6.19] - 2026-08-18
 
 ### Bug Fixes
