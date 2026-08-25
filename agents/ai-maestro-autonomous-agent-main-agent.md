@@ -51,7 +51,7 @@ when the situation matches, do not wait to be reminded.
 |---|---|
 | **`ai-maestro-autonomous-governance`** | before any destructive or ambiguous action — the 13-question self-audit returning ALLOWED or FORBIDDEN. Also for "can I do this?", identity (R26), sudo (R32), direct-server-API (R23) checks. |
 | **`ai-maestro-autonomous-workspace-isolation`** | before writing anywhere you are not certain of — the three-layer writable-scope check. "Where can I write", "is this path allowed", and any server-state mutation (it is a CLI call, never a path). |
-| **`ai-maestro-autonomous-prrd-trdd-kanban`** | any TRDD / PRRD / kanban work — authoring a card, moving a column (it owns the full 17-column enum), approval tiers, and the publish/deploy stage selection. |
+| **`ai-maestro-autonomous-prrd-trdd-kanban`** | any TRDD / PRRD / kanban work — authoring a card, moving a column (it owns the full 22-column enum), approval tiers, and the publish/deploy stage selection. |
 
 **Keep this menu in sync in the SAME change that adds, renames, or removes a
 skill** — a stale menu is worse than none, because it is read as an inventory.

@@ -155,19 +155,29 @@ the checklist alone as the gate.
 
 - TRDD edits moving your own cards across ALL columns (the full enum below).
 
-### The 17 columns — the complete, authoritative enum
+### The 22 columns — the complete, authoritative enum
 
-`3P-KAN-01` (**MUST**): a `column:` value is **EXACTLY one of these 17, these spellings,
-no others.** `3P-KAN-03` (**MUST**): every consumer — role-plugins included — aligns **TO**
-this list, never the reverse. Reproduced verbatim from the spec's machine-extractable block;
-re-derive with
-`grep -A20 '@spec:kanban-columns' design/specs/3-pillars-spec.md` on
+`3P-KAN-01` (**MUST**): a `column:` value naming a position ON THE BOARD is **EXACTLY one of
+these 22, these spellings, no others.** `3P-KAN-20` (**MUST**): the board vocabulary (22) and
+the LEGAL SET for a `column:` field (**27**) are different sets — five BRACKET values
+(`proposal`, `planned`, `refused`, `completed`, `cancelled`) sit OUTSIDE the board at either
+end of it (intake antechamber ahead of `backburner`; archival terminals) and are legal
+`column:` values, defined by the folder lifecycle, not the board. `3P-KAN-03` (**MUST**):
+every consumer — role-plugins included — aligns **TO** this list, never the reverse.
+Reproduced verbatim from the spec's machine-extractable block (`@spec:kanban-columns v2`,
+spec-version 3.0.0); re-derive with
+`grep -A25 '@spec:kanban-columns' design/specs/3-pillars-spec.md` on
 `Emasoft/ai-maestro?ref=governance-rules`.
 
 ```text
 backburner
-todo
+approval
 design
+design_ai_review
+design_human_review
+todo
+verify_assumptions
+plan
 dispatch
 dev
 testing
@@ -184,17 +194,26 @@ failed
 superseded
 ```
 
-Happy path (`3P-KAN-04`): `backburner → todo → design → dispatch → dev → testing →
+Happy path (`3P-KAN-04`): `backburner → approval → design → design_ai_review →
+(design_human_review) → todo → verify_assumptions → plan → dispatch → dev → testing →
 ai_review → (human_review) → complete`, then **`publish → published`** for
 `release-via: publish` **or** `deploy → live → (live_auditing)` for `release-via: deploy`.
+3.0.0 notes (`3P-KAN-17/18/19/21`): identifiers are snake_case only; `backburner` now means
+only *not yet approved*; `design` moved BEFORE `todo` (the card is designed IN PLACE, no
+second file); `design_human_review` is SKIPPED entirely when
+`min-approval-requirement: none`; `verify_assumptions` passes only when nothing in the card
+is still an assumption, `plan` only when a complete plan FILE exists; and cards that entered
+`todo`/`design`/`backburner` on or before 2026-08-23 are **GRANDFATHERED** — conformant as
+they stand, never auto-migrated, per-card owner judgment only.
 Return edges (`3P-KAN-05`): `testing → dev` on failure, `ai_review → dev` on rejection.
 `blocked` (`3P-KAN-06`) is entered from any working column while `blocked-by:` is non-empty
 — record `pre-block-column:` and restore to it when it clears.
 
 **`published` is this plugin's own terminal column** — a Claude Code plugin releases via
 `scripts/publish.py`, so its cards end at `publish → published`, never at `live`.
-This list was 16/17 (`published` absent) until TRDD-F2SUT8D4; **the missing one was the
-terminus of the path taken on every release.**
+Historical: under the 17-column vocabulary this list shipped 16/17 (`published` absent)
+until TRDD-F2SUT8D4 — **the missing one was the terminus of the path taken on every
+release**; the enum went 17 → 22 with 3-pillars 3.0.0 (2026-08-23).
 - USER approval-requests via `amp-send`, with replies logged verbatim in
   each TRDD's `## Approval log`.
 - PRRD silver-rule edits — a Tier-2 proposal to MANAGER when reachable, or

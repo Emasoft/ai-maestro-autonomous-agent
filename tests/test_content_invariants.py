@@ -595,22 +595,34 @@ def test_inbound_cross_session_messages_are_unauthenticated_data() -> None:
 
 
 CANONICAL_COLUMNS = (
-    "backburner", "todo", "design", "dispatch", "dev", "testing", "ai_review",
+    # @spec:kanban-columns v2 — 3-pillars 3.0.0, USER-ratified 2026-08-23,
+    # verified verbatim against Emasoft/ai-maestro governance-rules @ c8b0e9cb.
+    "backburner", "approval", "design", "design_ai_review", "design_human_review",
+    "todo", "verify_assumptions", "plan", "dispatch", "dev", "testing", "ai_review",
     "human_review", "complete", "publish", "published", "deploy", "live",
     "live_auditing", "blocked", "failed", "superseded",
 )
 
+# 3P-KAN-20: the LEGAL SET for a `column:` field is 27 — the 22 board columns plus
+# these five BRACKET values (intake antechamber / archival terminals), defined by
+# the folder lifecycle, not the board.
+BRACKET_VALUES = ("proposal", "planned", "refused", "completed", "cancelled")
 
-def test_kanban_skill_carries_all_seventeen_canonical_columns() -> None:
-    """The kanban skill carries the complete 17-column enum, incl. `published` (TRDD-F2SUT8D4).
 
-    3P-KAN-01 (MUST): a `column:` value is EXACTLY one of the 17, these spellings, no others.
+def test_kanban_skill_carries_all_twentytwo_canonical_columns() -> None:
+    """The kanban skill carries the complete 22-column enum plus the 5 bracket values.
+
+    3P-KAN-01 (MUST): a board `column:` value is EXACTLY one of the 22, these spellings,
+    no others. 3P-KAN-20 (MUST): the legal `column:` set is 27 — board (22) plus five
+    bracket values; conflating the two sets is a defect in both directions.
     3P-KAN-03 (MUST): every consumer -- role-plugins included -- aligns TO this list.
 
-    The skill carried 16/17. The missing one was `published`, which 3P-KAN-04 makes the
-    TERMINUS of the publish path (`complete -> publish -> published`) -- the path this plugin
-    takes on every single release. An agent working from the skill alone could reach `publish`
-    and have no vocabulary for where it goes next, while 3P-KAN-01 forbids inventing one.
+    History: under the 17-column vocabulary the skill shipped 16/17 (`published` absent,
+    TRDD-F2SUT8D4) -- the missing one was the terminus of the path this plugin takes on
+    every release. The enum went 17 -> 22 with 3-pillars 3.0.0; this test migrated with it
+    (hub fleet-prep directive, 2026-08-25) and now also pins the bracket set, because a
+    bare "22" would be the same defect one count later: an agent reading it would call a
+    legal `proposal` card invalid.
 
     Asserted BY VALUE, unlike the volatile stamps elsewhere in this file: the vocabulary is
     USER-ratified (3P-KAN-02) and changing it is a MAJOR spec bump (3P-VER-01), so it is one
@@ -621,7 +633,10 @@ def test_kanban_skill_carries_all_seventeen_canonical_columns() -> None:
     text = KANBAN.read_text(encoding="utf-8")
     missing = [c for c in CANONICAL_COLUMNS if not re.search(r"\b" + re.escape(c) + r"\b", text)]
     assert not missing, f"kanban skill is missing canonical column(s): {missing}"
+    missing_br = [v for v in BRACKET_VALUES if not re.search(r"\b" + re.escape(v) + r"\b", text)]
+    assert not missing_br, f"kanban skill is missing bracket value(s): {missing_br}"
     assert re.search(r"3P-KAN-01", text), "the enum must cite the clause that makes it a MUST"
+    assert re.search(r"3P-KAN-20", text), "the skill must state the 27-value legal set"
 
 
 # ── issue: direct ai-maestro server API calls (USER directive 2026-08-02, TRDD-4P2RZQFE) ──
