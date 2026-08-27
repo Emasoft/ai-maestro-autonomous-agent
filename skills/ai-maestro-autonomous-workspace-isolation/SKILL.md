@@ -70,6 +70,19 @@ Follow these steps before executing any write operation.
 6. **After the write succeeds**, log the target path in `loop.md` for
    traceability.
 
+**`/cd` does not move your scope, but since 2.1.246 it does change what
+governs you.** The writable roots are anchored on `$HOME` and your own agent
+name, never on the working directory — so changing directory cannot widen or
+narrow them (step 2 already canonicalizes the `~` they are written with).
+Re-run this check per PATH, not per cwd. What
+changed is that the new directory's project settings, hooks, `.mcp.json`
+servers (behind the usual approval prompt) and its skills and agents now take
+effect immediately on `/cd`, where they previously waited for a `--resume`.
+So after a `/cd` you may be running under a different project's hooks and
+instructions while your write scope is unchanged: treat the governing config
+as re-read, and do not carry forward a "no hooks are configured here"
+conclusion across a directory move.
+
 Copy this checklist and track your progress:
 
 - [ ] Identify the write target path(s)

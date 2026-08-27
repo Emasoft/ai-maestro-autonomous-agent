@@ -173,6 +173,21 @@ transient API errors:
   immediately on org spend-limit and out-of-credits errors instead of waiting
   indefinitely for a reset — correct for an unattended run (no more hang),
   but those two conditions need a human and nothing will retry them.
+- **A silent session now fails loudly instead of hanging.** Before 2.1.243 a
+  request the Anthropic API never started answering left the session silent for
+  10+ minutes with nothing to retry; it now times out after ~3 minutes, retries
+  once, then surfaces `API Error: No response from API`. For an unattended run
+  that converts the worst failure mode (indistinguishable from working) into an
+  error the watchdog above can act on. 2.1.246 similarly made non-interactive
+  sessions (`-p`, SDK, cloud) auto-continue a response cut off mid-stream by a
+  server error, connection loss, or stall rather than ending the turn there.
+- **Budget for a later auto-compact on the 1M window.** As of 2.1.247 Sonnet 5
+  defaults to auto-compacting against its full 1M context — about 967K tokens
+  instead of about 934K. A long unattended run therefore carries ~33K more
+  context before the compaction it is planning around, so any handoff written
+  "just before compaction" fires later than it used to. Compaction is still the
+  event that ends the turn, so the janitor handoff remains the thing that
+  survives it.
 - Pair it with the `ai-maestro-janitor` heartbeat for wake paths the host
   doesn't cover natively: a session that died for another reason, a host not
   on claude.ai auth, or scheduled work. Since 2.1.234 Claude Code itself

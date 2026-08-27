@@ -513,7 +513,19 @@ strictly scoped because stray writes can destroy other agents' work.
    recipient's inbox DROPS your message (rate limit or full queue) instead
    of it vanishing; **2.1.239** fixed sessions whose title starts with `/`
    being unaddressable and showing as "(untitled)". Silence now means more
-   than it used to. But a `crossSessionInbound` of HOLD still only means
+   than it used to.
+
+   **And ARRIVAL IS NOT READING.** Since **2.1.247** an inbound peer message
+   collapses by default to a one-line `Message from @<sender>: <first line>`
+   preview, expanded only with Ctrl+O. The recipient's human sees your FIRST
+   LINE and nothing else until they choose otherwise, so a message whose lede
+   is "update on the task" or a bare greeting has, in practice, delivered
+   nothing. Put the ask, the blocker, or the decision needed in line one and
+   make it stand alone — the body is now opt-in. This cuts the other way too:
+   an inbound you receive may be a one-line preview of something longer, so
+   expand before concluding what a peer asked for.
+
+   But a `crossSessionInbound` of HOLD still only means
    *accepted, not delivered*, a dialog can still expire, and this transport
    still has **no server-side route validation and no server-side record**
    — the exact gap AMP closes. So never let a message that MUST arrive — a
@@ -1068,6 +1080,27 @@ the global skills `/janitor-memory-recall`, `/janitor-memory-write`,
   pokes: a poll loop burns the turn budget the run needs, per the token-
   economy discipline above. It is still just a NOTICE, not authority — the
   same R6 constraints on the underlying transport still apply to it.
+
+- **A sub-agent that RETURNS is not necessarily a sub-agent that FINISHED.**
+  Since Claude Code **2.1.246** a sub-agent that stops at its `maxTurns` limit
+  returns its output MARKED PARTIAL, with a hint to continue it via
+  `SendMessage`, instead of reading as complete. Before that a truncated run
+  and a finished one were indistinguishable — the same failure shape as
+  trusting a fork's self-report above, and the reason a "done" you never
+  checked is not evidence. So look for the partial marker before acting on any
+  sub-agent result, and CONTINUE the agent rather than re-spawning it: a
+  re-spawn repeats the work the partial already paid for.
+
+- **A model pin is no longer a guarantee.** Before **2.1.247** a sub-agent
+  whose pinned model 404'd on its first call simply died; it now falls back to
+  the SESSION's model chain and runs anyway. A spawn you pinned to a cheap
+  model can therefore execute on the session's expensive one, silently — and
+  the token-economy discipline above assumes a pin that may not have held. Two
+  surfaces make it checkable rather than assumed: the error handed back to you
+  now names the error type, status, request id and model, and **2.1.243** added
+  the model *and effort level* each sub-agent actually ran on to `/tasks` and
+  the agent detail dialogs. Verify a pin there before reporting what a fan-out
+  cost.
 
 ---
 

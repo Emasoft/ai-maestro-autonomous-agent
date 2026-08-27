@@ -13,7 +13,7 @@ publish-globally: false
 # claude-code-version-sync
 
 
-^ATOM-43Z5-O3YW [desc:"Coverage is contiguous 2.1.181 → 2.1.240 across seven TRDDs; the next sync starts at 2.1.241. Read the changelog via gh api — the docs release-notes URL 404s. ADVANCE THIS POINTER IN THE SAME CHANGE AS THE SWEEP.", keywords: which_claude_code_versions_were_already_swept where_does_the_next_sync_start release_notes_url_404 how_to_read_the_claude_code_changelog is_my_plugin_stale_after_a_claude_code_release the_next_sync_pointer_disagrees_with_the_archived_cards memory_says_start_at_a_window_already_swept, ocd: 2026-08-04, lmd: 2026-08-22]
+^ATOM-43Z5-O3YW [desc:"Coverage is contiguous 2.1.181 → 2.1.247 across eight TRDDs; the next sync starts at 2.1.248. Read the changelog via gh api — the docs release-notes URL 404s. ADVANCE THIS POINTER IN THE SAME CHANGE AS THE SWEEP.", keywords: which_claude_code_versions_were_already_swept where_does_the_next_sync_start release_notes_url_404 how_to_read_the_claude_code_changelog is_my_plugin_stale_after_a_claude_code_release the_next_sync_pointer_disagrees_with_the_archived_cards memory_says_start_at_a_window_already_swept, ocd: 2026-08-04, lmd: 2026-08-27]
 
 **Where the coverage stands.** Seven cards, contiguous, each naming its window in the
 title: `TRDD-BFDQH5A7` (2.1.181→2.1.200) · `TRDD-R6L582UX` (2.1.201→2.1.205) ·
@@ -21,8 +21,13 @@ title: `TRDD-BFDQH5A7` (2.1.181→2.1.200) · `TRDD-R6L582UX` (2.1.201→2.1.205
 `TRDD-GA3TCRC7` (2.1.225→2.1.232) · `TRDD-V1AGFGQK` (2.1.233 — one falsified README
 claim: the 2.1.232 input-redirection permission check was REVERTED in 2.1.233) ·
 `TRDD-BUXVS9MD` (2.1.234→2.1.240 — 2.1.234/.235/.238 closed the silent
-refuse/drop/oversize paths the persona cited, leaving only HOLD and dialog expiry).
-**The next sync starts at 2.1.241.** Check the host
+refuse/drop/oversize paths the persona cited, leaving only HOLD and dialog expiry) ·
+`TRDD-FHYQTRF8` (2.1.241→2.1.247 — 8 pins: the one-line peer-message preview means
+arrival is not reading; a `maxTurns` sub-agent now returns MARKED PARTIAL; a pinned
+sub-agent model now falls back to the session chain instead of dying, so a pin is no
+longer a guarantee; `/cd` hot-loads the new directory's hooks and settings. 2.1.241 is
+an empty stub and 2.1.245 is a Linux glibc crash fix).
+**The next sync starts at 2.1.248.** Check the host
 you are on first — `claude --version` — and pin every claim to the version you read it
 in.
 
