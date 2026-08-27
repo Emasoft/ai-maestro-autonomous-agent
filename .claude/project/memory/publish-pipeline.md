@@ -8,6 +8,7 @@ metadata:
   type: project
   tier: component
   functionality: architecture
+publish-globally: false
 ---
 This repo's release flow is `scripts/publish.py`, and a **pre-push git hook
 refuses every plain `git push` to origin**. The hook verifies its caller by

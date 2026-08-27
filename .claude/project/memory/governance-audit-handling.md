@@ -8,6 +8,7 @@ metadata:
   type: project
   tier: component
   functionality: architecture
+publish-globally: false
 ---
 A fleet governance audit (the MANAGER, `ai-maestro-assistant-manager-agent`,
 files a GitHub issue against this repo) is **screened against a CACHED snapshot

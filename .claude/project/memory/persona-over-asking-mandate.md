@@ -8,6 +8,7 @@ metadata:
   type: project
   tier: component
   functionality: architecture
+publish-globally: false
 ---
 **Symptom:** an AUTONOMOUS agent, handed a clear build mandate by MANAGER over a
 comm-graph-validated AMP edge, replied "Still waiting on you: proceed / review

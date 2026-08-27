@@ -8,6 +8,7 @@ metadata:
   type: project
   tier: component
   functionality: architecture
+publish-globally: false
 ---
 A **forked** sub-agent (Agent tool, subagent_type: fork) INHERITS the whole parent
 context — including the go-on-yourself standing directive that authorises autonomous

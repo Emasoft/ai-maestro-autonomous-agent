@@ -9,6 +9,7 @@ metadata:
   tier: hub
   functionality: architecture
   globs: ["agents/**", "skills/**", "scripts/**", "hooks/**"]
+publish-globally: false
 ---
 `ai-maestro-autonomous-agent` is the **mandatory role-plugin for AUTONOMOUS-titled
 agents** in the AI Maestro ecosystem. It is a governance/behavior plugin (no
