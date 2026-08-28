@@ -173,6 +173,13 @@ transient API errors:
   immediately on org spend-limit and out-of-credits errors instead of waiting
   indefinitely for a reset — correct for an unattended run (no more hang),
   but those two conditions need a human and nothing will retry them.
+  Before 2.1.248, a session whose token had expired while another Claude
+  Code process held the OAuth token-refresh lock was sent to the login
+  screen instead — an unattended run just ended there, with nothing for
+  the watchdog to retry. 2.1.248 turns that lock collision into a
+  retryable error instead, so a host running several Claude Code
+  processes (or an external credential rotator) survives a refresh-lock
+  collision as a retry rather than a logout.
 - **A silent session now fails loudly instead of hanging.** Before 2.1.243 a
   request the Anthropic API never started answering left the session silent for
   10+ minutes with nothing to retry; it now times out after ~3 minutes, retries
@@ -195,6 +202,12 @@ transient API errors:
   automatically at usage limit" in `/config`, on by default) — on an
   unattended host, confirm that toggle is on rather than assume it; the
   heartbeat still owns everything outside that one case.
+- **A background session resumed after the machine was off now asks first,
+  since 2.1.248.** Before that fix the agent view could silently resurrect a
+  weeks-old background session; it now shows that session as stopped at its
+  real end, and opening it ASKS before resuming its saved conversation. So a
+  long-parked background session is no longer hands-free to bring back —
+  pair this with the wake paths above, which stay automatic.
 - Know the **session-wide caps** a long run will actually reach:
   `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` (20, 2.1.217) and
   `CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION` (200, 2.1.212). These are
@@ -244,6 +257,11 @@ transient API errors:
   place unattended runs actually go: the fresh clone a task just made. Trust
   the repositories you will work in before the run starts, rather than
   discovering the prompt with nobody there to answer it.
+- **A CI run now gets the workspace trust prompt too, since 2.1.248.** Before
+  that fix `claude agents` skipped the workspace trust prompt whenever the
+  `CI` environment variable was set; 2.1.248 removed that bypass, so the
+  prompt now appears there as well. An automated or CI-spawned run that
+  relied on `CI=1` to sail past trust will now stop and wait for a human.
 - **A cloned repo's own MCP config can raise that same prompt, and 2.1.238
   extended it to `claude -p`.** An MCP `headersHelper` in a project
   `.mcp.json`, and an inline MCP server declared in a project or `--add-dir`
@@ -253,6 +271,13 @@ transient API errors:
   entered, not at the moment an MCP tool is called. Same remedy as above:
   trust the repo before the run, and prefer cloning targets you have already
   trusted.
+- **`--restricted` (`CLAUDE_CODE_RESTRICTED=1`), added 2.1.248**, locks a
+  session down: it removes the built-in command- and code-running tools and
+  `WebFetch` unless named in `--tools`, keeps file tools inside the working
+  directory, refuses `bypassPermissions`, and ignores user, project, and
+  local settings files. For an unattended run that matters twice — no
+  permission mode can be bypassed, and because settings files are ignored,
+  the project's hooks and rules never load at all.
 
 ## The persona at a glance
 

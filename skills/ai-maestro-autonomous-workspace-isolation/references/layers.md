@@ -114,4 +114,4 @@ Right / wrong pairs for the 10 most common write operations.
 
 **Update my own agent's config** — Right: ask the user or MANAGER to run `aimaestro-agent.sh update <my-id>`. Wrong: editing `~/.aimaestro/agents/registry.json` directly.
 
-**Access a secret (e.g. a PAT)** — Right: wait for the user to place the credential in an allowed file under your own workdir (e.g. `~/agents/<my-name>/.env.local`), read from there, never copy or echo. Wrong: reading `~/.ssh/id_ed25519`, `~/.config/gh/hosts.yml`, or any `.env` outside your own workdir.
+**Access a secret (e.g. a PAT)** — Right: wait for the user to place the credential in an allowed file under your own workdir (e.g. `~/agents/<my-name>/.env.local`), read from there, never copy or echo. Wrong: reading `~/.ssh/id_ed25519`, `~/.config/gh/hosts.yml`, any `.env` outside your own workdir (e.g. `prod.env`), any `*.tfvars` file, or a swap/temp/backup copy such as `key.pem.tmp` or `id_rsa.swo` — a suffix does not make a secret file safe to read.

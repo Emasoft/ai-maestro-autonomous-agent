@@ -15,7 +15,7 @@ Each question returns ALLOWED or FORBIDDEN. Stop at the first FORBIDDEN.
 
 **Q3 State file check** — Does my action write to `~/.aimaestro/agents/registry.json`, `~/.aimaestro/teams/*.json`, `~/.aimaestro/governance.json`, or any file under `~/.aimaestro/agents/<other>/`? If YES → **FORBIDDEN**. Use the AI Maestro CLI (`aimaestro-agent.sh` / `aimaestro-teams.sh`) instead.
 
-**Q4 Secret check** — Does my action read or copy files under `~/.aimaestro/secrets/`, `~/.ssh/`, `~/.config/gh/`, `~/.gnupg/`, any `.env` file not in my own workdir, or any file whose name contains `token`, `credential`, `password`, `secret`, `private_key`? If YES → **FORBIDDEN**.
+**Q4 Secret check** — Does my action read or copy files under `~/.aimaestro/secrets/`, `~/.ssh/`, `~/.config/gh/`, `~/.gnupg/`, any `*.tfvars` file, any `*.env` file (not only `.env`, e.g. `prod.env`) not in my own workdir, any file whose name contains `token`, `credential`, `password`, `secret`, `private_key`, or a swap/temp/backup copy of any of those (same name with a `.tmp`, `.swp`, `.swo`, `.bak`, or trailing `~` suffix)? If YES → **FORBIDDEN**.
 
 **Q5 PR merge check** — Does my action invoke `gh pr merge`? If YES → Did the USER give me an explicit instruction in the CURRENT turn to merge that specific PR by number? If not → **FORBIDDEN**.
 

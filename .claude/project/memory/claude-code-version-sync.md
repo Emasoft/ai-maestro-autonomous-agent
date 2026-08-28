@@ -1,8 +1,8 @@
 ---
 name: claude-code-version-sync
-description: "a new Claude Code version shipped — what in this plugin goes stale? / which changelog window was already swept and where does the next sync start / the code.claude.com release-notes URL 404s, how do I read the changelog / is the persona still aligned with the host's isolation and subagent rules"
+description: "a new Claude Code version shipped — what in this plugin goes stale? / which changelog window was already swept and where does the next sync start / the code.claude.com release-notes URL 404s, how do I read the changelog / is the persona still aligned with the host's isolation and subagent rules / my changelog triage may have dropped an entry that mattered — who reviews the discard list before I commit a sweep / an unattended run is parked on a new permission prompt (CI trust, a background session asking before it resumes)"
 ocd: 2026-08-04
-lmd: 2026-08-22
+lmd: 2026-08-28
 metadata:
   node_type: memory
   type: project
@@ -13,7 +13,7 @@ publish-globally: false
 # claude-code-version-sync
 
 
-^ATOM-43Z5-O3YW [desc:"Coverage is contiguous 2.1.181 → 2.1.247 across eight TRDDs; the next sync starts at 2.1.248. Read the changelog via gh api — the docs release-notes URL 404s. ADVANCE THIS POINTER IN THE SAME CHANGE AS THE SWEEP.", keywords: which_claude_code_versions_were_already_swept where_does_the_next_sync_start release_notes_url_404 how_to_read_the_claude_code_changelog is_my_plugin_stale_after_a_claude_code_release the_next_sync_pointer_disagrees_with_the_archived_cards memory_says_start_at_a_window_already_swept, ocd: 2026-08-04, lmd: 2026-08-27]
+^ATOM-43Z5-O3YW [desc:"Coverage is contiguous 2.1.181 → 2.1.248 across nine TRDDs; the next sync starts at 2.1.249. Read the changelog via gh api — the docs release-notes URL 404s. ADVANCE THIS POINTER IN THE SAME CHANGE AS THE SWEEP.", keywords: which_claude_code_versions_were_already_swept where_does_the_next_sync_start release_notes_url_404 how_to_read_the_claude_code_changelog is_my_plugin_stale_after_a_claude_code_release the_next_sync_pointer_disagrees_with_the_archived_cards memory_says_start_at_a_window_already_swept, ocd: 2026-08-04, lmd: 2026-08-27]
 
 **Where the coverage stands.** Seven cards, contiguous, each naming its window in the
 title: `TRDD-BFDQH5A7` (2.1.181→2.1.200) · `TRDD-R6L582UX` (2.1.201→2.1.205) ·
@@ -26,8 +26,21 @@ refuse/drop/oversize paths the persona cited, leaving only HOLD and dialog expir
 arrival is not reading; a `maxTurns` sub-agent now returns MARKED PARTIAL; a pinned
 sub-agent model now falls back to the session chain instead of dying, so a pin is no
 longer a guarantee; `/cd` hot-loads the new directory's hooks and settings. 2.1.241 is
-an empty stub and 2.1.245 is a Linux glibc crash fix).
-**The next sync starts at 2.1.248.** Check the host
+an empty stub and 2.1.245 is a Linux glibc crash fix) ·
+`TRDD-4B4GO06Q` (2.1.248 — 11 pins over 7 entries: our own secret predicate had the
+hole 2.1.248 fixed in the host's uploader, matching only `.env`/`.env.local` so
+`prod.env`, `*.tfvars` and `key.pem.tmp`-style suffix copies walked through it; a
+sub-agent's cross-session reply lands in the PARENT's conversation, never back in the
+sub-agent; `--restricted` narrows the writable roots to cwd, refuses
+`bypassPermissions` and ignores settings so hooks and rules never load; a
+refresh-lock collision is now a retryable error instead of a bounce to the login
+screen. Two entries — the `CI` trust-prompt bypass being removed and a
+machine-off background session now asking before it resumes — were MISSED on the
+first pass and recovered by an advisor review: both had died inside a wholesale
+"agent-view fixes are host business" bucket, so it was the BUCKET LABEL that hid
+them. `experimental.cacheTtl` was drafted onto the shipped agent and REVERTED — an
+`experimental.` key bakes one host's cache economics into every installer's config).
+**The next sync starts at 2.1.249.** Check the host
 you are on first — `claude --version` — and pin every claim to the version you read it
 in.
 
@@ -82,7 +95,7 @@ this plugin if it touches one of the four things the persona actually governs:
 
 Everything else (rendering, IDE surfaces, telemetry, MCP plumbing, Windows terminal
 fixes) is host business. Sorting by this test is what keeps a sweep to a handful of
-edits instead of a rewrite. [^2]
+edits instead of a rewrite. [^2] [^4]
 
 ## See also
 
@@ -96,3 +109,4 @@ edits instead of a rewrite. [^2]
 [^1]: [id:ATOM-1GEI-AVA3, status:valid, desc:"The next-sync pointer said 2.1.222 while an archived card had already swept 222-224 — a by-design moving value that nothing advances is stale the moment the sweep lands.", keywords:"the_next_sync_pointer_disagrees_with_the_archived_cards memory_says_start_at_a_window_already_swept I_nearly_re-swept_a_window_a_card_already_covered a_moving_pointer_in_memory_went_stale where_does_the_next_changelog_sweep_start", ocd:2026-08-14, lmd:2026-08-14] DO NOT leave the "next sync starts at X" pointer for a later pass, BECAUSE it is a MOVING value with no other writer: the sweep that consumes it is the only event that can advance it, so the moment a sweep lands and the pointer does not, memory asserts a window already covered — here it read 2.1.222 for 7 days while TRDD-M50MBTSB had swept 222→224, and the next agent's choices were to redo that work or to mis-scope around it. Nothing goes red; a stale pointer reads exactly like a fresh one. DO advance the pointer, the card list and the atom's own desc in the SAME change as the sweep, and cross-check it against the archived cards (`grep -l 'cc-21' design/archived/`) before trusting it.
 [^2]: [id:ATOM-QQTB-MIY7, status:valid, desc:"The four axes miss two classes: identity/addressing drift, and any entry whose only effect is a new permission prompt — both surfaced in the 2.1.225-2.1.232 sweep.", keywords:"the_four_on-mission_axes_have_no_home_for_this_entry identity_and_addressing_drift_in_a_changelog_sweep a_changelog_entry_fits_no_axis_but_still_matters session_names_are_not_stable_identities I_triaged_an_entry_under_the_wrong_axis", ocd:2026-08-14, lmd:2026-08-14] DO NOT triage a changelog entry by first-match against the four axes, BECAUSE two real classes have no axis and get dropped: (1) IDENTITY/ADDRESSING drift — 2.1.232 removed the confirm-by-ref step, added @-mention, and auto-uniquified colliding session names, so the name you address is neither confirmed nor stable; it reached the persona only by being stretched under "sub-agent propagation". (2) A fix whose ONLY effect is a NEW PERMISSION PROMPT — nested-git trust stopped inheriting, which is irrelevant to write scope (the writable roots are absolute) but is a full stop under axis 4; triaged under scope it reads as a no-op, which is how it was nearly dropped. DO run every entry against ALL FOUR axes before discarding it, and ask separately "does this create a prompt, or change who I think I am talking to?" — those two questions are the axes' blind spot.
 [^3]: [id: ATOM-8EES-RGKS, status: valid, desc: "Eight shipped pins said 2.1.240 for features that live in 2.1.239 — read off the changelog's layout instead of each line's owning ## header.", keywords: "my_version_pin_says_the_wrong_release which_release_does_this_changelog_entry_belong_to I_attributed_a_feature_to_the_wrong_version the_newest_release_is_only_bug_fixes pinning_claims_from_a_pasted_changelog how_do_I_verify_a_version_pin_against_upstream a_mis-pinned_version_reads_exactly_like_a_correct_one", ocd: 2026-08-22, lmd: 2026-08-22] DO NOT read a changelog entry's version off the document's layout — its position in a paste, its proximity to a heading you remember, or a grep line-number inside a multi-release slice — BECAUSE a slice offset does not name the owning `## version` header, and the newest release is often a near-empty "Bug fixes and reliability improvements" stub whose features actually belong to the release BELOW it: that is exactly how eight pins in TRDD-BUXVS9MD came to say 2.1.240 for `ListAgents` self-naming, `/`-titled addressability, the RETRY_WATCHDOG fail-fast and Windows cross-session messaging, all of which are 2.1.239 — and the error reached the persona, the README, the card and a test docstring, because a mis-pinned version is INVISIBLE: it reads exactly like a correct one, and the pin is the only mechanism a later sweep has for noticing a claim went stale. DO derive the phrase list FROM THE DIFF rather than from memory — `git diff -U0 <base>^..HEAD -- <shipped paths>`, counting pins on `+` lines against `-` lines, so NET-NEW pins are separated from ones merely re-flowed by a rewrite; a hand-assembled list omits exactly the pin you forgot you touched, and three consecutive review rounds each found one more that way. Match with `2\.1\.\d{2,3}`, never `2\.1\.2[0-9]{2}` — the narrow form silently drops every 2.1.1xx pin and understates your own coverage denominator. THEN walk the WHOLE changelog line by line tracking the current `## <version>` header, assert every derived phrase against the header that owns it, and print an explicit per-pin OK/WRONG verdict before committing — grepping a pre-cut window can only tell you the phrase EXISTS somewhere, never which release it is in, and grepping upstream for patterns you copied FROM upstream cannot fail even if your own prose drifted.
+[^4]: [id: ATOM-SMYW-R1EQ, status: valid, desc: "Two 2.1.248 entries were dropped by a wholesale bucket label, not by their content; an advisor review recovered them.", keywords: "I_discarded_a_group_of_changelog_entries_at_once a_changelog_sweep_missed_an_entry_that_mattered agent_view_fixes_are_host_business how_do_I_know_my_triage_did_not_drop_something false_negative_in_a_changelog_triage who_reviews_a_triage_before_I_commit_it should_I_review_the_discard_list_or_the_keep_list an_unattended_run_is_parked_on_a_permission_prompt CI_env_var_no_longer_skips_the_workspace_trust_prompt a_background_session_now_asks_before_resuming is_this_changelog_entry_really_host_business I_bucketed_changelog_entries_by_subsystem_instead_of_by_axis", ocd: 2026-08-28, lmd: 2026-08-28] DO NOT discard a GROUP of changelog entries under one wholesale bucket label ("agent-view fixes", "IDE surfaces", "MCP plumbing"), BECAUSE the label is applied to the group before any entry in it is read against the axes, so an entry is dropped for the company it keeps rather than for its content — in the 2.1.248 sweep the `CI` workspace-trust-prompt bypass being removed and a machine-off background session now ASKING before it resumes both sat in an "agent-view fixes" bucket, and both are new interactive full stops on unattended paths (axis 4 plus the permission-prompt blind spot). A false negative here is silent forever: nothing goes red, and the entry is never revisited because the window is marked swept. DO expand every bucket to its individual entries and run each one against all four axes plus the two blind spots, and have a second reader review the DISCARD list — not the keep list — before committing the sweep; both recoveries here came from the discard pile, and the keep pile was already correct.

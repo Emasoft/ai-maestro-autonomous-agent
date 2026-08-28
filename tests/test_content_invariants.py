@@ -1353,3 +1353,98 @@ def test_persona_state_is_intent_code_is_status() -> None:
     assert "never re-column work that shipped, and never retro-tick a checkbox" in flat, (
         "persona must name the correct remedy (Approval-log line) over re-columning"
     )
+
+
+def test_persona_secret_predicate_covers_suffix_copies_and_tfvars() -> None:
+    """A bare name-match secret predicate is defeated by a suffix or an off-name .env file.
+
+    2.1.248 had to fix its own `/ultrareview` and cloud-session seeding uploading
+    uncommitted `prod.env`-style files, `*.tfvars`, and swap/temp/backup copies of
+    credential files — the exact hole a name-only predicate has. This pins the widened
+    predicate so it cannot quietly narrow back to a bare filename match.
+    """
+    flat = _flat(PERSONA.read_text(encoding="utf-8"))
+    assert "*.tfvars" in flat, "persona's secret predicate must name *.tfvars files"
+    assert "prod.env" in flat, (
+        "persona must say a *.env file beyond .env/.env.local counts, e.g. prod.env"
+    )
+    for suffix in (".tmp", ".swp", ".swo", ".bak"):
+        assert suffix in flat, f"persona's secret predicate must name the {suffix} suffix copy"
+
+
+def test_secret_predicate_is_identical_in_persona_and_both_skill_references() -> None:
+    """The same widened predicate must be restated in all three places, or one is left behind.
+
+    The predicate is copied into the persona, the governance skill's Q4 secret check, and
+    the workspace-isolation skill's layers reference. Widening it in only one place leaves
+    the other two enforcing the old, suffix-defeated rule.
+    """
+    for path in (PERSONA, QUESTIONS, REPO_ROOT / "skills" / "ai-maestro-autonomous-workspace-isolation" / "references" / "layers.md"):
+        flat = _flat(path.read_text(encoding="utf-8"))
+        assert "tfvars" in flat, f"{path.name} must name *.tfvars in its secret predicate"
+        assert "prod.env" in flat, f"{path.name} must give prod.env as an off-name .env example"
+        assert "swap/temp/backup copy" in flat, f"{path.name} must name swap/temp/backup copies"
+        for suffix in (".tmp", ".swo"):
+            assert suffix in flat, f"{path.name} must name the {suffix} suffix copy"
+
+
+def test_persona_documents_restricted_flag_narrowing_scope() -> None:
+    """`--restricted` narrows the writable scope this persona claims — the agent must know it can."""
+    flat = _flat(PERSONA.read_text(encoding="utf-8"))
+    assert "--restricted" in flat and "CLAUDE_CODE_RESTRICTED" in flat, (
+        "persona must name both the --restricted flag and its env var"
+    )
+    assert "2.1.248" in flat, "persona must date --restricted to 2.1.248"
+    assert "confines file tools to the current working directory" in flat, (
+        "persona must state --restricted confines file tools to the cwd"
+    )
+    assert "REFUSES bypassPermissions" in flat, (
+        "persona must state --restricted refuses bypassPermissions outright"
+    )
+    assert "IGNORES user, project, and local settings files" in flat, (
+        "persona must state --restricted ignores settings files so hooks/rules do not load"
+    )
+
+
+def test_persona_says_a_subagents_cross_session_reply_returns_to_the_parent() -> None:
+    """A sub-agent that waits on a cross-session reply waits forever; the reply goes to the parent."""
+    flat = _flat(PERSONA.read_text(encoding="utf-8"))
+    assert "2.1.248" in flat, "persona must date the parent-address routing change"
+    assert "cross-session reply comes back to YOU, not to it".replace("`", "") in flat, (
+        "persona must state a sub-agent's cross-session reply is delivered to the parent"
+    )
+    assert "under the PARENT session's address" in flat, (
+        "persona must say the sub-agent's send goes out under the parent's own address"
+    )
+
+
+def test_readme_documents_the_2_1_248_unattended_full_stops() -> None:
+    """Three 2.1.248 changes each turn a different unattended full-stop into something recoverable."""
+    flat = _flat(README.read_text(encoding="utf-8"))
+    assert "2.1.248 turns that lock collision into a" in flat, (
+        "README must state 2.1.248 made the OAuth token-refresh-lock collision a retryable "
+        "error instead of a bounce to the login screen"
+    )
+    assert "2.1.248 removed that bypass" in flat, (
+        "README must state 2.1.248 removed the CI env var's workspace-trust-prompt bypass"
+    )
+    assert "resumed after the machine was off now asks first" in flat, (
+        "README must state a background session resumed after the machine was off now asks first"
+    )
+    assert flat.count("2.1.248") >= 3, "README must date all three full-stop fixes to 2.1.248"
+
+
+def test_no_shipped_frontmatter_pins_an_experimental_cache_ttl() -> None:
+    """`experimental.cacheTtl` was drafted onto the shipped agent, then deliberately reverted.
+
+    A shipped plugin pinning a cache TTL bakes one host's cache economics into every
+    installer's config for zero stale-claim value, and the key is still `experimental.`
+    (host-version dependent). This is a negative guard: no shipped agent or skill may
+    re-introduce it.
+    """
+    skill_files = sorted((REPO_ROOT / "skills").glob("*/SKILL.md"))
+    assert skill_files, "expected at least one shipped SKILL.md"
+    for path in (PERSONA, *skill_files):
+        assert "cacheTtl" not in path.read_text(encoding="utf-8"), (
+            f"{path.name} must not pin experimental.cacheTtl"
+        )
