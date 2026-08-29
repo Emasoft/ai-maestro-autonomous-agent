@@ -85,3 +85,6 @@ llm_externalizer_output/
 
 # Added by CPV standardize
 .coverage
+/.trashcan/*
+!/.trashcan/.gitkeep
+!/.trashcan/README.txt
