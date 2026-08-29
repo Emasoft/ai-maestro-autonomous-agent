@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.23] - 2026-08-29
+
+### Bug Fixes
+
+- **docs:** Drop double blank line in TRDD-4B4GO06Q (markdownlint MD012) (2e153f6)
+
+### Documentation
+
+- Sync guidance to Claude Code 2.1.241-2.1.247 (TRDD-FHYQTRF8) (2419eb7)
+- Sync guidance to Claude Code 2.1.248 (TRDD-4B4GO06Q) (bcc83d7)
+- Close TRDD-4B4GO06Q -> complete (4386756)
+- Record post-commit verification for TRDD-4B4GO06Q (af774e8)
+
+### Miscellaneous Tasks
+
+- **memory:** Normalize publish-globally on 5 PROJECT pages (bcf3033)
+- Track .trashcan markers for safe-delete (48a58f3)
 ## [1.6.22] - 2026-08-25
 
 ### Documentation
