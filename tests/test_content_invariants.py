@@ -1030,7 +1030,17 @@ _FROZEN_PUBLISH_AS_COMPLETED = {
     "ffcfadbd-58b1-4e48-a8c4-9089884684f0",
     "b48aa385-3ca1-4b50-8f23-d02e0777c23e",
 }
-_TERMINAL_COLUMNS = {"completed", "published", "superseded", "cancelled"}
+# Archive-eligible terminal columns, per ~/.claude/rules/trdd-design-tasks.md §12. `complete` is
+# here deliberately: 3-pillars spec 2.0.0 amended 3P-ZON-05 on 2026-08-18 to admit it, because the
+# complete->completed rename on the way into the archive was a DUAL-WRITE measured drifting 232
+# times fleet-wide. Every terminal column now archives AS ITSELF. Do not "fix" a `complete` card by
+# renaming its column — that is the drift this set exists to stop, and terminal cards are frozen.
+_TERMINAL_COLUMNS = {"complete", "completed", "published", "superseded", "cancelled", "live"}
+
+# release-via -> the column(s) that mode may archive as. `complete`/`completed` are the same state
+# spelled two ways (see above), so both are accepted for the internal branch.
+_ARCHIVE_COLUMNS_FOR_RELEASE_VIA = {"publish": ("published",), "deploy": ("live",)}
+_ARCHIVE_COLUMNS_DEFAULT = ("complete", "completed")
 
 
 def _archived_cards() -> list[tuple[str, str, str, list[str]]]:
@@ -1057,6 +1067,11 @@ def test_archived_cards_are_terminal_and_match_their_release_mode() -> None:
     erases that a release happened, which is exactly the defect CPVPINGD shipped on 2026-08-11
     (its log asserted "release-via absent" while the frontmatter said `publish`, because the card
     was selected by name and inherited a batch premise it did not share).
+
+    Terminal is judged against the AMENDED archive-eligible set (see `_TERMINAL_COLUMNS`): a card
+    archived as `complete` is terminal, not open. Reading `complete` as non-terminal is what this
+    guard got wrong until 2026-08-29 — it rejected a correctly-archived card and would have pushed
+    the fix toward renaming its frozen column, the exact dual-write 3P-ZON-05 abolished.
     """
     cards = _archived_cards()
     assert cards, "no archived cards found — the folder moved and this guard just went vacuous"
@@ -1068,9 +1083,12 @@ def test_archived_cards_are_terminal_and_match_their_release_mode() -> None:
             continue
         if column in ("superseded", "cancelled"):
             continue  # withdrawn/replaced: release mode never applied
-        want = "published" if release_via == "publish" else "completed"
-        if column != want and tid not in _FROZEN_PUBLISH_AS_COMPLETED:
-            bad.append(f"{tid}: release-via={release_via or 'absent'} but column={column} (want {want})")
+        want = _ARCHIVE_COLUMNS_FOR_RELEASE_VIA.get(release_via, _ARCHIVE_COLUMNS_DEFAULT)
+        if column not in want and tid not in _FROZEN_PUBLISH_AS_COMPLETED:
+            bad.append(
+                f"{tid}: release-via={release_via or 'absent'} but column={column} "
+                f"(want {' or '.join(want)})"
+            )
     assert not bad, "archived cards contradict their release mode: " + "; ".join(bad)
 
     # No dead exemptions: every frozen id must STILL EXIST and still be in the state it is
