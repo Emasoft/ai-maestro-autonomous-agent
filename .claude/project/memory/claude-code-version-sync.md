@@ -2,7 +2,7 @@
 name: claude-code-version-sync
 description: "a new Claude Code version shipped — what in this plugin goes stale? / which changelog window was already swept and where does the next sync start / the code.claude.com release-notes URL 404s, how do I read the changelog / is the persona still aligned with the host's isolation and subagent rules / my changelog triage may have dropped an entry that mattered — who reviews the discard list before I commit a sweep / an unattended run is parked on a new permission prompt (CI trust, a background session asking before it resumes)"
 ocd: 2026-08-04
-lmd: 2026-08-30
+lmd: 2026-09-29
 metadata:
   node_type: memory
   type: project
@@ -68,7 +68,7 @@ longer a guarantee; `/cd` hot-loads the new directory's hooks and settings. 2.1.
 an empty stub and 2.1.245 is a Linux glibc crash fix) ·
 
 
-^ATOM-QRTK-R23T [desc: "TRDD-4B4GO06Q covers 2.1.248 (11 pins); the next-sync pointer now starts at 2.1.249 -- verify against claude --version.", keywords: next_sync_starts_at_2.1.249 where_does_the_next_changelog_sweep_start TRDD-4B4GO06Q 2.1.248_pins secret_predicate_hole restricted_mode_writable_roots cross-session_reply_lands_in_parent refresh_lock_retryable_error experimental_cacheTtl_reverted claude_--version_check next_sync_pointer, ocd: 2026-08-30, lmd: 2026-08-30]
+^ATOM-QRTK-R23T [desc: "TRDD-4B4GO06Q covers 2.1.248 (11 pins); the 2.1.249-2.1.284 window swept 2026-09-29; the next-sync pointer now starts at 2.1.285 -- verify against claude --version.", keywords: next_sync_starts_at_2.1.249 where_does_the_next_changelog_sweep_start TRDD-4B4GO06Q 2.1.248_pins secret_predicate_hole restricted_mode_writable_roots cross-session_reply_lands_in_parent refresh_lock_retryable_error experimental_cacheTtl_reverted claude_--version_check next_sync_pointer, ocd: 2026-08-30, lmd: 2026-08-30]
 
 `TRDD-4B4GO06Q` (2.1.248 — 11 pins over 7 entries: our own secret predicate had the
 hole 2.1.248 fixed in the host's uploader, matching only `.env`/`.env.local` so
@@ -83,7 +83,8 @@ first pass and recovered by an advisor review: both had died inside a wholesale
 "agent-view fixes are host business" bucket, so it was the BUCKET LABEL that hid
 them. `experimental.cacheTtl` was drafted onto the shipped agent and REVERTED — an
 `experimental.` key bakes one host's cache economics into every installer's config).
-**The next sync starts at 2.1.249.** Check the host
+**The next sync starts at 2.1.285.** The 2.1.249→2.1.284 window swept 2026-09-29 (in-session
+docs pass, no TRDD card — see the sync history atom). Check the host
 you are on first — `claude --version` — and pin every claim to the version you read it
 in.
 
@@ -146,7 +147,8 @@ first pass and recovered by an advisor review: both had died inside a wholesale
 "agent-view fixes are host business" bucket, so it was the BUCKET LABEL that hid
 them. `experimental.cacheTtl` was drafted onto the shipped agent and REVERTED — an
 `experimental.` key bakes one host's cache economics into every installer's config).
-**The next sync starts at 2.1.249.** Check the host
+**The next sync starts at 2.1.285.** The 2.1.249→2.1.284 window swept 2026-09-29 (in-session
+docs pass, no TRDD card — see the sync history atom). Check the host
 you are on first — `claude --version` — and pin every claim to the version you read it
 in.
 

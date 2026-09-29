@@ -207,7 +207,15 @@ transient API errors:
   weeks-old background session; it now shows that session as stopped at its
   real end, and opening it ASKS before resuming its saved conversation. So a
   long-parked background session is no longer hands-free to bring back —
-  pair this with the wake paths above, which stay automatic.
+  pair this with the wake paths above, which stay automatic. Two 2.1.281
+  fixes extend the same theme: a background session started with `claude
+  --bg` in a directory that has not passed the workspace-trust prompt now
+  asks for trust first (or exits when not run interactively — so a scripted
+  `--bg` in an untrusted directory fails rather than silently running its
+  project hooks), and a dangerous `rm` prompt in auto or
+  `--dangerously-skip-permissions` mode waits 2 minutes, then DENIES with a
+  rewrite hint instead of stalling an unattended session forever
+  (`CLAUDE_CODE_DISABLE_DANGEROUS_RM_TIMEOUT=1` reverts that).
 - Know the **session-wide caps** a long run will actually reach:
   `CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS` (20, 2.1.217) and
   `CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION` (200, 2.1.212). These are
