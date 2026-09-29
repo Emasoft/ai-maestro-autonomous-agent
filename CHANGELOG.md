@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.7.0] - 2026-09-29
+
+### Bug Fixes
+
+- **pipeline:** Review follow-ups — temp-dir fork-parity site, attribution caveat, exemption pin (90973c3)
+
+### Documentation
+
+- Archive TRDD-4B4GO06Q and fix the guard that rejected it (1fec241)
+- **memory:** Decompose the oversized version-sync atom into four (6baa386)
+- **persona:** Adopt R41 (approval vs mandate) and PRRD citation grammar by reference (930461e)
+- Sync to Claude Code 2.1.249-2.1.284 (window sweep) (7e4eb19)
+- **skill:** Migrate PRRD/TRDD tool surface to trddgrep/prrdgrep/specgrep (58d458a)
+- **persona:** Re-stamp governance source to v5.5.1 (blob ea6a29d8a4ef) (e41e4da)
+- **skill:** Trim kanban SKILL.md body under the CPV 5.21.1 token limit (3c33031)
+- **memory:** Janitor maintenance passes — repair + atomize edits to PROJECT pages (0ec9aaa)
+
+### Testing
+
+- **guard:** Strip quotes in exemption-set members before comparison (e26b633)
+
+### Build
+
+- **pipeline:** Retire Step 4 CPV lint stage, bump CPV pins v5.4.0 -> v5.21.1 (0977d16)
 ## [1.6.23] - 2026-08-29
 
 ### Bug Fixes
