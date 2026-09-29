@@ -2,7 +2,7 @@
 name: architecture
 description: "how does ai-maestro-autonomous-agent work — overview, the main parts (persona, skills, publish pipeline), where the key pieces live / where must a behavioral rule be stated to actually bind the agent — is the persona enough / why is the same rule repeated in every skill"
 ocd: 2026-06-16
-lmd: 2026-08-02
+lmd: 2026-09-29
 metadata:
   node_type: memory
   type: project
@@ -55,24 +55,6 @@ never asked about transport, so it would have answered ALLOWED for the exact HTT
 the persona forbids. Fixed by adding **Q13 Direct-server-API check** + the rule in all
 three skills, guarded by `test_every_skill_forbids_direct_server_api`.[^1]
 
-## Applies to
-- [[governance-audit-handling]] — how a fleet / MANAGER governance audit is
-  verified-against-live-HEAD then fixed, and the fix-vs-publish Tier-2 split.
-- (more component/aspect pages radiate down here as they're written — wire the
-  reciprocal up-link on each)
-
-## See also
-- [[fork-delegation-under-autonomous-directive]] — why a forked sub-agent ignores a
-  READ-ONLY mandate (it inherits the autonomous directive) and why its self-report must
-  always be re-verified against live git + gates
-- [[persona-over-asking-mandate]] — the affirmative "a clear mandate authorizes starting"
-  persona rule (the over-asking bug was an ABSENCE, not a broken escalation ladder),
-  guarded by test_content_invariants.py
-- [[claude-code-version-sync]] — keeping the persona and skills aligned as the HOST
-  changes under them: which changelog windows are swept, the on-mission triage test, and
-  why a host isolation fix is the strongest signal to re-check our own boundary
-- (lateral links to other functionality hubs, once they exist)
-
 
 ^ATOM-WST1-8ODS [desc:"scripts/ holds two small gitignore modules extracted from a 2320-line vendored CPV file that was then DROPPED — the vendor blob is gone on purpose, not missing.", keywords: why_is_there_no_cpv_validation_common_here where_did_smart_exec_go what_are_gitignore_rules_and_gitignore_filter_for did_we_vendor_CPV_code gitignore_aware_walk_in_the_publish_pipeline, ocd: 2026-08-05, lmd: 2026-08-05]
 
@@ -95,6 +77,25 @@ with on every scan. Extract-the-two-functions was the fix.
 Do not re-vendor either file to "restore" something that looks absent. If a third
 function is ever genuinely needed, extract that one too and keep it byte-identical to
 the CPV original so upstream drift stays diffable.
+
+## Applies to
+- [[governance-audit-handling]] — how a fleet / MANAGER governance audit is
+  verified-against-live-HEAD then fixed, and the fix-vs-publish Tier-2 split.
+- (more component/aspect pages radiate down here as they're written — wire the
+  reciprocal up-link on each)
+
+## See also
+- [[fork-delegation-under-autonomous-directive]] — why a forked sub-agent ignores a
+  READ-ONLY mandate (it inherits the autonomous directive) and why its self-report must
+  always be re-verified against live git + gates
+- [[persona-over-asking-mandate]] — the affirmative "a clear mandate authorizes starting"
+  persona rule (the over-asking bug was an ABSENCE, not a broken escalation ladder),
+  guarded by test_content_invariants.py
+- [[claude-code-version-sync]] — keeping the persona and skills aligned as the HOST
+  changes under them: which changelog windows are swept, the on-mission triage test, and
+  why a host isolation fix is the strongest signal to re-check our own boundary
+- (lateral links to other functionality hubs, once they exist)
+
 
 ## Notes and lessons learned
 [^1]: [id:ATOM-ARCH01-RULEPLACEMENT, status:valid, keywords:"the_persona_already_forbids_it_so_we_are_compliant rule_in_persona_but_not_in_any_SKILL.md self_audit_returns_ALLOWED_for_a_forbidden_action skills_load_on_demand_and_in_isolation where_must_a_rule_live_to_bind_the_agent repeating_a_rule_in_every_skill_is_deliberate", ocd:2026-08-02, lmd:2026-08-02]

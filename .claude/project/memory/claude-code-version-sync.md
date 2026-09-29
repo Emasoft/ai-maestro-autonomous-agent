@@ -120,8 +120,7 @@ It is ~480 KB, so capture to a file and slice the window — never read it whole
 ## Superseded
 
 
-^ATOM-43Z5-O3YW [desc:"Coverage is contiguous 2.1.181 → 2.1.248 across nine TRDDs; the next sync starts at 2.1.249. Read the changelog via gh api — the docs release-notes URL 404s. ADVANCE THIS POINTER IN THE SAME CHANGE AS THE SWEEP.", keywords: which_claude_code_versions_were_already_swept where_does_the_next_sync_start release_notes_url_404 how_to_read_the_claude_code_changelog is_my_plugin_stale_after_a_claude_code_release the_next_sync_pointer_disagrees_with_the_archived_cards memory_says_start_at_a_window_already_swept, ocd: 2026-08-04, lmd: 2026-08-27, status: superseded, superseded-by: ATOM-WAOF-UB2X]
-
+^ATOM-43Z5-O3YW [desc: "Coverage contiguous 2.1.181 → 2.1.248 across nine TRDDs; next sync starts at 2.1.249. Changelog via gh api — docs release-notes URL 404s. ADVANCE THIS POINTER IN THE SAME CHANGE AS THE SWEEP.", keywords: which_claude_code_versions_were_already_swept where_does_the_next_sync_start release_notes_url_404 how_to_read_the_claude_code_changelog is_my_plugin_stale_after_a_claude_code_release the_next_sync_pointer_disagrees_with_the_archived_cards memory_says_start_at_a_window_already_swept, ocd: 2026-08-04, lmd: 2026-09-29, status: superseded, superseded-by: ATOM-WAOF-UB2X]
 **Where the coverage stands.** Seven cards, contiguous, each naming its window in the
 title: `TRDD-BFDQH5A7` (2.1.181→2.1.200) · `TRDD-R6L582UX` (2.1.201→2.1.205) ·
 `TRDD-9ZH31KC8` (2.1.206→2.1.221) · `TRDD-M50MBTSB` (2.1.222→2.1.224) ·
