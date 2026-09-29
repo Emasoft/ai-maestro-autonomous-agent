@@ -1,7 +1,7 @@
 ---
 name: ai-maestro-autonomous-prrd-trdd-kanban
 description: "AUTONOMOUS's role in the PRRD / TRDD / Kanban workflow. AUTONOMOUS works solo (no team, no COS). It owns ALL columns for its own TRDDs — authoring proto-TRDDs, designing them, implementing, testing, deploying / publishing, and auditing. Use when AUTONOMOUS is operating independently of any team."
-allowed-tools: "Bash(python3:*), Bash(get-prrd.py:*), Bash(prrd-edit.py:*), Bash(findprrd.py:*), Bash(findtrdd.py:*), Bash(kanban.py:*), Bash(git:*), Bash(gh:*), Bash(amp-send:*), Read, Edit, Write, Grep, Glob"
+allowed-tools: "Bash(trddgrep:*), Bash(prrdgrep:*), Bash(specgrep:*), Bash(memgrep:*), Bash(python3:*), Bash(get-prrd.py:*), Bash(prrd-edit.py:*), Bash(findprrd.py:*), Bash(findtrdd.py:*), Bash(kanban.py:*), Bash(git:*), Bash(gh:*), Bash(amp-send:*), Read, Edit, Write, Grep, Glob"
 metadata:
   author: "Emasoft"
   version: "1.0.0"
@@ -53,10 +53,17 @@ direct call can land a column change that no approval log records. Binds hooks a
 `ama-*` skill for the operation you are performing (listed in the
 Overview) when you need to perform it — that is a tool call, not a
 precondition for understanding the policy below. The
-PRRD/TRDD scripts (`get-prrd.py`, `prrd-edit.py`, `findprrd.py`,
-`findtrdd.py`, `kanban.py`) still ship in `ai-maestro-plugin`, but under
-its scripts/prrd-trdd directory; resolve their absolute paths with that
-directory's
+**Tool surface (PRRD G12.1, GOLDEN): read and edit every card, PRRD and
+spec through `trddgrep` / `prrdgrep` / `specgrep`, and memory through
+`memgrep` — never hand-edit those files with an editor, `sed`, a heredoc
+or a redirect.** There is no `kanban` CLI: the board IS `trddgrep`
+(`trddgrep` renders it, `trddgrep next` ranks workable cards,
+`trddgrep move <id> <column>` changes a column, `trddgrep new|set|append|
+check-box|edit` write). The legacy Python scripts (`get-prrd.py`,
+`prrd-edit.py`, `findprrd.py`, `findtrdd.py`, `kanban.py`) still ship in
+`ai-maestro-plugin` under its scripts/prrd-trdd directory and remain the
+fallback when a pillar tool cannot run, but they are no longer the primary
+surface; resolve their paths with that directory's
 `resolve_pillar_scripts.sh` rather than hard-coding a location, because the
 layout moved once already and a hard-coded path fails silently. This plugin
 declares the `ai-maestro-plugin` dependency in its `plugin.json`. The
@@ -95,7 +102,11 @@ let the human own the decision.
    AND the AI Maestro server is unreachable (the solo/offline case where the
    local human IS the manager, per the Prerequisites "AID_AUTH fallback"):
    `prrd-edit.py --user add silver "..."`, `prrd-edit.py --user revise N
-   "..."`, `prrd-edit.py --user delete N`. Golden-rule promotion/demotion
+   "..."`, `prrd-edit.py --user delete N`. For changing the TEXT of an
+   existing rule (not adding or removing rules from the list),
+   `prrdgrep edit <id> --expect X --replace Y` is the tool — it refuses on
+   a stale `--expect` instead of overwriting a concurrent edit. Golden-rule
+   promotion/demotion
    needs USER (or a governance AMP from MANAGER if one exists).
 7. Run the deploy / publish stage with the pipeline that matches the
    PROJECT TYPE — there is no single universal release path. INTEGRATOR
