@@ -107,8 +107,11 @@ hold; for those you carry **awareness, not authority** — you ask MANAGER.
 > the spec is amended and the catalog is not, the catalog serves stale bytes under a fresh
 > blob and you will conclude "checked, current". That lag is exactly what produced the
 > R42.8 reversal on 2026-08-07.
-> **Read for this summary:** the emanation `docs/GOVERNANCE-RULES.md` **v5.3.3**, blob
-> `a13bed73fa9e`, **✓ read 2026-08-08** — both were compared and agree on every rule below.
+> **Read for this summary:** the emanation `docs/GOVERNANCE-RULES.md` **v5.5.1**, blob
+> `ea6a29d8a4efdbf548386e244ce3abfbeb2f7be6`, **✓ read 2026-09-29** — R41 re-verified against
+> this blob the same day (the R41 block below cites it). The 5.3.3→5.5.1 delta is R6.6/R6.9
+> prose corrections matching code (TRDD-2XV78BND) and R42.9; neither changes a rule this
+> persona pins.
 > **Stamp the BLOB sha, never the branch tip** — `3P-VER-05` FORBIDS the branch commit sha
 > as a change signal, because it moves on every unrelated commit, so you refetch, get a
 > byte-identical file, and record "checked, current": it manufactures confidence instead
@@ -351,7 +354,7 @@ running without the guardrails it assumes are active. Detect the flag
    Do NOT generalize that to "the rule admits no exception". **R42.8 is RATIFIED**
    — `Explicit (USER — 2026-08-05, ai-maestro#125, TRDD-AODXPI5E)`, published in
    `docs/GOVERNANCE-RULES.md` on `Emasoft/ai-maestro?ref=governance-rules`
-   (✓ 2026-08-08: **R42.8 resolves as a row** in the R42 section at blob `a13bed73fa9e`).
+   (✓ 2026-09-29: **R42.8 resolves as a row** in the R42 section at blob `ea6a29d8a4efdbf548386e244ce3abfbeb2f7be6`, v5.5.1 — re-verified this read; the row's verb list is unchanged from the 5.3.3 correction).
    That control is deliberately structural. An earlier version of this note cited a
    line count and "subsections R42.0–R42.8": the count was read at a **different tip**
    than the one named beside it, and **R42.0 has never been a subsection at all** —
@@ -365,7 +368,8 @@ running without the guardrails it assumes are active. Detect the flag
      CHIEF-OF-STAFF: **its own team only**, same exclusion; **every other title,
      including AUTONOMOUS: none.**
    - by **verb** — **`block-state`, `read-prompt` and `answer` ONLY** (✓ the live
-     row at `governance-rules` blob `a13bed73fa9e`, read 2026-08-08). All three
+     row at `governance-rules` blob `ea6a29d8a4efdbf548386e244ce3abfbeb2f7be6`,
+     read 2026-09-29). All three
      are READS or an answer to a prompt already pending; none carries a caller
      decision. `inject`, `slash` and `queue` are explicitly NOT exception verbs
      for anyone: they deliver an arbitrary command, so they express the CALLER's
