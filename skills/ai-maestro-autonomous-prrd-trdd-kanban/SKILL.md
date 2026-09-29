@@ -22,13 +22,12 @@ supporting the sentence. Cite a rule by its **substance**; if a number fails to
 resolve or contradicts this text, **the live governance source governs** — re-read
 it. Never tell another agent "rule RNN says X" on this file's authority alone.
 
-**This skill is self-contained: it carries AUTONOMOUS POLICY, and it does
-not defer its mechanics to another skill.** That is deliberate — skills
-load on demand and in isolation, so a layer whose content is "the real
-rules live over there" resolves to nothing when it is the only thing
-loaded, and the agent improvises exactly the governance it was supposed to
-follow. Everything binding on you is below; the skills named next are
-tools you invoke, not a prerequisite you must read first.
+**This skill is self-contained: it carries AUTONOMOUS POLICY and does not
+defer its mechanics to another skill** — skills load on demand and in
+isolation, so "the real rules live over there" resolves to nothing when this
+is the only thing loaded, and the agent improvises exactly the governance it
+was supposed to follow. Everything binding on you is below; the skills named
+next are tools you invoke, not prerequisites.
 
 `ai-maestro-plugin` no longer ships one `prrd-trdd-kanban` skill — it was
 decomposed into task-scoped skills, so invoke the one that matches the
@@ -222,9 +221,6 @@ Return edges (`3P-KAN-05`): `testing → dev` on failure, `ai_review → dev` on
 
 **`published` is this plugin's own terminal column** — a Claude Code plugin releases via
 `scripts/publish.py`, so its cards end at `publish → published`, never at `live`.
-Historical: under the 17-column vocabulary this list shipped 16/17 (`published` absent)
-until TRDD-F2SUT8D4 — **the missing one was the terminus of the path taken on every
-release**; the enum went 17 → 22 with 3-pillars 3.0.0 (2026-08-23).
 - USER approval-requests via `amp-send`, with replies logged verbatim in
   each TRDD's `## Approval log`.
 - PRRD silver-rule edits — a Tier-2 proposal to MANAGER when reachable, or
@@ -263,13 +259,9 @@ stale the next time upstream moves it. (The list used to hang off a
 `prrd-trdd-kanban` skill; that skill no longer exists at any released
 tag, so do not look for it.)
 
-For the per-column checklists that AUTONOMOUS reuses, consult the other
-role layers: `amaa-prrd-trdd-kanban` (architect) for design and split /
-group, `amoa-prrd-trdd-kanban` (orchestrator) for dispatch and the red
-column, `ampa-prrd-trdd-kanban` (programmer) for implementation and
-testing, and `amia-prrd-trdd-kanban` (integrator) for ai_review and ship.
-Each role's checklist applies, simplified because AUTONOMOUS runs as a
-single session with no inter-agent AMP coordination. There is no
-MANAGER-side layer to cite: `ai-maestro-assistant-manager-agent` ships no
-kanban skill, so authoring and promotion have no sibling checklist —
-use the `ama-trdd-write` / `ama-prrd-propose` core skills instead.
+For the per-column checklists AUTONOMOUS reuses, consult the other role
+layers in `ai-maestro-plugin` (architect/orchestrator/programmer/integrator
+kanban skills), each simplified here because AUTONOMOUS runs as a single
+session with no inter-agent AMP coordination. There is no MANAGER-side layer
+to cite: `ai-maestro-assistant-manager-agent` ships no kanban skill — use
+the `ama-trdd-write` / `ama-prrd-propose` core skills instead.
