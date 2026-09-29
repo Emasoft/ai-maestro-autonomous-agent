@@ -93,7 +93,7 @@ def test_exemption_set_has_exactly_one_member() -> None:
     line = next((ln for ln in lines
                  if ln.strip().startswith("_bypass_exemptions = {")), None)
     assert line is not None, "exemption set not found in publish.py — shape changed?"
-    members = {m.strip() for m in
+    members = {m.strip().strip("\"'") for m in
                line.strip().removeprefix("_bypass_exemptions = {").removesuffix("}").split(",")}
     assert members == {"PUBLISH_SKIP_INSTALL_SMOKE"}, (
         f"the exemption set grew beyond the one documented flag: {members}"
