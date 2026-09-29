@@ -81,6 +81,25 @@ def test_exemption_allows_only_the_documented_flag() -> None:
     )
 
 
+def test_exemption_set_has_exactly_one_member() -> None:
+    """A SECOND exemption added later would be a silent bypass hole.
+
+    The predicate tests above prove the documented flag passes; they cannot
+    prove no OTHER flag was quietly exempted (the predicate closes over the
+    shipped set, so any future member sails through). This pins the set's
+    cardinality at exactly the one documented exemption.
+    """
+    lines = PUBLISH.read_text(encoding="utf-8").split("\n")
+    line = next((ln for ln in lines
+                 if ln.strip().startswith("_bypass_exemptions = {")), None)
+    assert line is not None, "exemption set not found in publish.py — shape changed?"
+    members = {m.strip() for m in
+               line.strip().removeprefix("_bypass_exemptions = {").removesuffix("}").split(",")}
+    assert members == {"PUBLISH_SKIP_INSTALL_SMOKE"}, (
+        f"the exemption set grew beyond the one documented flag: {members}"
+    )
+
+
 def test_strict_flag_refuses_skip_combination() -> None:
     """PLUGIN_REQUIRE_INSTALL_SMOKE=1 + PUBLISH_SKIP_INSTALL_SMOKE=1 must be refused.
 

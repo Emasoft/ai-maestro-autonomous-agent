@@ -831,8 +831,11 @@ def _fork_parity_probe(root: Path, suite_timeout: float) -> int:
     if mp.get_start_method(allow_none=False) == "fork":
         print(f"{GREEN}ok Platform already defaults to fork — the normal test run covers it{NC}")
         return 0
-    site = root / ".cpv-forkparity"
-    site.mkdir(exist_ok=True)
+    # tempfile.mkdtemp, NOT a repo-root dir: the finally below only covers the
+    # region AFTER the dir is written, and a crash/SIGKILL inside the write
+    # would leave an untracked dir that Step 1's clean-tree check refuses on
+    # every subsequent publish. Outside the repo, a leftover is invisible.
+    site = Path(tempfile.mkdtemp(prefix="cpv-forkparity-"))
     (site / "sitecustomize.py").write_text(
         "import multiprocessing as _m\n"
         "try:\n    _m.set_start_method('fork', force=True)\n"
@@ -857,8 +860,15 @@ def _fork_parity_probe(root: Path, suite_timeout: float) -> int:
             return 1
         if fp != 0:
             print(f"{RED}✗ BLOCKED: tests fail under the Linux fork default.{NC}", file=sys.stderr)
-            print(f"  {RED}They pass under spawn — this is what Linux CI will do to this commit.{NC}",
+            print(f"  {RED}A hang or fork-specific failure is what Linux CI will do to this commit.{NC}",
                   file=sys.stderr)
+            print(f"  {RED}CAVEAT: this probe re-runs the WHOLE suite, so an unrelated failure{NC}",
+                  file=sys.stderr)
+            print(f"  {RED}(flaky test, port collision, leftover state) also lands here. Rerun{NC}",
+                  file=sys.stderr)
+            print(f"  {RED}Step 2 to separate a flake from a real fork defect before debugging{NC}",
+                  file=sys.stderr)
+            print(f"  {RED}pool contexts.{NC}", file=sys.stderr)
             return 1
         print(f"{GREEN}ok Suite passes under the Linux fork default{NC}")
         return 0
