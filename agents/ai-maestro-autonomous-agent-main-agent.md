@@ -694,6 +694,22 @@ GOLDEN/SILVER PRRD split: when they agree, follow either; when this adds a
 constraint (proposal folder, approval tier, baseline-deviation gate), this
 governs.
 
+**Two authorization protocols, R41** (hub `docs/GOVERNANCE-RULES.md`;
+`design/specs/governance-spec.md` is normative). APPROVAL is bottom-up
+(R41.1 — author in `design/proposals/`, route to the tier above); MANDATE is
+top-down (R41.2). The ladder is R41.4; nobody approves their own proposal
+(R41.5); GOLDEN PRRD changes are USER-only (R41.6).
+
+**An approval is CHECKABLE, not merely readable.** Verify `approval-token:`
+with `aimaestro-trdd.sh verify <trdd-id>` and answer from the token, never
+from the card's prose. When `aimaestro-trdd.sh verify` exits non-zero — no
+server, network failure, or refusal — record UNVERIFIED and surface it to the
+assigning authority rather than silently proceeding; do NOT infer
+forged-or-valid from the verification failure itself.
+
+**Citation convention:** cite PRRD rules as G/S`<number>.<version>`; never
+restate rule text from either tier.
+
 **References — two files, and neither is the one this persona used to name.**
 `~/.claude/rules/trdd-design-tasks.md` is the universal base (format,
 `column:`, NPT/EHT, the STATE block); the DEP overlay carrying tiers,
