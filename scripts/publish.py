@@ -27,12 +27,16 @@ Usage:
   uv run python scripts/publish.py --gate             # read-only pre-push gate:
                                                       # every validation step,
                                                       # no bump/commit/tag/push
+  uv run python scripts/publish.py --print-gates      # print the numbered
+                                                      # pipeline stage list and
+                                                      # exit 0 (no side effects)
 
 Gate mode (--gate):
-  Runs Steps 1-7 only — clean-tree check, language-native tests, language-native
-  lint, CPV `--strict` plugin validation, CI-parity preflight, version
-  consistency, and the git-cliff availability precheck — then returns. It mutates
-  no git state and takes no bump type, so it is safe to call from a git hook.
+  Runs Steps 1-7.5 only — bypass guard, clean-tree check, language-native tests,
+  language-native lint, CPV `--strict` plugin validation, secret scan,
+  fork-parity probe, CI-parity preflight, version consistency, and the
+  git-cliff availability precheck — then returns. It mutates no git state and
+  takes no bump type, so it is safe to call from a git hook.
   NOTE (TRDD-D6P88CM1): NO runner invokes --gate automatically in this repo.
   The installed hook is `.githooks/pre-push` (`core.hooksPath=.githooks`), a
   process-ancestry check that refuses any push not descended from this script —
@@ -54,8 +58,10 @@ import argparse
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
+import tempfile
 import time
 from dataclasses import dataclass, field
 from enum import Enum
@@ -673,6 +679,612 @@ def language_lint_step(info: ProjectInfo) -> None:
             if shell_files:
                 run(["shellcheck", *[str(p) for p in shell_files]], cwd=info.root)
                 print(f"{GREEN}ok shellcheck passed{NC}")
+
+
+# ── Secret scan (canonical CPV pipeline stage 6) ─────────────────────────────
+
+
+def _secret_scan(root: Path) -> int:
+    """Secret-scan the working tree with trufflehog. 0 = clean, 1 = BLOCK.
+
+    Mirrors the canonical CPV `_secret_scan`: trufflehog with the widened
+    result set (`--results=verified,unknown,unverified,filtered_unverified`) so
+    the bucket an expired/revoked/unreachable credential lands in is NOT
+    omitted — a committed secret is a leak whether or not a runner can reach
+    its API. Exit 183 = findings (trufflehog's --fail code); any other
+    non-zero exit is an incomplete scan, which is not clean either.
+
+    Fail fast: a missing trufflehog BLOCKS with install instructions — no
+    fallback that skips the scan, because "we never looked" is not "we looked
+    and found nothing".
+    """
+    trufflehog = shutil.which("trufflehog")
+    if not trufflehog:
+        print(
+            f"{RED}✗ trufflehog is not installed — the release cannot be "
+            f"secret-scanned.{NC}\n"
+            f"  Install with: brew install trufflehog\n"
+            f"  (or: go install github.com/trufflesecurity/trufflehog/v3@latest)\n"
+            f"  trufflehog is MANDATORY for strict publishing. UNKNOWN is not "
+            f"clean — no fallback skips the scan.",
+            file=sys.stderr,
+        )
+        return 1
+    # Exclude gitignored-AND-untracked paths from the WALK (not from the
+    # results): scanning a large ignored corpus and discarding the hits is the
+    # same verdict for far more work. `--others --ignored` lists exactly the
+    # untracked-ignored set; a TRACKED file stays scanned even when it also
+    # matches .gitignore, because such a file still ships.
+    sec_root = str(root.resolve()).rstrip("/")
+    ign = subprocess.run(
+        ["git", "ls-files", "--others", "--ignored", "--exclude-standard", "--directory"],
+        cwd=str(root), capture_output=True, text=True, timeout=120,
+    )
+    ign_paths = [ln.strip() for ln in (ign.stdout or "").splitlines() if ln.strip()]
+    excl_fh = tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False, encoding="utf-8")
+    try:
+        # trufflehog matches these regexes against ABSOLUTE paths.
+        excl_fh.write("^" + re.escape(sec_root + "/.git") + "\n")
+        for rel in sorted(ign_paths):
+            excl_fh.write("^" + re.escape(sec_root + "/" + rel.rstrip("/")) + "\n")
+        excl_fh.close()
+        th = subprocess.run(
+            [trufflehog, "filesystem", sec_root, "--json", "--no-update", "--fail",
+             "--results=verified,unknown,unverified,filtered_unverified",
+             "-x", excl_fh.name],
+            capture_output=True, text=True, timeout=900,
+        )
+    except subprocess.TimeoutExpired:
+        print(f"{RED}✗ BLOCKED: trufflehog timed out — scan INCOMPLETE, secrets UNKNOWN.{NC}",
+              file=sys.stderr)
+        return 1
+    finally:
+        try:
+            os.unlink(excl_fh.name)
+        except OSError:
+            pass
+    if th.returncode == 183:
+        dets = []
+        for ln in (th.stdout or "").splitlines():
+            if not ln.startswith("{"):
+                continue
+            try:
+                f = json.loads(ln)
+            except json.JSONDecodeError:
+                continue
+            fs = f.get("SourceMetadata", {}).get("Data", {}).get("Filesystem", {})
+            dets.append(f"{f.get('DetectorName', '?')} in {fs.get('file', '?')}")
+        print(f"{RED}✗ BLOCKED: {len(dets)} credential(s) detected by trufflehog.{NC}",
+              file=sys.stderr)
+        for d in dets[:20]:
+            print(f"  {RED}{d}{NC}", file=sys.stderr)
+        print(
+            f"  {RED}Redaction is NOT done by this gate. A verified live credential "
+            f"must be ROTATED and purged from git history.{NC}",
+            file=sys.stderr,
+        )
+        return 1
+    if th.returncode != 0:
+        print(
+            f"{RED}✗ BLOCKED: trufflehog exited {th.returncode} — scan did not "
+            f"complete, so secrets are UNKNOWN (that is not clean).{NC}",
+            file=sys.stderr,
+        )
+        return 1
+    return 0
+
+
+def language_secret_scan_step(root: Path) -> None:
+    """Step 5.25: Secret scan (trufflehog). MANDATORY — no skip.
+
+    Runs BEFORE the bump/commit/tag/push, so a detected credential aborts with
+    the tree untouched — a gate that fired after the push could not un-publish
+    anything.
+    """
+    if _secret_scan(root) != 0:
+        sys.exit(1)
+    print(f"{GREEN}ok Secret scan passed (no credentials detected){NC}")
+
+
+# ── Linux fork-parity probe (canonical CPV pipeline stage 7) ─────────────────
+
+# Directories skipped when scanning for process-pool usage (build/dep artifacts).
+_FORK_SCAN_SKIP_DIRS = {"target", ".git", "node_modules", ".venv", "vendor",
+                        "dist", "build", "obj", "zig-out", "zig-cache", ".zig-cache",
+                        "__pycache__"}
+
+
+def _fork_parity_probe(root: Path, suite_timeout: float) -> int:
+    """Re-run the suite with multiprocessing forced to fork. 0 = ok, 1 = BLOCK.
+
+    Mirrors the canonical CPV `_fork_parity_probe`: `multiprocessing` defaults
+    to FORK on Linux and SPAWN on macOS. Forking a multithreaded process copies
+    mutex state, so a child can inherit a lock held by a thread that does not
+    exist in the child and hang forever on its first write — a defect invisible
+    on a macOS dev box and fatal in Linux CI.
+
+    Self-detecting: runs ONLY when this repo's own Python creates process
+    pools. Linux (already forks) -> skip, so CI is never doubled. No fork
+    available -> WARN+skip. Blocks only when the probe RAN and the suite failed
+    — and a TIMEOUT counts, because a hang IS the signature.
+    """
+    pool_src = []
+    for p in root.rglob("*.py"):
+        if not p.is_file():
+            continue
+        if any(part in _FORK_SCAN_SKIP_DIRS for part in p.relative_to(root).parts):
+            continue
+        try:
+            text = p.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        if any(tok in text for tok in ("ProcessPoolExecutor", "multiprocessing")):
+            pool_src.append(p)
+    if not pool_src:
+        print(f"{GREEN}ok No process pools in this repo — fork-parity probe skipped{NC}")
+        return 0
+    import multiprocessing as mp
+    if "fork" not in mp.get_all_start_methods():
+        print(f"{YELLOW}! WARNING: fork unavailable here — parity probe SKIPPED.{NC}")
+        print(f"  {YELLOW}Linux CI is the FIRST place the fork path will run.{NC}")
+        return 0
+    if mp.get_start_method(allow_none=False) == "fork":
+        print(f"{GREEN}ok Platform already defaults to fork — the normal test run covers it{NC}")
+        return 0
+    site = root / ".cpv-forkparity"
+    site.mkdir(exist_ok=True)
+    (site / "sitecustomize.py").write_text(
+        "import multiprocessing as _m\n"
+        "try:\n    _m.set_start_method('fork', force=True)\n"
+        "except Exception:\n    pass\n",
+        encoding="utf-8")
+    try:
+        env = dict(os.environ)
+        env["PYTHONPATH"] = str(site) + (
+            os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else "")
+        try:
+            fp = subprocess.run(
+                # Same invocation as Step 2's suite run (pytest via --with,
+                # because the project venv does not carry it) minus -x — the
+                # probe wants the FULL failure picture, not first-fail.
+                ["uv", "run", "--with", "pytest", "pytest", "tests/", "-q", "--tb=short"],
+                cwd=str(root), env=env, timeout=suite_timeout,
+            ).returncode
+        except subprocess.TimeoutExpired:
+            print(f"{RED}✗ BLOCKED: suite HUNG under the Linux fork default.{NC}", file=sys.stderr)
+            print(f"  {RED}Something forks a multithreaded process. Pass an explicit{NC}", file=sys.stderr)
+            print(f"  {RED}mp_context (spawn) to every pool instead of the platform default.{NC}", file=sys.stderr)
+            return 1
+        if fp != 0:
+            print(f"{RED}✗ BLOCKED: tests fail under the Linux fork default.{NC}", file=sys.stderr)
+            print(f"  {RED}They pass under spawn — this is what Linux CI will do to this commit.{NC}",
+                  file=sys.stderr)
+            return 1
+        print(f"{GREEN}ok Suite passes under the Linux fork default{NC}")
+        return 0
+    finally:
+        shutil.rmtree(site, ignore_errors=True)
+
+
+def language_fork_parity_step(root: Path, suite_timeout: float = 1800.0) -> None:
+    """Step 5.4: Linux fork-parity probe. Self-detecting; blocks on a real failure."""
+    if _fork_parity_probe(root, suite_timeout) != 0:
+        sys.exit(1)
+
+
+# ── Marketplace-registration check (canonical CPV pipeline stage 9) ─────────
+#
+# Mirror of CPV's own publish.py Gate 6, scoped to this repo's Layout A shape
+# (standalone plugin repo + notify-marketplace.yml). Layout B (nested under a
+# marketplace repo) is detected and reported but this repo is not one; 'none'
+# (no wiring at all) warns and proceeds, like the canon.
+
+_MARKETPLACE_PAT_SECRET = "MARKETPLACE_PAT"
+_RECEIVER_PROBE_MAX_FILES = 25
+_RECEIVER_PROBE_DEADLINE_S = 90.0
+
+
+def _gh_secret_exists(plugin_root: Path, secret_name: str) -> bool:
+    """Check whether a GitHub secret with the given name exists on this repo."""
+    gh = shutil.which("gh")
+    if gh is None:
+        return False
+    r = subprocess.run([gh, "secret", "list"], cwd=str(plugin_root),
+                       capture_output=True, text=True, timeout=60)
+    if r.returncode != 0:
+        return False
+    for line in r.stdout.splitlines():
+        if line.split("\t", 1)[0].strip() == secret_name:
+            return True
+    return False
+
+
+def _current_repo_slug(plugin_root: Path) -> str | None:
+    """Return owner/repo slug for current git origin, or None."""
+    r = subprocess.run(["git", "remote", "get-url", "origin"], cwd=str(plugin_root),
+                       capture_output=True, text=True, timeout=30)
+    if r.returncode != 0:
+        return None
+    m = re.search(r"[:/]([^/:]+)/([^/]+?)(?:\.git)?$", r.stdout.strip())
+    return f"{m.group(1)}/{m.group(2)}" if m else None
+
+
+def _read_plugin_name(plugin_root: Path) -> str:
+    pj = plugin_root / ".claude-plugin" / "plugin.json"
+    if pj.is_file():
+        try:
+            data = json.loads(pj.read_text(encoding="utf-8"))
+            name = data.get("name")
+            if isinstance(name, str) and name:
+                return name
+        except (OSError, json.JSONDecodeError):
+            pass
+    return plugin_root.name
+
+
+def _fetch_remote_marketplace_json(owner: str, repo: str) -> dict | None:
+    gh = shutil.which("gh")
+    if gh is None:
+        return None
+    r = subprocess.run(
+        [gh, "api", f"repos/{owner}/{repo}/contents/.claude-plugin/marketplace.json",
+         "-H", "Accept: application/vnd.github.raw+json"],
+        capture_output=True, text=True, timeout=60,
+    )
+    if r.returncode != 0:
+        return None
+    try:
+        data = json.loads(r.stdout)
+    except json.JSONDecodeError:
+        return None
+    return data if isinstance(data, dict) else None
+
+
+def _remote_has_receiver_workflow(owner: str, repo: str) -> bool:
+    """True when the remote marketplace repo has a workflow with a
+    repository_dispatch trigger (the receiver for this plugin's notify)."""
+    gh = shutil.which("gh")
+    if gh is None:
+        return False
+    r = subprocess.run(
+        [gh, "api", f"repos/{owner}/{repo}/contents/.github/workflows"],
+        capture_output=True, text=True, timeout=60,
+    )
+    if r.returncode != 0:
+        return False
+    try:
+        entries = json.loads(r.stdout)
+    except json.JSONDecodeError:
+        return False
+    if not isinstance(entries, list):
+        return False
+    deadline = time.monotonic() + _RECEIVER_PROBE_DEADLINE_S
+    checked = 0
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        name = entry.get("name", "")
+        if not isinstance(name, str) or not name.endswith((".yml", ".yaml")):
+            continue
+        if checked >= _RECEIVER_PROBE_MAX_FILES or time.monotonic() >= deadline:
+            # Out of budget. False is the conservative direction: the caller
+            # reports "no receiver workflow found", a WARNING asking the
+            # maintainer to look, rather than claiming one exists.
+            break
+        checked += 1
+        f = subprocess.run(
+            [gh, "api", f"repos/{owner}/{repo}/contents/.github/workflows/{name}",
+             "-H", "Accept: application/vnd.github.raw+json"],
+            capture_output=True, text=True, timeout=60,
+        )
+        if f.returncode == 0 and "repository_dispatch" in f.stdout:
+            return True
+    return False
+
+
+def _plugin_in_remote_marketplace(mkt_json: dict, plugin_name: str,
+                                  expected_repo: str | None) -> bool:
+    """Accept github/url/git source forms; match URL slug for url|git (CPV issue #25)."""
+    plugins = mkt_json.get("plugins")
+    if not isinstance(plugins, list):
+        return False
+    for entry in plugins:
+        if not isinstance(entry, dict):
+            continue
+        if entry.get("name") != plugin_name:
+            continue
+        source = entry.get("source")
+        if not isinstance(source, dict):
+            continue
+        stype = source.get("source") or source.get("type")
+        if stype == "github":
+            if expected_repo is None or source.get("repo") == expected_repo:
+                return True
+        elif stype in ("url", "git"):
+            url = source.get("url")
+            if expected_repo is None:
+                return True
+            if isinstance(url, str):
+                norm = url.removesuffix(".git").rstrip("/")
+                if norm.endswith("/" + expected_repo) or norm.endswith(":" + expected_repo):
+                    return True
+    return False
+
+
+def marketplace_registration_step(plugin_root: Path) -> None:
+    """Step 9.5: Verify the plugin is wired to its marketplace for auto-updates.
+
+    Layout A (this repo): notify workflow + MARKETPLACE_PAT secret + remote
+    marketplace.json registration + remote receiver workflow with a
+    repository_dispatch trigger. Layout B: refused (must run at marketplace
+    root — this repo is not Layout B, so the branch only ever reports).
+    'none': WARNING and proceed, like the canon (valid for first releases).
+    """
+    print(f"\n{BLUE}=== Step 9.5: Marketplace-registration check (Gate-6 parity) ==={NC}")
+    notify_wf = plugin_root / ".github" / "workflows" / "notify-marketplace.yml"
+    parent_mp = plugin_root.parent / ".claude-plugin" / "marketplace.json"
+
+    if parent_mp.is_file():
+        print(
+            f"{YELLOW}! Layout B detected (nested plugin under a marketplace repo) — "
+            f"publish.py must run at the MARKETPLACE root so the atomic marketplace "
+            f"tag covers every nested plugin. BLOCKED.{NC}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    if not notify_wf.is_file():
+        print(
+            f"{YELLOW}! WARNING: no marketplace registration found for this plugin "
+            f"(no .github/workflows/notify-marketplace.yml).{NC}\n"
+            f"  Allowing release to proceed (standalone/experimental mode).",
+            file=sys.stderr,
+        )
+        return
+
+    try:
+        content = notify_wf.read_text(encoding="utf-8")
+    except OSError:
+        content = ""
+    m_owner = re.search(r"^\s*MARKETPLACE_OWNER:\s*[\"']?([^\"'\s]+)[\"']?\s*$",
+                        content, re.MULTILINE)
+    m_repo = re.search(r"^\s*MARKETPLACE_REPO:\s*[\"']?([^\"'\s]+)[\"']?\s*$",
+                       content, re.MULTILINE)
+    if not m_owner or not m_repo:
+        print(f"{RED}✗ BLOCKED: notify-marketplace.yml has no MARKETPLACE_OWNER/MARKETPLACE_REPO.{NC}",
+              file=sys.stderr)
+        sys.exit(1)
+    mkt_owner, mkt_repo = m_owner.group(1), m_repo.group(1)
+    print("  Layout A detected (standalone plugin repo)")
+    print(f"  target marketplace: {mkt_owner}/{mkt_repo}")
+
+    if shutil.which("gh") is None:
+        print(f"{RED}✗ BLOCKED: gh CLI not installed — cannot verify secret/marketplace.{NC}",
+              file=sys.stderr)
+        sys.exit(1)
+    if not _gh_secret_exists(plugin_root, _MARKETPLACE_PAT_SECRET):
+        print(
+            f"{RED}✗ BLOCKED: {_MARKETPLACE_PAT_SECRET} secret not configured on this plugin repo.{NC}\n"
+            f"  Fix: gh secret set {_MARKETPLACE_PAT_SECRET} --repo "
+            f"{_current_repo_slug(plugin_root) or 'OWNER/REPO'} --body \"$MARKETPLACE_PAT\"",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    print(f"{GREEN}ok {_MARKETPLACE_PAT_SECRET} secret configured{NC}")
+
+    mkt_json = _fetch_remote_marketplace_json(mkt_owner, mkt_repo)
+    if mkt_json is None:
+        print(f"{RED}✗ BLOCKED: cannot fetch marketplace.json from {mkt_owner}/{mkt_repo}.{NC}",
+              file=sys.stderr)
+        sys.exit(1)
+    plugin_name = _read_plugin_name(plugin_root)
+    slug = _current_repo_slug(plugin_root)
+    if not _plugin_in_remote_marketplace(mkt_json, plugin_name, slug):
+        print(
+            f"{RED}✗ BLOCKED: plugin '{plugin_name}' not registered in "
+            f"{mkt_owner}/{mkt_repo} marketplace.json.{NC}\n"
+            f"  Add an entry: {{\"name\": \"{plugin_name}\", \"source\": "
+            f"{{\"source\": \"github\", \"repo\": \"{slug}\"}}}}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    print(f"{GREEN}ok Plugin registered in remote marketplace.json{NC}")
+
+    if not _remote_has_receiver_workflow(mkt_owner, mkt_repo):
+        print(
+            f"{RED}✗ BLOCKED: remote marketplace {mkt_owner}/{mkt_repo} has no workflow "
+            f"with a repository_dispatch trigger.{NC}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    print(f"{GREEN}ok Remote marketplace has receiver workflow{NC}")
+    print(f"{GREEN}ok Marketplace registration verified (Layout A){NC}")
+
+
+# ── Post-release stages (canonical CPV _POST_RELEASE_STAGES) ─────────────────
+#
+# Both run AFTER the release is public and NEVER abort the publish: by then a
+# non-zero exit could not un-ship anything, and discarding the report would
+# only hide the failure. "Cannot check" is never reported as a pass either —
+# every inability to verify says UNVERIFIED/SKIPPED with the reason.
+
+_CI_VERIFY_TIMEOUT_S = 900
+
+
+def language_verify_ci_green(git_root: Path) -> None:
+    """Step 14.5: Verify CI is green on the released commit. NEVER aborts.
+
+    The release push targets the default branch directly and the maintainer
+    role can bypass the branch ruleset, so GitHub lets the push through and the
+    required checks never actually gated it: tag and release are public before
+    CI has said a word. This closes that gap as a LOUD REPORT, not a gate —
+    the release is already shipped, so failing here could only hide the
+    verdict. A RED result names the failing runs and the exact follow-up
+    command, feeding the fix -> re-publish loop.
+    """
+    print(f"\n{BLUE}=== Step 14.5: Verify CI on the released commit (advisory, never aborts) ==={NC}")
+    if shutil.which("gh") is None:
+        print(f"{YELLOW}! UNVERIFIED — gh CLI not installed, cannot check CI.{NC}")
+        print("  The release IS published; verify manually.")
+        return
+    sha_r = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=str(git_root),
+        capture_output=True, text=True, timeout=30,
+    )
+    if sha_r.returncode != 0:
+        print(f"{YELLOW}! UNVERIFIED — could not resolve HEAD.{NC}")
+        return
+    sha = sha_r.stdout.strip()
+
+    deadline = time.monotonic() + _CI_VERIFY_TIMEOUT_S
+    runs: list[dict] = []
+    while True:
+        listed = subprocess.run(
+            ["gh", "run", "list", "--commit", sha, "--limit", "20",
+             "--json", "name,status,conclusion"],
+            cwd=str(git_root), capture_output=True, text=True, timeout=120,
+        )
+        if listed.returncode != 0:
+            print(f"{YELLOW}! UNVERIFIED — `gh run list` exited {listed.returncode}.{NC}")
+            print(f"  Verify manually: gh run list --commit {sha}")
+            return
+        try:
+            runs = json.loads(listed.stdout or "[]")
+        except json.JSONDecodeError:
+            print(f"{YELLOW}! UNVERIFIED — unparseable `gh run list` output.{NC}")
+            return
+        if runs and not [r for r in runs if r.get("status") != "completed"]:
+            break
+        if time.monotonic() >= deadline:
+            if not runs:
+                print(f"{YELLOW}! UNVERIFIED — no CI runs found for {sha[:8]} after "
+                      f"{_CI_VERIFY_TIMEOUT_S}s.{NC}")
+            else:
+                print(f"{YELLOW}! UNVERIFIED — runs still in progress after "
+                      f"{_CI_VERIFY_TIMEOUT_S}s.{NC}")
+            print(f"  Check with: gh run list --commit {sha}")
+            return
+        time.sleep(15)
+
+    # skipped/neutral are not failures (a dormant optional workflow reports
+    # skipped); any other non-success conclusion is reported as RED.
+    failed = [r for r in runs if r.get("conclusion") not in ("success", "skipped", "neutral")]
+    names = ", ".join(sorted({str(r.get("name", "?")) for r in runs}))
+    if failed:
+        detail = ", ".join(f"{r.get('name', '?')}={r.get('conclusion')}" for r in failed)
+        print(f"{RED}✗ CI RED on the released commit {sha[:8]}: {detail}{NC}")
+        print(f"{RED}  (advisory — this stage never changes the exit code; the "
+              f"release is already public){NC}")
+        print(f"{RED}  Fix the cause and publish a follow-up; do NOT mute the check.{NC}")
+        print(f"{RED}  Logs: gh run list --commit {sha}  then:  gh run view --log-failed <run-id>{NC}")
+        return
+    print(f"{GREEN}ok CI green on {sha[:8]} ({names}){NC}")
+
+
+_NOT_IN_MARKETPLACE_RE = re.compile(
+    r"not found in marketplace|marketplace .*not found|marketplace update",
+    re.IGNORECASE,
+)
+
+
+def language_install_smoke(plugin_root: Path, git_root: Path, new_version: str) -> None:
+    """Step 14.6: Prove the just-published release actually INSTALLS. NEVER aborts.
+
+    No static check catches an uninstallable release: the manifest validates,
+    the tag exists, the marketplace entry is correct — and releases have still
+    shipped that nobody could install. The only proof is installing it, so the
+    stage installs `<plugin>@<marketplace>` into a temp dir at local scope and
+    uninstalls it with --keep-data (the author's real USER-scope installation
+    must not be touched). By DEFAULT it reports rather than failing: the
+    release is already public. Set PLUGIN_REQUIRE_INSTALL_SMOKE=1 for
+    fail-the-run semantics on the genuinely-uninstallable case.
+    """
+    print(f"\n{BLUE}=== Step 14.6: Install smoke — prove the release installs (advisory) ==={NC}")
+    strict = os.environ.get("PLUGIN_REQUIRE_INSTALL_SMOKE") == "1"
+    # An operator-demanded check is never silently skipped: when strict smoke
+    # was requested, the skip flag is refused rather than honored (the skip
+    # flag's own gate exemption assumed 14.6 can never fail the publish —
+    # PLUGIN_REQUIRE_INSTALL_SMOKE=1 is the case where it can).
+    if os.environ.get("PUBLISH_SKIP_INSTALL_SMOKE") == "1":
+        if strict:
+            print(f"{RED}✗ BLOCKED: PUBLISH_SKIP_INSTALL_SMOKE=1 set but "
+                  f"PLUGIN_REQUIRE_INSTALL_SMOKE=1 demands the smoke — the "
+                  f"combination is refused; unset one of them.{NC}", file=sys.stderr)
+            sys.exit(1)
+        print(f"{YELLOW}! SKIPPED — PUBLISH_SKIP_INSTALL_SMOKE=1{NC}")
+        return
+    claude_bin = shutil.which("claude")
+    if claude_bin is None:
+        print(f"{YELLOW}! SKIPPED — the `claude` CLI is not on PATH (normal on CI).{NC}")
+        print("  This is NOT a pass: the release was not proven installable here.")
+        return
+    plugin_info = detect_plugin_info(plugin_root)
+    plugin_name = plugin_info.get("name", "")
+    marketplace_name = detect_marketplace(git_root).get("marketplace_name", "")
+    if not plugin_name or not marketplace_name:
+        print(f"{YELLOW}! SKIPPED — could not resolve <plugin>@<marketplace> "
+              f"(name={plugin_name!r}, marketplace={marketplace_name!r}).{NC}")
+        print("  Not a pass — nothing was installed.")
+        return
+    target = f"{plugin_name}@{marketplace_name}"
+    with tempfile.TemporaryDirectory(prefix="publish-install-smoke-") as tmp:
+        print(f"  $ (cd {tmp} && claude plugin install {target} --scope local)")
+        try:
+            result = subprocess.run(
+                [claude_bin, "plugin", "install", target, "--scope", "local"],
+                cwd=tmp, capture_output=True, text=True, timeout=300, check=False,
+            )
+        except (OSError, subprocess.SubprocessError) as exc:
+            print(f"{YELLOW}! SKIPPED — the install could not be run ({exc}). Not a pass.{NC}")
+            return
+        # `--scope local` scopes only the settings file (in this temp dir, about
+        # to vanish); the payload and marketplace registration land in shared
+        # ~/.claude state, so without the cleanup every publish leaves a cached
+        # copy behind. `--keep-data` protects the author's real installation.
+        if result.returncode == 0:
+            try:
+                subprocess.run(
+                    [claude_bin, "plugin", "uninstall", target,
+                     "--scope", "local", "--keep-data", "-y"],
+                    cwd=tmp, capture_output=True, text=True, timeout=120, check=False,
+                )
+            except (OSError, subprocess.SubprocessError) as exc:
+                print(f"{YELLOW}! Note: smoke-install cleanup did not run ({exc}).{NC}")
+    if result.returncode == 0:
+        print(f"{GREEN}ok {target} installs cleanly (dependencies resolved).{NC}")
+        resolved = re.findall(r"\bv?(\d+\.\d+\.\d+)\b", result.stdout or "")
+        if resolved and new_version not in resolved:
+            print(f"{YELLOW}! Note: the marketplace resolved v{resolved[0]}, not "
+                  f"v{new_version} (async notify lag) — installability is "
+                  f"proven, the listing lags.{NC}")
+        return
+    combined = (result.stderr or "") + "\n" + (result.stdout or "")
+    # "This host never registered the marketplace" is an environment gap; "the
+    # marketplace IS registered and does not carry this plugin" is a REAL
+    # uninstallable release. Only the first downgrades to SKIPPED, and only
+    # when the unregistered state is PROVEN — fail-safe towards the failure.
+    if _NOT_IN_MARKETPLACE_RE.search(combined):
+        listing = subprocess.run(
+            [claude_bin, "plugin", "marketplace", "list"],
+            capture_output=True, text=True, timeout=60, check=False,
+        )
+        registered = marketplace_name in (
+            (listing.stdout or "") + (listing.stderr or "") if listing.returncode == 0 else ""
+        )
+        if not registered:
+            print(f"{YELLOW}! SKIPPED — marketplace {marketplace_name!r} is not registered "
+                  f"on this host, so the install could not resolve {target}. Not a pass.{NC}")
+            print("  Register it (`claude plugin marketplace add <source>`) and re-run.")
+            return
+    tail = combined.strip().splitlines()[-8:]
+    print(f"{RED}✗ RELEASE IS NOT INSTALLABLE: {target}{NC}")
+    print(f"{RED}  The release is already public — fix forward with a new release.{NC}")
+    for line in tail:
+        print(f"{RED}  {line}{NC}")
+    print(f"{RED}  Reproduce: cd $(mktemp -d) && claude plugin install {target} --scope local{NC}")
+    if strict:
+        print(f"{RED}  PLUGIN_REQUIRE_INSTALL_SMOKE=1 — failing the publish run.{NC}")
+        sys.exit(1)
 
 
 def language_bump_version(info: ProjectInfo, new_version: str) -> list[tuple[bool, str]]:
@@ -1418,6 +2030,59 @@ def _local_tag_exists(root: Path, tag: str) -> bool:
     return _git_capture(root, ["rev-parse", "--verify", f"refs/tags/{tag}"]) is not None
 
 
+# ── Pipeline stage manifest (--print-gates) ──────────────────────────────────
+#
+# The numbered steps in EXECUTION order, plus the post-release stages. SINGLE
+# SOURCE OF TRUTH for --print-gates: the descriptions are prose mirrors of the
+# step banners below, and the half-step numbers are the canonical CPV stages
+# (bypass guard, secret scan, fork-parity probe, marketplace registration,
+# post-release verify/smoke) inserted WITHOUT renumbering the existing steps —
+# so a half-step number reflects WHEN the stage was added (canonical stage id),
+# not a sorted position; 9.5 runs AFTER 6, exactly as listed here.
+_PIPELINE_STAGES = [
+    "0.75 Bypass guard — reject SKIP_* / NO_VERIFY env vars",
+    "1    Check working tree (clean, or lone uv.lock)",
+    "1.5  Language-agnostic project detection",
+    "2    Language-native tests (mandatory)",
+    "3    Language-native lint (mandatory)",
+    "5    CPV strict validate plugin (mandatory)",
+    "5.25 Secret scan (trufflehog, mandatory)",
+    "5.4  Linux fork-parity probe (self-detecting)",
+    "5.5  CI-parity preflight (mandatory)",
+    "6    Check version consistency",
+    "9.5  Marketplace-registration check (Gate-6 parity)",
+    "7    git-cliff availability check (mandatory)",
+    "8    Compute new version",
+    "9    Bump version in every applicable config file",
+    "10   git-cliff — changelog + release notes",
+    "11   Commit version bump + CHANGELOG",
+    "12   Create annotated tag",
+    "13   Push commit + tag to origin (atomic, with dependency tag)",
+    "14   Create GitHub release",
+]
+_POST_RELEASE_STAGES = [
+    "14.5 Verify CI is green on the released commit (NEVER aborts)",
+    "14.6 Install smoke — prove the release installs (NEVER aborts)",
+]
+
+
+def print_gates() -> int:
+    """Print the numbered stage list and return 0. No side effects whatsoever.
+
+    Deliberately runs BEFORE the repo lookup, the self-integrity check, and
+    every gate: it answers "what does this pipeline do?", a question that must
+    be answerable from a dirty tree, outside a git repo, and offline.
+    """
+    print("Publish pipeline stages (strict, fail-fast — any failure aborts):")
+    for entry in _PIPELINE_STAGES:
+        print(f"  {entry}")
+    print()
+    print("Post-release stages (run after the release is public — NEVER abort):")
+    for entry in _POST_RELEASE_STAGES:
+        print(f"  {entry}")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
@@ -1438,6 +2103,10 @@ Examples:
                                 # no bump/commit/tag/push (manual/CI use;
                                 # no installed hook invokes it — the live
                                 # hook is .githooks/pre-push)
+  %(prog)s --print-gates        # print the numbered pipeline stage list
+                                # and exit 0 (pure information — works
+                                # from a dirty tree, outside a repo,
+                                # and offline)
         """,
     )
     # The bump flags stay mutually exclusive, but `required=` moves to the
@@ -1468,7 +2137,23 @@ Examples:
             "(the live gate is .githooks/pre-push); run it manually or from CI."
         ),
     )
+    parser.add_argument(
+        "--print-gates",
+        action="store_true",
+        dest="print_gates",
+        help=(
+            "Print the numbered pipeline stage list and exit 0. Pure "
+            "information: no side effects, no repo lookup, no validation."
+        ),
+    )
     args = parser.parse_args()
+
+    # Pure information — answered BEFORE the bump-flag requirement and every
+    # gate: it answers "what does this pipeline do?", a question that must be
+    # answerable from a dirty tree, outside a git repo, and offline (canonical
+    # CHECK-24 / CHECK-61 smoke surface).
+    if args.print_gates:
+        return print_gates()
 
     if args.gate:
         # Reject the combinations that would misrepresent what gate mode does:
@@ -1562,6 +2247,7 @@ Examples:
     # This is a deliberate belt-and-suspenders check: even if someone adds a
     # skip flag in the future by editing this script, these env var bypasses
     # stay rejected. There is no escape hatch.
+    print(f"\n{BLUE}=== Step 0.75: Bypass guard (mandatory) ==={NC}")
     forbidden_bypass_env_vars = [
         "SKIP_TESTS",
         "SKIP_LINT",
@@ -1587,6 +2273,44 @@ Examples:
                 file=sys.stderr,
             )
             return 1
+
+    # ── Step 0.75: Bypass guard (canonical CPV pipeline stage 1) ──
+    # The explicit list above catches the known names; the canonical guard also
+    # rejects the SKIP_* / NO_VERIFY PREFIX families, so a fresh skip name
+    # (e.g. CPV_SKIP_GATE9) cannot silently slip past. Reuses the same list —
+    # one source of truth, no duplicated blocklist.
+    #
+    # Explicit infrastructure exemption (see the canon's audit row 5): Step
+    # 14.6 reads PUBLISH_SKIP_INSTALL_SMOKE, which runs POST-RELEASE and can
+    # never fail the publish. Without the exemption, setting the documented
+    # flag aborted the run at Step 0.75 instead of skipping the post-release
+    # smoke — a dead code path. It skips nothing that gates the release.
+    _bypass_exemptions = {"PUBLISH_SKIP_INSTALL_SMOKE"}
+
+    def _is_forbidden_env_name(name: str) -> bool:
+        if name in _bypass_exemptions:
+            return False
+        if name in forbidden_bypass_env_vars:
+            return True
+        if name.startswith(tuple(f"{v}_" for v in forbidden_bypass_env_vars)):
+            return True
+        if name.startswith("SKIP_") or name.startswith("PUBLISH_SKIP_"):
+            return True
+        return name == "NO_VERIFY"
+
+    attempted = [
+        v for v in sorted(os.environ)
+        if os.environ.get(v) and _is_forbidden_env_name(v)
+    ]
+    if attempted:
+        print(
+            f"{RED}✗ Bypass guard BLOCKED: forbidden env vars set: "
+            f"{', '.join(attempted)}{NC}\n"
+            f"  The publish pipeline enforces every check. Fix failures, "
+            f"do not skip them.",
+            file=sys.stderr,
+        )
+        return 1
 
     bump_type = "major" if args.major else "minor" if args.minor else "patch"
 
@@ -1679,6 +2403,24 @@ Examples:
     else:
         print(f"\n{YELLOW}=== Step 5: CPV strict validate — skipped (not a claude plugin){NC}")
 
+    # ── Step 5.25: Secret scan (canonical CPV pipeline stage 6) ──
+    # MANDATORY — no skip. Runs BEFORE the bump/commit/tag/push, so a detected
+    # credential aborts with the tree untouched — a gate that fired after the
+    # push could not un-publish anything.
+    if info.has_kind(ProjectKind.CLAUDE_PLUGIN):
+        print(f"\n{BLUE}=== Step 5.25: Secret scan — trufflehog (mandatory) ==={NC}")
+        language_secret_scan_step(plugin_root)
+    else:
+        print(f"\n{YELLOW}=== Step 5.25: Secret scan — skipped (not a claude plugin){NC}")
+
+    # ── Step 5.4: Linux fork-parity probe (canonical CPV pipeline stage 7) ──
+    # Self-detecting: runs ONLY when this repo's own Python creates process
+    # pools, and is skipped on Linux (which already forks). Blocks on a real
+    # failure — a suite that hangs or fails under the fork default is exactly
+    # what Linux CI will do to this commit.
+    print(f"\n{BLUE}=== Step 5.4: Linux fork-parity probe (self-detecting) ==={NC}")
+    language_fork_parity_step(plugin_root)
+
     # ── Step 5.5: CI-parity preflight ──
     # `cpv-remote-validate plugin . --strict` (Step 5) does NOT run the gates
     # ci.yml's Lint job runs — jscpd copy-paste, actionlint, mypy --strict,
@@ -1710,6 +2452,15 @@ Examples:
         print(f"{RED}x Fix version mismatches before publishing.{NC}", file=sys.stderr)
         return 1
     print(f"{GREEN}ok Version consistency OK{NC}")
+
+    # ── Step 9.5: Marketplace-registration check (canonical CPV pipeline
+    #    stage 9, Gate-6 parity) ──. Verifies the notify workflow + PAT secret
+    #    + remote registration BEFORE the release, so a plugin that would ship
+    #    with no auto-update path is blocked with the tree untouched.
+    if info.has_kind(ProjectKind.CLAUDE_PLUGIN):
+        marketplace_registration_step(plugin_root)
+    else:
+        print(f"\n{YELLOW}=== Step 9.5: Marketplace-registration — skipped (not a claude plugin){NC}")
 
     # ── Step 7: git-cliff availability pre-check ──
     # git-cliff is mandatory because every release MUST produce a CHANGELOG
@@ -1958,6 +2709,12 @@ Examples:
         print(f"{GREEN}ok GitHub release v{new_version} created (via gh){NC}")
         if gh_out:
             print(f"  {gh_out}")
+        # Post-release stages (canonical CPV _POST_RELEASE_STAGES). Both run
+        # AFTER the release is public and NEVER abort: by here a non-zero exit
+        # could not un-ship anything, and swallowing the report would only
+        # hide the failure. Advisory by construction.
+        language_verify_ci_green(git_root)
+        language_install_smoke(plugin_root, git_root, new_version)
         return 0
 
     # ── Fallback: direct REST POST over IPv4 ──
@@ -2028,6 +2785,11 @@ Examples:
                     print(f"{GREEN}ok GitHub release v{new_version} created (via curl fallback){NC}")
                     if html_url:
                         print(f"  {html_url}")
+                    # Post-release stages (canonical CPV _POST_RELEASE_STAGES):
+                    # never abort — the release is already public. Same contract
+                    # as the gh-primary path above.
+                    language_verify_ci_green(git_root)
+                    language_install_smoke(plugin_root, git_root, new_version)
                     return 0
                 last_err = f"HTTP {status} — body: {body[:240]}"
             else:

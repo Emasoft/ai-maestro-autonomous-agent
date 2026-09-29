@@ -83,7 +83,10 @@ ai-maestro-autonomous-agent/
 
 The persona is the **only thing that matters at runtime**. The skills
 are expansions of the rules for agent self-reference during execution.
-Everything else is publishing infrastructure.
+Everything else is publishing infrastructure — releases go through the
+CPV-canonical pipeline in `scripts/publish.py` (see
+`uv run python scripts/publish.py --print-gates` for the stage list;
+`--gate` runs every validation step read-only).
 
 ## Quad-match identity
 
