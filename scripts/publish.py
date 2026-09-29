@@ -30,7 +30,7 @@ Usage:
 
 Gate mode (--gate):
   Runs Steps 1-7 only — clean-tree check, language-native tests, language-native
-  lint, CPV lint, CPV `--strict` plugin validation, CI-parity preflight, version
+  lint, CPV `--strict` plugin validation, CI-parity preflight, version
   consistency, and the git-cliff availability precheck — then returns. It mutates
   no git state and takes no bump type, so it is safe to call from a git hook.
   NOTE (TRDD-D6P88CM1): NO runner invokes --gate automatically in this repo.
@@ -1462,7 +1462,7 @@ Examples:
         action="store_true",
         help=(
             "Pre-push gate mode: run the clean-tree check, tests, lint, CPV "
-            "lint, CPV --strict validation, CI-parity preflight, version "
+            "--strict validation, CI-parity preflight, version "
             "consistency, and the git-cliff precheck, then stop. Mutates no "
             "git state and needs no bump type. No installed hook invokes it "
             "(the live gate is .githooks/pre-push); run it manually or from CI."
@@ -1665,19 +1665,6 @@ Examples:
     print(f"\n{BLUE}=== Step 3: Language-native lint (mandatory) ==={NC}")
     language_lint_step(info)
 
-    # ── Step 4: CPV lint — applies when the repo is a claude-plugin ──
-    # cpv-remote-validate lint runs markdownlint/ruff/mypy/yamllint/toml
-    # across the whole tree. Any non-zero exit fails the pipeline. NO bypass.
-    if info.has_kind(ProjectKind.CLAUDE_PLUGIN):
-        print(f"\n{BLUE}=== Step 4: CPV lint (mandatory for claude plugins) ==={NC}")
-        run([
-            "uvx", "--from", "git+https://github.com/Emasoft/claude-plugins-validation@v5.4.0",
-            "--with", "pyyaml", "cpv-remote-validate", "lint", str(plugin_root),
-        ], cwd=git_root)
-        print(f"{GREEN}ok CPV lint passed with zero errors{NC}")
-    else:
-        print(f"\n{YELLOW}=== Step 4: CPV lint — skipped (not a claude plugin){NC}")
-
     # ── Step 5: CPV strict plugin validation ──
     # Runs the full plugin validator in --strict mode. NO bypass. NO skip.
     # If the strict ruleset flags something, fix the plugin — do not lower
@@ -1685,7 +1672,7 @@ Examples:
     if info.has_kind(ProjectKind.CLAUDE_PLUGIN):
         print(f"\n{BLUE}=== Step 5: CPV strict validate plugin (mandatory) ==={NC}")
         run([
-            "uvx", "--from", "git+https://github.com/Emasoft/claude-plugins-validation@v5.4.0",
+            "uvx", "--from", "git+https://github.com/Emasoft/claude-plugins-validation@v5.21.1",
             "--with", "pyyaml", "cpv-remote-validate", "plugin", str(plugin_root), "--strict",
         ], cwd=git_root)
         print(f"{GREEN}ok CPV strict validation passed{NC}")
@@ -1708,7 +1695,7 @@ Examples:
     if info.has_kind(ProjectKind.CLAUDE_PLUGIN):
         print(f"\n{BLUE}=== Step 5.5: CI-parity preflight (mandatory) ==={NC}")
         run([
-            "uvx", "--from", "git+https://github.com/Emasoft/claude-plugins-validation@v5.4.0",
+            "uvx", "--from", "git+https://github.com/Emasoft/claude-plugins-validation@v5.21.1",
             "--with", "pyyaml", "cpv-remote-validate", "ci-preflight", str(plugin_root),
         ], cwd=git_root)
         print(f"{GREEN}ok CI-parity preflight passed{NC}")

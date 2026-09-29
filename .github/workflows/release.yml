@@ -94,7 +94,7 @@ jobs:
           # TRDD-CPV320UP, TRDD-CPV350UP). tests/test_cpv_pin_parity.py enforces
           # the parity mechanically but ignores comments — so prose here must
           # NEVER name a version (TRDD-9SIVDRLO).
-          uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v5.4.0 \
+          uvx --from git+https://github.com/Emasoft/claude-plugins-validation@v5.21.1 \
             --with pyyaml \
             cpv-remote-validate plugin . --strict \
             > "$RUNNER_TEMP/cpv-validation-report.txt" 2>&1
